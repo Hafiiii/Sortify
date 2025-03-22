@@ -74,8 +74,11 @@ export default function AuthRegisterForm() {
                 userId,
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
-                emailAddress: email,
+                email: email,
                 dateJoined: new Date(),
+                phoneNumber: "",
+                gender: "",
+                birthday: ""
             });
 
             Toast.show({
@@ -157,7 +160,7 @@ export default function AuthRegisterForm() {
                 name="password"
                 render={({ field: { onChange, onBlur, value } }) => (
                     <View style={{ marginBottom: 10 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ position: 'relative' }}>
                             <TextInput
                                 label="Password"
                                 onBlur={onBlur}
@@ -166,13 +169,13 @@ export default function AuthRegisterForm() {
                                 secureTextEntry={!showPassword}
                                 error={!!errors.password}
                                 underlineStyle={{ backgroundColor: 'transparent' }}
-                                style={{ flex: 1, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#000', borderRadius: 8, height: 50 }}
+                                style={{ flex: 1, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#000', borderRadius: 8, height: 50, paddingRight: 40 }}
                             />
                             <Iconify
                                 icon={showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'}
                                 onPress={() => setShowPassword(!showPassword)}
                                 size={24}
-                                style={{ marginLeft: -40, marginRight: 15, color: palette.disabled.main }}
+                                style={{ position: "absolute", top: "50%", right: 10, transform: [{ translateY: -12 }], color: palette.disabled.main }}
                             />
                         </View>
                         {errors.password && <Text style={{ color: palette.error.main, marginBottom: -9, fontSize: 10 }}>{errors.password.message}</Text>}
@@ -185,7 +188,7 @@ export default function AuthRegisterForm() {
                 name="confirmPassword"
                 render={({ field: { onChange, onBlur, value } }) => (
                     <View style={{ marginBottom: 10 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <View style={{ position: 'relative' }}>
                             <TextInput
                                 label="Confirm Password"
                                 onBlur={onBlur}
@@ -194,13 +197,13 @@ export default function AuthRegisterForm() {
                                 secureTextEntry={!showPassword}
                                 error={!!errors.confirmPassword}
                                 underlineStyle={{ backgroundColor: 'transparent' }}
-                                style={{ flex: 1, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#000', borderRadius: 8, height: 50 }}
+                                style={{ flex: 1, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#000', borderRadius: 8, height: 50, paddingRight: 40 }}
                             />
                             <Iconify
                                 icon={showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'}
                                 onPress={() => setShowPassword(!showPassword)}
                                 size={24}
-                                style={{ marginLeft: -40, marginRight: 15, color: palette.disabled.main }}
+                                style={{ position: "absolute", top: "50%", right: 10, transform: [{ translateY: -12 }], color: palette.disabled.main }}
                             />
                         </View>
                         {errors.confirmPassword && <Text style={{ color: palette.error.main, marginBottom: -9, fontSize: 10 }}>{errors.confirmPassword.message}</Text>}

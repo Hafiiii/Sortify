@@ -6,7 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 // firebase
 import auth from '@react-native-firebase/auth';
 import { firestore } from '../utils/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, runTransaction } from 'firebase/firestore';
+// auth
+import { useAuth } from '../context/AuthContext';
 // components
 import { WEB_CLIENT_ID } from '@env';
 import { Iconify } from 'react-native-iconify';
@@ -23,6 +25,7 @@ GoogleSignin.configure({
 
 export default function AuthSocial() {
     const navigation = useNavigation();
+    const { handleLogin } = useAuth();
 
     async function onGoogleButtonPress() {
         try {
@@ -47,22 +50,50 @@ export default function AuthSocial() {
             const firstName = nameParts[0] || "";
             const lastName = nameParts.slice(1).join(" ") || "";
 
-            await setDoc(doc(firestore, "users", user.uid), {
-                uid: user.uid,
-                firstName,
-                lastName,
-                email: user.email,
-                photoURL: user.photoURL,
-                dateJoined: new Date(),
-            });
+            const userRef = doc(firestore, "users", user.uid);
+            const userDoc = await getDoc(userRef);
+
+            let userId;
+
+            if (userDoc.exists()) {
+                userId = userDoc.data().userId;
+            } else {
+                const counterRef = doc(firestore, "counters", "usersCounter");
+
+                const userId = await runTransaction(firestore, async (transaction) => {
+                    const counterDoc = await transaction.get(counterRef);
+                    let newId = 1;
+
+                    if (counterDoc.exists()) {
+                        newId = counterDoc.data().count + 1;
+                    } else {
+                        transaction.set(counterRef, { count: newId });
+                    }
+
+                    transaction.update(counterRef, { count: newId });
+
+                    return newId;
+                });
+
+                await setDoc(userRef, {
+                    uid: user.uid,
+                    userId,
+                    firstName,
+                    lastName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    dateJoined: new Date(),
+                });
+            }
 
             Toast.show({
                 type: 'success',
-                text1: 'Registration Successful',
+                text1: 'Google Signin Successful',
             });
 
-            console.log('User', user);
-            navigation.navigate('Home');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            handleLogin(user);
+            navigation.navigate('Profile');
         } catch (error) {
             console.error('Google Sign-In Error:', error);
         }

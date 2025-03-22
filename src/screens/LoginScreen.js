@@ -6,7 +6,6 @@ import { Link } from '@react-navigation/native';
 import AuthLogin from '../auth/AuthLogin';
 import AuthSocial from '../auth/AuthSocial';
 import palette from '../theme/palette';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 // ----------------------------------------------------------------------
 

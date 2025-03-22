@@ -22,9 +22,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const handleLogin = () => {
-    setUser(auth.currentUser);
+  const handleLogin = (user) => {
+    setUser(user || auth.currentUser);
   };
+  
 
   return (
     <AuthContext.Provider value={{ user, initializing, handleRegister, handleLogin }}>

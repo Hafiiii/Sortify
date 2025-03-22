@@ -20,7 +20,8 @@ const palette = {
     main: '#4caf50', // Green
   },
   disabled: {
-    main: '#9e9e9e', // Grey
+    main: '#9e9e9e', // Light Grey
+    secondary: '#505050', // Dark Grey
   },
 };
 
