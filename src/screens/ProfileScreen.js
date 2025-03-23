@@ -92,7 +92,7 @@ export default function ProfileScreen() {
     };
 
     const formatDateString = (dateString) => {
-        if (!dateString) return "Billie";
+        if (!dateString) return "-";
         const [year, month, day] = dateString.split("-");
         return `${day}-${month}-${year}`;
     };
@@ -260,7 +260,7 @@ export default function ProfileScreen() {
                         backgroundColor: '#f5f5f5',
                         padding: 16,
                         borderRadius: 20,
-                        marginBottom: 80,
+                        marginBottom: 90,
                         boxShadow: '0 3px 7px rgba(0, 0, 0, 0.3)'
                     }}
                 >
@@ -269,7 +269,7 @@ export default function ProfileScreen() {
                             First Name
                         </Text>
                         <Text style={{ fontSize: 12, fontWeight: 700 }}>
-                            {userData?.firstName || 'Billie'}
+                            {userData?.firstName || '-'}
                         </Text>
                     </View>
 
@@ -278,7 +278,7 @@ export default function ProfileScreen() {
                             Last Name
                         </Text>
                         <Text style={{ fontSize: 12, fontWeight: 700 }}>
-                            {userData?.lastName || 'Billie'}
+                            {userData?.lastName || '-'}
                         </Text>
                     </View>
 
@@ -287,7 +287,7 @@ export default function ProfileScreen() {
                             Gender
                         </Text>
                         <Text style={{ fontSize: 12, fontWeight: 700 }}>
-                            {userData?.gender || 'Billie'}
+                            {userData?.gender || '-'}
                         </Text>
                     </View>
 
@@ -296,7 +296,7 @@ export default function ProfileScreen() {
                             Email
                         </Text>
                         <Text style={{ fontSize: 12, fontWeight: 700 }}>
-                            {censorEmail(userData?.email) || 'Billie'}
+                            {censorEmail(userData?.email) || '-'}
                         </Text>
                     </View>
 
@@ -305,7 +305,7 @@ export default function ProfileScreen() {
                             Phone Number
                         </Text>
                         <Text style={{ fontSize: 12, fontWeight: 700 }}>
-                            {censorPhoneNumber(userData?.phoneNumber) || 'Billie'}
+                            {censorPhoneNumber(userData?.phoneNumber) || '-'}
                         </Text>
                     </View>
 
@@ -314,7 +314,7 @@ export default function ProfileScreen() {
                             Date of Birth
                         </Text>
                         <Text style={{ fontSize: 12, fontWeight: "700" }}>
-                            {formatDateString(userData?.birthday)}
+                            {formatDateString(userData?.birthday) || '-'}
                         </Text>
                     </View>
 

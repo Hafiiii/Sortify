@@ -50,7 +50,7 @@ export default function AuthLoginForm() {
       });
 
       handleLogin();
-      navigation.navigate('Profile');
+      navigation.navigate("Main", { screen: "Home" });
 
     } catch (err) {
       console.error("Error during login:", err);
@@ -88,7 +88,7 @@ export default function AuthLoginForm() {
         control={control}
         render={({ field: { onChange, onBlur, value } }) => (
           <View style={{ marginBottom: 8 }}>
-            <View style={{ position: 'relative' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TextInput
                 label="Password"
                 onBlur={onBlur}
@@ -97,13 +97,13 @@ export default function AuthLoginForm() {
                 secureTextEntry={!showPassword}
                 error={!!errors.password}
                 underlineStyle={{ backgroundColor: 'transparent' }}
-                style={{ flex: 1, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#000', borderRadius: 8, height: 50, paddingRight: 40 }}
+                style={{ flex: 1, backgroundColor: 'transparent', borderWidth: 1, borderColor: '#000', borderRadius: 8, height: 50 }}
               />
               <Iconify
                 icon={showPassword ? 'mdi:eye-outline' : 'mdi:eye-off-outline'}
                 onPress={() => setShowPassword(!showPassword)}
                 size={24}
-                style={{ position: "absolute", top: "50%", right: 10, transform: [{ translateY: -12 }], color: palette.disabled.main }}
+                style={{ marginLeft: -40, marginRight: 15, color: palette.disabled.main }}
               />
             </View>
             {errors.password && <Text style={{ color: palette.error.main, marginBottom: -9, fontSize: 10 }}>{errors.password.message}</Text>}

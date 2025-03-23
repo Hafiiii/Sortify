@@ -93,7 +93,7 @@ export default function AuthSocial() {
 
             await new Promise(resolve => setTimeout(resolve, 1000));
             handleLogin(user);
-            navigation.navigate('Profile');
+            navigation.navigate("Main", { screen: "Home" });
         } catch (error) {
             console.error('Google Sign-In Error:', error);
         }

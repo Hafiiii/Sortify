@@ -24,7 +24,7 @@ export default function RegisterScreen() {
         justifyContent: 'space-between',
       }}
     >
-      <View style={{ alignItems: 'center', marginVertical: 15 }}>
+      <View style={{ alignItems: 'center', marginVertical: 30 }}>
         <Text
           style={{
             color: palette.primary.main,

@@ -160,7 +160,7 @@ export default function EditProfileForm() {
                 text1: 'Profile Updated Successfully',
             });
 
-            navigation.navigate("Profile", { refresh: true });
+            navigation.navigate("Main", { screen: "Profile", refresh: true });
         } catch (err) {
             console.error("Error updating profile:", err);
             Toast.show({
