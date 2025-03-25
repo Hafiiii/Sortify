@@ -28,6 +28,8 @@ module.exports = {
           'ph:scan-bold', // scan (home screen)
           'twemoji:coin', // coin for points
           'ic:outline-delete', // delete icon
+          'ri:search-line', // search icon
+          'ic:baseline-clear', // clear icon
           'circum:filter', // filtering icon
           'solar:gallery-bold', // file picker
           'majesticons:open', // open details (scanning results)

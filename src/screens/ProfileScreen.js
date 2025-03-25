@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 // components
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
+import moment from 'moment';
 
 // ----------------------------------------------------------------------
 
@@ -26,15 +27,14 @@ const censorEmail = (curr_email) => {
 };
 
 const censorWord = (str) => {
-    if (str.length < 2) return str; // Edge case: Avoid breaking short words
+    if (str.length < 2) return str;
     return str[0] + "*".repeat(str.length - 2) + str.slice(-1);
 };
 
 const censorPhoneNumber = (phone) => {
-    if (!phone || phone.length < 4) return ''; // Edge case: Avoid errors with short numbers
+    if (!phone || phone.length < 4) return '';
     return `****${phone.slice(-4)}`;
 };
-
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +43,7 @@ export default function ProfileScreen() {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigation = useNavigation();
+    const formattedDate = moment(userData?.dateJoined.toDate()).format('DD/MM/YY');
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -159,11 +160,7 @@ export default function ProfileScreen() {
 
                 <Text style={{ fontSize: 20, fontWeight: 700 }}>{userData?.firstName} {userData?.lastName}</Text>
                 <Text style={{ fontSize: 12, color: palette.disabled.main }}>
-                    Joined {userData?.dateJoined?.toDate().toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: '2-digit'
-                    })}
+                    Joined {formattedDate}
                 </Text>
 
                 <View

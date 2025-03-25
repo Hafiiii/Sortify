@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Image, Dimensions, TouchableOpacity } from 'react-native';
-import { Button, Icon, ProgressBar } from 'react-native-paper';
+import { View, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
 // firebase
-import { auth, firestore } from '../utils/firebase';
+import { firestore } from '../utils/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
 // auth
 import { useAuth } from '../context/AuthContext';
 // sections
 import WasteType from '../sections/Home/WasteType';
 // components
+import Header from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 
@@ -73,17 +73,7 @@ export default function HomeScreen() {
           marginBottom: 75,
         }}
       >
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }}>
-          <Text style={{ color: '#fff', letterSpacing: 1, fontWeight: 500 }}>Home</Text>
-          {userData?.photoURL && (
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-              <Image
-                source={{ uri: userData.photoURL }}
-                style={{ width: 40, height: 40, borderRadius: 50 }}
-              />
-            </TouchableOpacity>
-          )}
-        </View>
+        <Header title="Home" style={{color: '#fff'}}/>
 
         <View
           style={{

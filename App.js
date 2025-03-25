@@ -22,7 +22,6 @@ import { useAuth } from './src/context/AuthContext';
 // components
 import Toast from 'react-native-toast-message';
 import { ThemeProvider } from './src/theme';
-import BottomBar from './src/components/BottomBar/BottomBar';
 import { Iconify } from 'react-native-iconify';
 import palette from './src/theme/palette';
 
@@ -49,11 +48,10 @@ const theme = {
 
 const BottomTabNavigator = () => {
   const { user } = useAuth();
-  console.log('user', user);
 
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="History"
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',
@@ -66,7 +64,7 @@ const BottomTabNavigator = () => {
           marginHorizontal: 15,
           paddingTop: 10,
           boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
-          display: ['Scan', 'History'].includes(route.name) ? 'none' : 'flex',
+          display: ['Scan'].includes(route.name) ? 'none' : 'flex',
         },
         tabBarShowLabel: false,
         headerShown: false,
