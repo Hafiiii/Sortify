@@ -20,7 +20,9 @@ module.exports = {
           'mdi:eye-off-outline', // password hide
           'mdi:eye-outline', // password unhide
           'ri:arrow-left-s-line', // vector left
+          'ri:arrow-right-s-line', // vector right
           'ri:arrow-down-s-line', // vector down
+          'ri:arrow-down-wide-fill', // wide vector down
           'flat-color-icons:google', // google signin
           'pepicons-pencil:coins-circle-filled', // coin for total points (home screen)
           'tdesign:cloud-filled', // CO2 (home screen)
@@ -31,6 +33,7 @@ module.exports = {
           'ri:search-line', // search icon
           'ic:baseline-clear', // clear icon
           'circum:filter', // filtering icon
+          'material-symbols:close', // close icon
           'solar:gallery-bold', // file picker
           'majesticons:open', // open details (scanning results)
           'material-symbols:flag', // feedback/report (scanning results)

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Image, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity } from 'react-native';
-import { Text, Chip, Button, Searchbar, Icon } from 'react-native-paper';
+import { View, Image, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Text, Chip, Button, Searchbar, Divider, RadioButton, Icon } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 // firebase
 import { firestore } from '../utils/firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -10,14 +11,16 @@ import { Picker } from '@react-native-picker/picker';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 import moment from 'moment';
+import { Filter } from 'react-native-svg';
 
 // ----------------------------------------------------------------------
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 // ----------------------------------------------------------------------
 
 export default function HistoryScreen() {
+    const navigation = useNavigation();
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRole, setFilterRole] = useState('');
@@ -25,15 +28,15 @@ export default function HistoryScreen() {
     const [sortOption, setSortOption] = useState('name-asc');
     const [loading, setLoading] = useState(true);
     const [FilterDrawer, setFilterDrawer] = useState(false);
-    const [isSortOpen, setIsSortOpen] = useState(false);
-
+    const [SortDrawer, setSortDrawer] = useState(false);
+    const [scrollHeight, setScrollHeight] = useState(0);
 
     const [tempFilterRole, setTempFilterRole] = useState('');
     const [tempFilterDate, setTempFilterDate] = useState('');
     const [tempSortOption, setTempSortOption] = useState('name-asc');
 
-    const sortAnim = useRef(new Animated.Value(-300)).current;
-    const slideAnim = useRef(new Animated.Value(-300)).current;
+    const sortAnim = useRef(new Animated.Value(height)).current;
+    const slideAnim = useRef(new Animated.Value(-width)).current;
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -55,32 +58,50 @@ export default function HistoryScreen() {
         fetchUsers();
     }, []);
 
+    useEffect(() => {
+        navigation.setOptions({
+            tabBarStyle: SortDrawer || FilterDrawer
+                ? { display: 'none' }
+                : {
+                    position: 'absolute',
+                    bottom: 16,
+                    left: 0,
+                    right: 0,
+                    borderRadius: 20,
+                    height: 60,
+                    backgroundColor: '#000',
+                    marginHorizontal: 15,
+                    paddingTop: 10,
+                    boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
+                },
+        });
+    }, [SortDrawer, FilterDrawer, navigation]);
+
+
     const toggleFilter = () => {
         Animated.timing(slideAnim, {
-            toValue: FilterDrawer ? -300 : 0,
+            toValue: FilterDrawer ? -width : 0,
             duration: 300,
             useNativeDriver: true,
-        }).start();
+        }).start()
         setFilterDrawer(!FilterDrawer);
     };
 
     const toggleSort = () => {
         Animated.timing(sortAnim, {
-            toValue: isSortOpen ? -300 : 0,
+            toValue: SortDrawer ? height : scrollHeight,
             duration: 300,
             useNativeDriver: true,
         }).start();
-        setIsSortOpen(!isSortOpen);
+        setSortDrawer(!SortDrawer);
     };
 
-    // Apply Filters
     const applyFilters = () => {
         setFilterRole(tempFilterRole);
         setFilterDate(tempFilterDate);
         toggleFilter();
     };
 
-    // Cancel Filters
     const cancelFilters = () => {
         setTempFilterRole(filterRole);
         setTempFilterDate(filterDate);
@@ -113,10 +134,10 @@ export default function HistoryScreen() {
     ];
 
     const sortOptions = [
-        { label: 'Name (A-Z)', value: 'name-asc' },
-        { label: 'Name (Z-A)', value: 'name-desc' },
-        { label: 'Newest First', value: 'date-new' },
-        { label: 'Oldest First', value: 'date-old' }
+        { label: 'Waste Type (A-Z)', value: 'name-asc' },
+        { label: 'Waste Type (Z-A)', value: 'name-desc' },
+        { label: 'Date Added (Latest)', value: 'date-new' },
+        { label: 'Date Added (Oldest)', value: 'date-old' }
     ];
 
     const filteredUsers = users
@@ -150,7 +171,13 @@ export default function HistoryScreen() {
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView contentContainerStyle={{ padding: 30 }} showsVerticalScrollIndicator={false}>
+            <ScrollView
+                contentContainerStyle={{ padding: 30 }}
+                showsVerticalScrollIndicator={false}
+                onContentSizeChange={(contentWidth, contentHeight) => {
+                    setScrollHeight(contentHeight);
+                }}
+            >
                 <Header title="History" style={{ fontWeight: 700 }} />
 
                 <Searchbar
@@ -163,29 +190,27 @@ export default function HistoryScreen() {
                     style={{ borderRadius: 14, marginVertical: 20, height: 45, backgroundColor: '#eaeaea' }}
                 />
 
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                     <TouchableOpacity
                         onPress={toggleFilter}
                         style={{
-                            marginBottom: 10,
                             flexDirection: 'row',
                             alignItems: 'center'
                         }}
                     >
                         <Iconify icon="circum:filter" size={16} color="#000" />
-                        <Text style={{ fontSize: 10, fontWeight: 700, marginLeft: 3 }}>FILTERS</Text>
+                        <Text style={{ fontSize: 11, fontWeight: 700, marginLeft: 3 }}>FILTERS</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         onPress={toggleSort}
                         style={{
-                            marginBottom: 10,
                             flexDirection: 'row',
                             alignItems: 'center'
                         }}
                     >
-                        <Text style={{ fontWeight: 'bold', marginRight: 7 }}>Sort by</Text>
-                        <Iconify icon="ri:arrow-down-s-line" size={16} color="#000" />
+                        <Text style={{ fontSize: 12, fontWeight: 700, marginRight: 6 }}>Sort by</Text>
+                        <Iconify icon="ri:arrow-down-s-line" size={17} color="#000" />
                     </TouchableOpacity>
                 </View>
 
@@ -194,90 +219,151 @@ export default function HistoryScreen() {
                         position: 'absolute',
                         top: 0,
                         left: 0,
-                        width: 250,
+                        right: 0,
+                        width: width - 60,
                         height: height,
-                        backgroundColor: 'white',
-                        padding: 20,
-                        borderRadius: 8,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.2,
+                        backgroundColor: '#fff',
                         transform: [{ translateX: slideAnim }],
                         zIndex: 4,
                     }}
                 >
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Filters</Text>
+                    <View style={{ flex: 1, paddingBottom: 60 }}>
+                        <ScrollView
+                            style={{ padding: 20 }}
+                            contentContainerStyle={{ paddingBottom: 20 }}
+                            showsVerticalScrollIndicator={false}
+                        >
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 13 }}>
+                                <Text style={{ fontSize: 18, fontWeight: 400 }}>Filter</Text>
+                                <Iconify icon="material-symbols:close" size={20} color={palette.disabled.main} onPress={cancelFilters} />
+                            </View>
 
-                    {/* 🔹 Filter by Role */}
-                    <Picker selectedValue={tempFilterRole} onValueChange={setTempFilterRole} style={{ marginBottom: 10 }}>
-                        <Picker.Item label="All Roles" value="" />
-                        <Picker.Item label="Admin" value="admin" />
-                        <Picker.Item label="User" value="user" />
-                    </Picker>
+                            <Divider style={{ alignSelf: 'stretch' }} />
 
-                    {/* 🔹 Date Filter Chips */}
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
-                        {dateOptions.map(({ label, value }) => (
-                            <Chip
-                                key={value}
+                            <Text style={{ fontSize: 16, fontWeight: 700, marginVertical: 10 }}>Date Range</Text>
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+                                {dateOptions.map(({ label, value }) => (
+                                    <Chip
+                                        key={value}
+                                        mode="outlined"
+                                        onPress={() => setTempFilterDate(value)}
+                                        style={{
+                                            backgroundColor: tempFilterDate === value ? '#000' : '#fff',
+                                            borderColor: tempFilterDate === value ? '#000' : palette.disabled.main,
+                                        }}
+                                        textStyle={{
+                                            color: tempFilterDate === value ? '#fff' : palette.disabled.secondary,
+                                        }}
+                                    >
+                                        {label}
+                                    </Chip>
+                                ))}
+                            </View>
+                        </ScrollView>
+
+                        <View
+                            style={{
+                                position: 'absolute',
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                backgroundColor: '#fff',
+                                paddingHorizontal: 10,
+                                paddingTop: 10,
+                                paddingBottom: 35,
+                                borderTopWidth: 1,
+                                borderTopColor: palette.disabled.main,
+                            }}
+                        >
+                            <Button
                                 mode="outlined"
-                                onPress={() => setTempFilterDate(value)}
-                                style={{
-                                    backgroundColor: tempFilterDate === value ? palette.primary.main : 'white',
-                                    borderColor: palette.primary.main,
-                                }}
-                                textStyle={{
-                                    color: tempFilterDate === value ? 'white' : palette.primary.main,
-                                }}
+                                onPress={clearAllFilters}
+                                style={{ flex: 1, marginRight: 5, borderRadius: 5, borderWidth: 1.5, color: '#000' }}
+                                labelStyle={{ color: '#000' }}
+                                theme={{ colors: { primary: '#000' } }}
                             >
-                                {label}
-                            </Chip>
-                        ))}
-                    </View>
-
-                    {/* 🔹 Apply & Cancel Buttons */}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                        <Button mode="outlined" onPress={clearAllFilters} style={{ flex: 1, marginRight: 5 }}>
-                            Clear All
-                        </Button>
-                        <Button mode="outlined" onPress={cancelFilters} style={{ flex: 1, marginRight: 5 }}>
-                            Cancel
-                        </Button>
-                        <Button mode="contained" onPress={applyFilters} style={{ flex: 1 }}>
-                            Apply
-                        </Button>
+                                Clear All
+                            </Button>
+                            <Button
+                                mode="contained"
+                                onPress={applyFilters}
+                                style={{ flex: 1, backgroundColor: '#000', borderRadius: 5 }}
+                            >
+                                Apply
+                            </Button>
+                        </View>
                     </View>
                 </Animated.View>
+
+                {FilterDrawer && (
+                    <TouchableWithoutFeedback onPress={toggleFilter}>
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: width,
+                                height: height,
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                zIndex: 3,
+                            }}
+                        />
+                    </TouchableWithoutFeedback>
+                )}
 
                 <Animated.View
                     style={{
                         position: 'absolute',
-                        top: 100,
+                        bottom: 0,
                         left: 0,
-                        width: 250,
-                        height: '100%',
-                        backgroundColor: 'white',
-                        padding: 20,
-                        borderRadius: 8,
-                        shadowColor: '#000',
-                        shadowOffset: { width: 0, height: 2 },
-                        shadowOpacity: 0.2,
-                        transform: [{ translateX: sortAnim }],
+                        width: width,
+                        height: height / 2,
+                        backgroundColor: '#fff',
+                        paddingHorizontal: 20,
+                        paddingVertical: 10,
+                        borderTopLeftRadius: 16,
+                        borderTopRightRadius: 16,
+                        transform: [{ translateY: sortAnim }],
+                        zIndex: 4,
                     }}
                 >
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Sort By</Text>
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+                    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                        <Iconify icon="ri:arrow-down-wide-fill" size={36} color="#eaeaea" />
+                    </View>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }}>
+                        <Text style={{ fontSize: 18, fontWeight: 700 }}>Sort by</Text>
+                        <TouchableOpacity mode="outlined" onPress={() => setSortOption('')}>
+                            <Text style={{ textDecorationLine: 'underline' }}>Clear All</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <RadioButton.Group onValueChange={(newValue) => setSortOption(newValue)} value={sortOption}>
                         {sortOptions.map(({ label, value }) => (
-                            <Chip key={value} mode="outlined" onPress={() => setSortOption(value)} selected={sortOption === value}>
-                                {label}
-                            </Chip>
+                            <View key={value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
+                                <RadioButton value={value} />
+                                <Text onPress={() => setSortOption(value)}>{label}</Text>
+                            </View>
                         ))}
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Button mode="outlined" onPress={() => setSortOption('')}>Clear All</Button>
-                        <Button mode="contained" onPress={toggleSort}>Apply</Button>
-                    </View>
+                    </RadioButton.Group>
                 </Animated.View>
+
+                {SortDrawer && (
+                    <TouchableWithoutFeedback onPress={toggleSort}>
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: width,
+                                height: height,
+                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                zIndex: 3,
+                            }}
+                        />
+                    </TouchableWithoutFeedback>
+                )}
 
                 {filteredUsers.length === 0 ? (
                     <Text>No users found.</Text>
@@ -336,6 +422,6 @@ export default function HistoryScreen() {
                     ))
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }

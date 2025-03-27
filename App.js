@@ -15,6 +15,7 @@ import ScanScreen from './src/screens/ScanScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfile from './src/sections/Profile/EditProfile';
+import StatisticsScreen from './src/screens/StatisticsScreen';
 import TermsOfService from './src/sections/TermsOfService/TermsOfService';
 import PrivacyPolicy from './src/sections/PrivacyPolicy/PrivacyPolicy';
 // auth
@@ -46,12 +47,21 @@ const theme = {
   },
 };
 
+const HomeStack = createStackNavigator();
+
+const HomeStackNavigator = () => (
+  <HomeStack.Navigator initialRouteName="Statistics" screenOptions={{ headerShown: false }}>
+    <HomeStack.Screen name="Home" component={HomeScreen} />
+    <HomeStack.Screen name="Statistics" component={StatisticsScreen} />
+  </HomeStack.Navigator>
+);
+
 const BottomTabNavigator = () => {
   const { user } = useAuth();
 
   return (
     <Tab.Navigator
-      initialRouteName="History"
+      initialRouteName="HomeStack"
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',
@@ -73,8 +83,8 @@ const BottomTabNavigator = () => {
       })}
     >
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+        name="HomeStack"
+        component={HomeStackNavigator}
         options={{
           tabBarIcon: ({ color, size }) => <Iconify icon="mingcute:home-1-fill" color={color} size={size} />,
         }}
@@ -109,8 +119,8 @@ const BottomTabNavigator = () => {
         listeners={({ navigation }) => ({
           tabPress: (e) => {
             if (!user) {
-              e.preventDefault(); // Prevent navigation
-              navigation.navigate('Login'); // Redirect to login
+              e.preventDefault();
+              navigation.navigate('Login');
             }
           },
         })}
@@ -118,7 +128,6 @@ const BottomTabNavigator = () => {
     </Tab.Navigator>
   );
 };
-
 
 const AppNavigator = () => (
   <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
