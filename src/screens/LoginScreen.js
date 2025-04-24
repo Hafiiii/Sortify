@@ -13,7 +13,7 @@ const { width, height } = Dimensions.get('screen');
 
 // ----------------------------------------------------------------------
 
-export default function RegisterScreen() {
+export default function LoginScreen() {
   return (
     <View
       style={{

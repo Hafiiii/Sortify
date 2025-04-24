@@ -10,8 +10,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 // sections
 import WasteType from '../sections/Home/WasteType';
+import GarbageTruck from '../components/Animation/GarbageTruck';
 // components
-import Header from '../components/Header/Header';
+import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 
@@ -69,62 +70,72 @@ export default function HomeScreen() {
           borderBottomRightRadius: 60,
           backgroundColor: palette.primary.main,
           padding: 30,
-          height: height * 0.55,
-          marginBottom: 75,
+          height: user ? height * 0.55 : height * 0.47,
+          marginBottom: 70,
         }}
       >
-        <Header title="Home" style={{color: '#fff'}}/>
+        <Header title="Home" style={{ color: '#fff' }} />
 
-        <View
-          style={{
-            backgroundColor: palette.secondary.main,
-            padding: 4,
-            borderRadius: 20,
-            width: 70,
-            alignItems: 'center',
-            marginVertical: 10
-          }}
-        >
-          <Text style={{ fontWeight: 700 }}>Gold</Text>
-        </View>
+        {user ? (
+          <>
+            <View
+              style={{
+                backgroundColor: palette.secondary.main,
+                padding: 4,
+                borderRadius: 20,
+                width: 70,
+                alignItems: 'center',
+                marginVertical: 10
+              }}
+            >
+              <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                <Text style={{ fontWeight: 700 }}>Gold</Text>
+              </TouchableOpacity>
+            </View>
 
-        <Text style={{ color: '#fff', fontSize: 30, fontWeight: 700 }}>Hello {userData?.firstName}!</Text>
-        <Text style={{ color: '#fff', fontSize: 30, fontWeight: 700 }}>Ready to Sort?</Text>
+            <Text style={{ color: '#fff', fontSize: 30, fontWeight: 700 }}>Hello {userData?.firstName}!</Text>
+            <Text style={{ color: '#fff', fontSize: 30, fontWeight: 700 }}>Ready to Sort?</Text>
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: palette.secondary.main,
-            paddingVertical: 20,
-            paddingHorizontal: 45,
-            borderRadius: 20,
-            marginTop: 20
-          }}
-        >
-          <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <Iconify icon="pepicons-pencil:coins-circle-filled" size={38} color="#000" />
-            <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>300</Text>
-            <Text style={{ fontSize: 10, marginTop: 5 }}>POINTS</Text>
-          </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: palette.secondary.main,
+                paddingVertical: 20,
+                paddingHorizontal: 45,
+                borderRadius: 20,
+                marginTop: 20
+              }}
+            >
+              <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <Iconify icon="pepicons-pencil:coins-circle-filled" size={38} color="#000" />
+                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>300</Text>
+                <Text style={{ fontSize: 10, marginTop: 5 }}>POINTS</Text>
+              </View>
 
-          <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
+              <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
 
-          <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <Iconify icon="tdesign:cloud-filled" size={38} color="#000" />
-            <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>6000g</Text>
-            <Text style={{ fontSize: 10, marginTop: 5 }}>SAVED CO2</Text>
-          </View>
+              <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <Iconify icon="tdesign:cloud-filled" size={38} color="#000" />
+                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>6000g</Text>
+                <Text style={{ fontSize: 10, marginTop: 5 }}>SAVED CO2</Text>
+              </View>
 
-          <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
+              <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
 
-          <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <Iconify icon="mingcute:wastebasket-fill" size={38} color="#000" />
-            <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>71</Text>
-            <Text style={{ fontSize: 10, marginTop: 5 }}>SORTED</Text>
-          </View>
-        </View>
+              <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <Iconify icon="mingcute:wastebasket-fill" size={38} color="#000" />
+                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>71</Text>
+                <Text style={{ fontSize: 10, marginTop: 5 }}>SORTED</Text>
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={{ color: '#fff', fontSize: 36, fontWeight: 700 }}>Hello! Ready to Sort?</Text>
+          </>
+        )}
 
         <View
           style={{
@@ -137,13 +148,22 @@ export default function HomeScreen() {
             bottom: -80
           }}
         >
-          <View style={{ backgroundColor: '#000', padding: 20, borderRadius: 50, marginTop: 50 }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Scan')}
+            style={{ backgroundColor: '#000', padding: 20, borderRadius: 50, marginTop: 50 }}
+          >
             <Iconify icon="ph:scan-bold" size={26} color="#fff" />
-          </View>
-          <Image
-            source={require('../../assets/bin.png')}
-            style={{ width: 220, height: 220 }}
-          />
+          </TouchableOpacity>
+
+          {user ? (
+            <Image
+              source={require('../../assets/bin.png')}
+              style={{ width: 220, height: 220 }}
+            />
+          ) : (
+            <GarbageTruck />
+          )}
+
 
         </View>
       </View>
