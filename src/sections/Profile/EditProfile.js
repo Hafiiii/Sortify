@@ -37,7 +37,7 @@ const ProfileSchema = Yup.object().shape({
 
 // ----------------------------------------------------------------------
 
-export default function EditProfileForm() {
+export default function EditProfile() {
     const { user } = useAuth();
     const navigation = useNavigation();
     const [loading, setLoading] = useState(false);

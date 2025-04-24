@@ -112,12 +112,7 @@ export default function AuthLoginForm() {
       />
 
       <View style={{ alignItems: 'flex-end', marginBottom: 12 }}>
-        <Link
-          screen="ForgotPassword"
-          style={{
-            fontSize: 13,
-            color: palette.disabled.main,
-          }}>
+        <Link screen="ForgotPassword" style={{ fontSize: 13, color: palette.disabled.main }}>
           Forgot Password?
         </Link>
       </View>

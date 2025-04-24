@@ -9,8 +9,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // screens
 import RegisterScreen from './src/screens/RegisterScreen';
 import LoginScreen from './src/screens/LoginScreen';
+import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
+import PasswordReset from './src/sections/Confirmation/PasswordReset';
 import HomeScreen from './src/screens/HomeScreen';
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
+import Leaderboard from './src/sections/Activities/Leaderboard';
 import ScanScreen from './src/screens/ScanScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -49,10 +52,21 @@ const theme = {
 
 const HomeStack = createStackNavigator();
 
-const HomeStackNavigator = () => (
-  <HomeStack.Navigator initialRouteName="Statistics" screenOptions={{ headerShown: false }}>
-    <HomeStack.Screen name="Home" component={HomeScreen} />
-    <HomeStack.Screen name="Statistics" component={StatisticsScreen} />
+const HistoryStackNavigator = () => {
+  const { user } = useAuth();
+
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen name="History" component={HistoryScreen} />
+      <HomeStack.Screen name="Statistics" component={StatisticsScreen} />
+    </HomeStack.Navigator>
+  );
+};
+
+const ActivitiesStackNavigator = () => (
+  <HomeStack.Navigator initialRouteName="Leaderboard" screenOptions={{ headerShown: false }}>
+    <HomeStack.Screen name="Activities" component={ActivitiesScreen} />
+    <HomeStack.Screen name="Leaderboard" component={Leaderboard} />
   </HomeStack.Navigator>
 );
 
@@ -61,7 +75,7 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="HomeStack"
+      initialRouteName="Home" // Edit/Change
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',
@@ -83,18 +97,26 @@ const BottomTabNavigator = () => {
       })}
     >
       <Tab.Screen
-        name="HomeStack"
-        component={HomeStackNavigator}
+        name="Home"
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Iconify icon="mingcute:home-1-fill" color={color} size={size} />,
         }}
       />
       <Tab.Screen
-        name="Activities"
-        component={ActivitiesScreen}
+        name="ActivitiesStack"
+        component={user ? ActivitiesStackNavigator : LoginScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Iconify icon="mdi:lightbulb" color={color} size={size} />,
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            if (!user) {
+              e.preventDefault();
+              navigation.navigate('Login');
+            }
+          },
+        })}
       />
       <Tab.Screen
         name="Scan"
@@ -104,11 +126,19 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="History"
-        component={HistoryScreen}
+        name="HistoryStack"
+        component={user ? HistoryStackNavigator : LoginScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Iconify icon="maki:waste-basket" color={color} size={size} />,
         }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            if (!user) {
+              e.preventDefault();
+              navigation.navigate('Login');
+            }
+          },
+        })}
       />
       <Tab.Screen
         name="Profile"
@@ -130,9 +160,11 @@ const BottomTabNavigator = () => {
 };
 
 const AppNavigator = () => (
-  <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
+  <Stack.Navigator initialRouteName="ForgotPassword" screenOptions={{ headerShown: false }}>
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
+    <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+    <Stack.Screen name="PasswordReset" component={PasswordReset} />
     <Stack.Screen name="Main" component={BottomTabNavigator} />
     <Stack.Screen name="EditProfile" component={EditProfile} />
     <Stack.Screen name="TermsOfService" component={TermsOfService} />

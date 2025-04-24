@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { firestore } from '../utils/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 // components
-import Header from '../components/Header/Header';
+import { Header } from '../components/Header/Header';
 import { Picker } from '@react-native-picker/picker';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
@@ -21,7 +21,7 @@ const { width, height } = Dimensions.get('window');
 
 export default function HistoryScreen() {
     const navigation = useNavigation();
-    const [users, setUsers] = useState([]);
+    const [wastes, setWastes] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRole, setFilterRole] = useState('');
     const [filterDate, setFilterDate] = useState('');
@@ -39,23 +39,23 @@ export default function HistoryScreen() {
     const slideAnim = useRef(new Animated.Value(-width)).current;
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchWastes = async () => {
             try {
-                const usersCollectionRef = collection(firestore, 'users');
-                const usersSnapshot = await getDocs(usersCollectionRef);
-                const usersList = usersSnapshot.docs.map(doc => ({
+                const wastesCollectionRef = collection(firestore, 'wastes');
+                const wastesSnapshot = await getDocs(wastesCollectionRef);
+                const wastesList = wastesSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
-                setUsers(usersList);
+                setWastes(wastesList);
             } catch (error) {
-                console.error('Error fetching users:', error);
+                console.error('Error fetching data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchUsers();
+        fetchWastes();
     }, []);
 
     useEffect(() => {
@@ -89,7 +89,7 @@ export default function HistoryScreen() {
 
     const toggleSort = () => {
         Animated.timing(sortAnim, {
-            toValue: SortDrawer ? height : scrollHeight,
+            toValue: SortDrawer ? height : 0,
             duration: 300,
             useNativeDriver: true,
         }).start();
@@ -140,30 +140,30 @@ export default function HistoryScreen() {
         { label: 'Date Added (Oldest)', value: 'date-old' }
     ];
 
-    const filteredUsers = users
-        .filter(user =>
-            `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredWastes = wastes
+        .filter(waste =>
+            `${waste.wasteName}`.toLowerCase().includes(searchQuery.toLowerCase())
         )
-        .filter(user => (filterRole ? user.role === filterRole : true))
-        .filter(user => {
-            if (!user.dateJoined) return true;
-            const userDate = user.dateJoined.toDate();
+        .filter(waste => (filterRole ? waste.role === filterRole : true))
+        .filter(waste => {
+            if (!waste.dateAdded) return true;
+            const wasteDate = waste.dateAdded.toDate();
 
             switch (filterDate) {
-                case 'last-hour': return userDate >= lastHour;
-                case 'today': return userDate >= today;
-                case 'last-week': return userDate >= lastWeek;
-                case 'last-month': return userDate >= lastMonth;
-                case 'last-3-months': return userDate >= last3Months;
-                case 'last-year': return userDate >= lastYear;
+                case 'last-hour': return wasteDate >= lastHour;
+                case 'today': return wasteDate >= today;
+                case 'last-week': return wasteDate >= lastWeek;
+                case 'last-month': return wasteDate >= lastMonth;
+                case 'last-3-months': return wasteDate >= last3Months;
+                case 'last-year': return wasteDate >= lastYear;
                 default: return true;
             }
         })
         .sort((a, b) => {
-            if (sortOption === 'name-asc') return a.firstName.localeCompare(b.firstName);
-            if (sortOption === 'name-desc') return b.firstName.localeCompare(a.firstName);
-            if (sortOption === 'date-new') return b.dateJoined.toDate() - a.dateJoined.toDate();
-            if (sortOption === 'date-old') return a.dateJoined.toDate() - b.dateJoined.toDate();
+            if (sortOption === 'name-asc') return a.wasteName.localeCompare(b.wasteName);
+            if (sortOption === 'name-desc') return b.wasteName.localeCompare(a.wasteName);
+            if (sortOption === 'date-new') return b.dateAdded.toDate() - a.dateAdded.toDate();
+            if (sortOption === 'date-old') return a.dateAdded.toDate() - b.dateAdded.toDate();
             return 0;
         });
 
@@ -365,12 +365,12 @@ export default function HistoryScreen() {
                     </TouchableWithoutFeedback>
                 )}
 
-                {filteredUsers.length === 0 ? (
-                    <Text>No users found.</Text>
+                {filteredWastes.length === 0 ? (
+                    <Text>No waste found.</Text>
                 ) : (
-                    filteredUsers.map(user => (
+                    filteredWastes.map(waste => (
                         <View
-                            key={user.id}
+                            key={waste.id}
                             style={{
                                 height: 100,
                                 borderRadius: 20,
@@ -392,7 +392,7 @@ export default function HistoryScreen() {
                             <View style={{ flexDirection: 'column', justifyContent: 'space-between', padding: 10, width: '75%', borderTopRightRadius: 20, borderBottomRightRadius: 20 }}>
                                 <View>
                                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 16, fontWeight: 700 }}>{user.lastName}</Text>
+                                        <Text style={{ fontSize: 16, fontWeight: 700 }}>{waste.wasteType}</Text>
                                         <View
                                             style={{
                                                 backgroundColor: '#e5e5e5',
@@ -404,16 +404,16 @@ export default function HistoryScreen() {
                                             }}
                                         >
                                             <Iconify icon="twemoji:coin" color={palette.primary.main} size={15} />
-                                            <Text style={{ fontWeight: 700, fontSize: 12, marginLeft: 12 }}>{user.userId}</Text>
+                                            <Text style={{ fontWeight: 700, fontSize: 12, marginLeft: 12 }}>{waste.point}</Text>
                                         </View>
                                     </View>
 
-                                    <Text style={{ fontSize: 12 }}>{user.firstName}</Text>
+                                    <Text style={{ fontSize: 12 }}>{waste.wasteName}</Text>
                                 </View>
 
                                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{ fontSize: 12, color: palette.disabled.main }}>
-                                        {user.dateJoined ? moment(user.dateJoined.toDate()).format('DD-MM-YYYY hh.mmA') : 'N/A'}
+                                        {waste.dateAdded ? moment(waste.dateAdded.toDate()).format('DD-MM-YYYY hh.mmA') : 'N/A'}
                                     </Text>
                                     <Iconify icon="ic:outline-delete" color="#000" size={20} />
                                 </View>
