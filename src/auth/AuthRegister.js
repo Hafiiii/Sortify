@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 // firebase
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from '../utils/firebase';
 import { firestore } from '../utils/firebase';
 import { runTransaction, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
@@ -81,13 +81,15 @@ export default function AuthRegisterForm() {
                 birthday: ""
             });
 
+            await sendEmailVerification(user);
+            
             Toast.show({
                 type: 'success',
-                text1: 'Registration Successful',
+                text1: 'Registration Successful. Please check your email to verify your account.',
             });
 
             handleRegister();
-            navigation.navigate('Login');
+            navigation.navigate('EmailVerification', {email});
         } catch (err) {
             setError(err.message);
         } finally {

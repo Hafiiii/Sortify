@@ -8,6 +8,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // screens
 import RegisterScreen from './src/screens/RegisterScreen';
+import EmailVerification from './src/sections/Confirmation/EmailVerification';
 import LoginScreen from './src/screens/LoginScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import PasswordReset from './src/sections/Confirmation/PasswordReset';
@@ -160,9 +161,10 @@ const BottomTabNavigator = () => {
 };
 
 const AppNavigator = () => (
-  <Stack.Navigator initialRouteName="ForgotPassword" screenOptions={{ headerShown: false }}>
+  <Stack.Navigator initialRouteName="EmailVerification" screenOptions={{ headerShown: false }}>
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
+    <Stack.Screen name="EmailVerification" component={EmailVerification} />
     <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     <Stack.Screen name="PasswordReset" component={PasswordReset} />
     <Stack.Screen name="Main" component={BottomTabNavigator} />

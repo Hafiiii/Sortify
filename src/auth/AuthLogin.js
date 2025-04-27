@@ -43,6 +43,14 @@ export default function AuthLoginForm() {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        Toast.show({
+          type: 'error',
+          text1: 'Please verify your email before logging in.',
+        });
+      }
 
       Toast.show({
         type: 'success',
