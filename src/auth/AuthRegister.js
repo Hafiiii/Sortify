@@ -75,21 +75,25 @@ export default function AuthRegisterForm() {
                 firstName: firstName.trim(),
                 lastName: lastName.trim(),
                 email: email,
+                photoURL: user.photoURL,
                 dateJoined: new Date(),
                 phoneNumber: "",
                 gender: "",
-                birthday: ""
+                birthday: "",
+                totalPoints: "",
+                savedCO: "",
+                totalWaste: "",
             });
 
             await sendEmailVerification(user);
-            
+
             Toast.show({
                 type: 'success',
                 text1: 'Registration Successful. Please check your email to verify your account.',
             });
 
             handleRegister();
-            navigation.navigate('EmailVerification', {email});
+            navigation.navigate('EmailVerification', { email });
         } catch (err) {
             setError(err.message);
         } finally {
@@ -221,6 +225,7 @@ export default function AuthRegisterForm() {
                 loading={loading}
                 disabled={loading}
                 style={{ backgroundColor: '#000' }}
+                labelStyle={{ color: '#fff' }}
             >
                 Register
             </Button>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
@@ -15,6 +15,7 @@ import GarbageTruck from '../components/Animation/GarbageTruck';
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
+import Toast from 'react-native-toast-message';
 
 // ----------------------------------------------------------------------
 
@@ -31,7 +32,6 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchUserData = async () => {
       if (!user?.uid) {
-        console.log('No authenticated user found.');
         setLoading(false);
         return;
       }
@@ -43,10 +43,16 @@ export default function HomeScreen() {
         if (userSnapshot.exists()) {
           setUserData(userSnapshot.data());
         } else {
-          console.log('User data not found in Firestore');
+          Toast.show({
+            type: 'error',
+            text1: 'User data not found in Firestore',
+          });
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Error fetching user data',
+        });
       } finally {
         setLoading(false);
       }
@@ -56,11 +62,10 @@ export default function HomeScreen() {
   }, [user]);
 
   return (
-    <View
+    <ScrollView
+      showsVerticalScrollIndicator={false}
       style={{
         flex: 1,
-        width: width,
-        height: height,
         backgroundColor: '#fff',
       }}
     >
@@ -69,12 +74,12 @@ export default function HomeScreen() {
           borderBottomLeftRadius: 60,
           borderBottomRightRadius: 60,
           backgroundColor: palette.primary.main,
-          padding: 30,
+          padding: user ? 30 : 0,
           height: user ? height * 0.55 : height * 0.47,
           marginBottom: 70,
         }}
       >
-        <Header title="Home" style={{ color: '#fff' }} />
+        <Header title="Home" style={{ color: '#fff', padding: user ? 0 : 30, paddingBottom: 0 }} />
 
         {user ? (
           <>
@@ -89,7 +94,9 @@ export default function HomeScreen() {
               }}
             >
               <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                <Text style={{ fontWeight: 700 }}>Gold</Text>
+                {userData?.totalPoints <= 30 && <Text style={{ fontWeight: 700 }}>Bronze</Text>}
+                {userData?.totalPoints > 30 && userData?.totalPoints <= 100 && <Text style={{ fontWeight: 700 }}>Silver</Text>}
+                {userData?.totalPoints > 100 && <Text style={{ fontWeight: 700 }}>Gold</Text>}
               </TouchableOpacity>
             </View>
 
@@ -110,7 +117,7 @@ export default function HomeScreen() {
             >
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Iconify icon="pepicons-pencil:coins-circle-filled" size={38} color="#000" />
-                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>300</Text>
+                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>{userData?.totalPoints || 0}</Text>
                 <Text style={{ fontSize: 10, marginTop: 5 }}>POINTS</Text>
               </View>
 
@@ -118,7 +125,7 @@ export default function HomeScreen() {
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Iconify icon="tdesign:cloud-filled" size={38} color="#000" />
-                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>6000g</Text>
+                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>{userData?.savedCO || 0}g</Text>
                 <Text style={{ fontSize: 10, marginTop: 5 }}>SAVED CO2</Text>
               </View>
 
@@ -126,49 +133,46 @@ export default function HomeScreen() {
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Iconify icon="mingcute:wastebasket-fill" size={38} color="#000" />
-                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>71</Text>
+                <Text style={{ fontSize: 20, fontWeight: 700, marginTop: 5 }}>{userData?.totalWaste || 0}</Text>
                 <Text style={{ fontSize: 10, marginTop: 5 }}>SORTED</Text>
               </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                position: 'absolute',
+                right: -15,
+                left: 35,
+                bottom: -80
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Scan')}
+                style={{ backgroundColor: '#000', padding: 20, borderRadius: 50, marginTop: 50 }}
+              >
+                <Iconify icon="ph:scan-bold" size={26} color="#fff" />
+              </TouchableOpacity>
+
+              <Image
+                source={require('../../assets/bin.png')}
+                style={{ width: 220, height: 220 }}
+              />
+
             </View>
           </>
         ) : (
           <>
-            <Text style={{ color: '#fff', fontSize: 36, fontWeight: 700 }}>Hello! Ready to Sort?</Text>
+            <Text style={{ color: '#fff', fontSize: 36, fontWeight: 700, paddingHorizontal: user ? 0 : 30, }}>Hello! Ready to Sort?</Text>
+            <GarbageTruck />
           </>
         )}
 
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            position: 'absolute',
-            right: -15,
-            left: 35,
-            bottom: -80
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Scan')}
-            style={{ backgroundColor: '#000', padding: 20, borderRadius: 50, marginTop: 50 }}
-          >
-            <Iconify icon="ph:scan-bold" size={26} color="#fff" />
-          </TouchableOpacity>
-
-          {user ? (
-            <Image
-              source={require('../../assets/bin.png')}
-              style={{ width: 220, height: 220 }}
-            />
-          ) : (
-            <GarbageTruck />
-          )}
-
-
-        </View>
       </View>
 
       <WasteType />
-    </View>
+    </ScrollView >
   );
 }

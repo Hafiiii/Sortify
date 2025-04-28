@@ -1,7 +1,7 @@
 import { View, Image, ScrollView, SafeAreaView } from 'react-native';
 import { Text, Card } from 'react-native-paper';
 // components
-import Header from '../components/Header/Header';
+import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 

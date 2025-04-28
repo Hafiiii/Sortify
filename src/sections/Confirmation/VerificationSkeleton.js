@@ -45,7 +45,7 @@ export default function VerificationSkeleton({ content, screen }) {
             </Button>
 
             <Link screen={screen} style={{ fontSize: 13, color: palette.disabled.secondary, marginTop: 15 }}>
-                Back to {screen}
+                Go to {screen}
             </Link>
         </View>
     );

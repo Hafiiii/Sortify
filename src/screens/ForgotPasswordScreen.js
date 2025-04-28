@@ -74,7 +74,7 @@ export default function ForgotPasswordScreen() {
             >
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
-                        <Iconify icon={'ri:arrow-left-s-line'} size={26} style={{ marginLeft: -7, }} />
+                        <Iconify icon={'ri:arrow-left-s-line'} size={26} style={{ marginLeft: -7 }} />
                         <Text style={{ fontSize: 12, fontWeight: 700 }}>Return</Text>
                     </View>
                 </TouchableOpacity>
@@ -108,6 +108,7 @@ export default function ForgotPasswordScreen() {
                     loading={loading}
                     disabled={loading}
                     style={{ backgroundColor: '#000' }}
+                    labelStyle={{ color: '#fff' }}
                 >
                     Reset Password
                 </Button>

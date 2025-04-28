@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { PieChart, LineChart } from 'react-native-chart-kit';
@@ -23,7 +23,7 @@ export default function StatisticsScreen() {
     const [selectedFilter, setSelectedFilter] = useState('Weekly');
     const [selectedDate, setSelectedDate] = useState(moment());
 
-    const getWeekDates = (date) => 
+    const getWeekDates = (date) =>
         Array.from({ length: 7 }, (_, i) => moment(date).startOf('week').add(i, 'days').format('YYYY-MM-DD'));
 
     const [weekDates, setWeekDates] = useState(getWeekDates(selectedDate));
@@ -63,8 +63,8 @@ export default function StatisticsScreen() {
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: '#fff' }}>
-            <View style={{ backgroundColor: palette.primary.main, padding: 30, height: height * 0.55, borderBottomLeftRadius: 60, borderBottomRightRadius: 60 }}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: '#fff', paddingBottom: 200, }}>
+            <View style={{ backgroundColor: palette.primary.main, height: height * 0.6, padding: 30, borderBottomLeftRadius: 60, borderBottomRightRadius: 60 }}>
                 <HeaderTriple title="Statistics" style={{ fontWeight: 'bold' }} />
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 15 }}>
@@ -143,6 +143,6 @@ export default function StatisticsScreen() {
                     <Text style={{ color: '#fff', marginLeft: 8, fontSize: 16 }}>Share</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+        </ScrollView >
     );
 }

@@ -86,8 +86,13 @@ export function HeaderTriple({ title, style }) {
 
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }}>
-            <Iconify icon="ri:arrow-left-s-line" size={30} />
+
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Iconify icon="ri:arrow-left-s-line" size={30} />
+            </TouchableOpacity>
+
             <Text style={[{ fontSize: 16 }, style]}>{title}</Text>
+            
             {userData?.photoURL && (
                 <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                     <Image

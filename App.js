@@ -12,14 +12,23 @@ import EmailVerification from './src/sections/Confirmation/EmailVerification';
 import LoginScreen from './src/screens/LoginScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import PasswordReset from './src/sections/Confirmation/PasswordReset';
+
+import SettingsScreen from './src/screens/SettingsScreen';
+import DeleteAccount from './src/sections/Settings/DeleteAccount';
+
 import HomeScreen from './src/screens/HomeScreen';
-import ActivitiesScreen from './src/screens/ActivitiesScreen';
-import Leaderboard from './src/sections/Activities/Leaderboard';
 import ScanScreen from './src/screens/ScanScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
+import StatisticsScreen from './src/screens/StatisticsScreen';
+
+import ActivitiesScreen from './src/screens/ActivitiesScreen';
+import Leaderboard from './src/sections/Activities/Leaderboard';
+
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfile from './src/sections/Profile/EditProfile';
-import StatisticsScreen from './src/screens/StatisticsScreen';
+
+import FeedbackScreen from './src/screens/FeedbackScreen';
+import ContactUs from './src/sections/ContactUs/ContactUs';
 import TermsOfService from './src/sections/TermsOfService/TermsOfService';
 import PrivacyPolicy from './src/sections/PrivacyPolicy/PrivacyPolicy';
 // auth
@@ -57,7 +66,7 @@ const HistoryStackNavigator = () => {
   const { user } = useAuth();
 
   return (
-    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+    <HomeStack.Navigator initialRouteName="History" screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="History" component={HistoryScreen} />
       <HomeStack.Screen name="Statistics" component={StatisticsScreen} />
     </HomeStack.Navigator>
@@ -76,7 +85,7 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="Home" // Edit/Change
+      initialRouteName="Profile" // Edit/Change
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',
@@ -161,14 +170,22 @@ const BottomTabNavigator = () => {
 };
 
 const AppNavigator = () => (
-  <Stack.Navigator initialRouteName="EmailVerification" screenOptions={{ headerShown: false }}>
+  <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
     <Stack.Screen name="EmailVerification" component={EmailVerification} />
     <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     <Stack.Screen name="PasswordReset" component={PasswordReset} />
+
     <Stack.Screen name="Main" component={BottomTabNavigator} />
+
     <Stack.Screen name="EditProfile" component={EditProfile} />
+
+    <Stack.Screen name="Settings" component={SettingsScreen} />
+    <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
+
+    <Stack.Screen name="ContactUs" component={ContactUs} />
+    <Stack.Screen name="Feedback" component={FeedbackScreen} />
     <Stack.Screen name="TermsOfService" component={TermsOfService} />
     <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
   </Stack.Navigator>

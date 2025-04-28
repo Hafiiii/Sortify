@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Image, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { Text, Chip, Button, Searchbar, Divider, RadioButton, Icon } from 'react-native-paper';
+import { Text, Chip, Button, Searchbar, Divider, RadioButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 // firebase
 import { firestore } from '../utils/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, query, where } from 'firebase/firestore';
+// auth
+import { useAuth } from '../context/AuthContext';
 // components
 import { Header } from '../components/Header/Header';
 import { Picker } from '@react-native-picker/picker';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 import moment from 'moment';
-import { Filter } from 'react-native-svg';
+import Toast from 'react-native-toast-message';
 
 // ----------------------------------------------------------------------
 
@@ -20,8 +22,10 @@ const { width, height } = Dimensions.get('window');
 // ----------------------------------------------------------------------
 
 export default function HistoryScreen() {
+    const { user } = useAuth();
     const navigation = useNavigation();
     const [wastes, setWastes] = useState([]);
+    const [userData, setUserData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterRole, setFilterRole] = useState('');
     const [filterDate, setFilterDate] = useState('');
@@ -39,24 +43,73 @@ export default function HistoryScreen() {
     const slideAnim = useRef(new Animated.Value(-width)).current;
 
     useEffect(() => {
-        const fetchWastes = async () => {
+        const fetchUserData = async () => {
+            if (!user?.uid) {
+                setLoading(false);
+                return;
+            }
+
             try {
-                const wastesCollectionRef = collection(firestore, 'wastes');
-                const wastesSnapshot = await getDocs(wastesCollectionRef);
-                const wastesList = wastesSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setWastes(wastesList);
+                const userDocRef = doc(firestore, 'users', user.uid);
+                const userSnapshot = await getDoc(userDocRef);
+
+                if (userSnapshot.exists()) {
+                    const userData = userSnapshot.data();
+                    setUserData(userData);
+                } else {
+                    setUserData(null);
+                }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error fetching user data',
+                });
+                console.log('Error fetching user data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchWastes();
-    }, []);
+        if (user?.uid) {
+            fetchUserData();
+        }
+    }, [user]);
+
+    useEffect(() => {
+        const fetchUserWastes = async () => {
+            if (!userData?.userId) {
+                return;
+            }
+
+            try {
+                const wastesCollectionRef = collection(firestore, 'wastes');
+                const q = query(wastesCollectionRef, where('userId', '==', userData.userId));
+                const wastesSnapshot = await getDocs(q);
+
+                if (!wastesSnapshot.empty) {
+                    const wastesList = wastesSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data(),
+                    }));
+                    setWastes(wastesList);
+                } else {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'No waste data found for user.',
+                    });
+                }
+            } catch (error) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'An error occurred while fetching wastes.',
+                });
+            }
+        };
+
+        if (userData) {
+            fetchUserWastes();
+        }
+    }, [userData]);
 
     useEffect(() => {
         navigation.setOptions({

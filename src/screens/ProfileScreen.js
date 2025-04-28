@@ -36,6 +36,11 @@ const censorPhoneNumber = (phone) => {
     return `****${phone.slice(-4)}`;
 };
 
+const BRONZE_POINT = 30;
+const SILVER_POINT = 100;
+const GOLD_POINT = 300;
+const TOTAL_RANGE = GOLD_POINT;
+
 // ----------------------------------------------------------------------
 
 export default function ProfileScreen() {
@@ -81,16 +86,33 @@ export default function ProfileScreen() {
         }
     };
 
-    const tierLevel = 2; // 1 = Bronze, 2 = Silver, 3 = Gold
+    const getTier = () => {
+        if (!userData?.totalPoints) return 'Member';
+
+        const points = userData.totalPoints;
+
+        if (points >= BRONZE_POINT) return 'Bronze';
+        if (points >= SILVER_POINT) return 'Silver';
+        if (points >= GOLD_POINT) return 'Gold';
+        return 'Member';
+    };
 
     const getProgress = () => {
-        switch (tierLevel) {
-            case 1: return 0.33; // Bronze
-            case 2: return 0.66; // Silver
-            case 3: return 1;    // Gold
-            default: return 0;
+        if (!userData?.totalPoints) return 0;
+
+        const points = userData.totalPoints;
+
+        if (points <= BRONZE_POINT) {
+            return points;
+        } else if (points <= SILVER_POINT) {
+            return (points - BRONZE_POINT) / (GOLD_POINT - BRONZE_POINT);
+        } else if (points <= GOLD_POINT) {
+            return (points - SILVER_POINT) / (GOLD_POINT - SILVER_POINT);
+        } else {
+            return 1;
         }
     };
+
 
     const formatDateString = (dateString) => {
         if (!dateString) return "-";
@@ -110,7 +132,7 @@ export default function ProfileScreen() {
         >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', margin: 15 }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Button onPress={() => { navigation.navigate('Statistics') }}>
+                    <Button onPress={() => { navigation.navigate("HistoryStack", { screen: "Statistics" }) }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Iconify
                                 icon={'akar-icons:statistic-up'}
@@ -173,17 +195,34 @@ export default function ProfileScreen() {
                         boxShadow: '0 3px 7px rgba(0, 0, 0, 0.3)'
                     }}
                 >
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 20, fontWeight: 700 }}>Gold</Text>
-                        <Iconify
-                            icon={'emojione:sports-medal'}
-                            size={18}
-                            style={{ marginLeft: 5 }}
-                        />
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Iconify
+                                icon={'emojione:sports-medal'}
+                                size={17}
+                                style={{ marginRight: 5 }}
+                            />
+                            <Text style={{ fontSize: 19, fontWeight: 700 }}>{getTier()}</Text>
+                        </View>
+
+                        <View
+                            style={{
+                                backgroundColor: '#e5e5e5',
+                                paddingVertical: 4,
+                                paddingHorizontal: 7,
+                                borderRadius: 20,
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
+                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{userData?.totalPoints}</Text>
+                        </View>
                     </View>
 
                     <Text style={{ color: palette.disabled.secondary, fontSize: 12 }}>
-                        Enjoy exclusive<Text> silver </Text>benefits
+                        Enjoy exclusive<Text> {getTier().toLowerCase()} </Text>benefits
                     </Text>
 
                     <View
@@ -192,7 +231,7 @@ export default function ProfileScreen() {
                             width: width - 120,
                             marginTop: 10,
                             marginBottom: 40,
-                            alignItems: 'center'
+                            alignItems: 'center',
                         }}
                     >
                         <ProgressBar
@@ -201,50 +240,66 @@ export default function ProfileScreen() {
                             style={{ height: 4, width: width - 160 }}
                         />
 
-                        <View style={{
-                            position: 'absolute',
-                            top: -3,
-                            left: 0,
-                            width: '100%',
-                            flexDirection: 'row',
-                            justifyContent: 'space-between'
-                        }}>
-                            <View style={{ alignItems: 'center', width: 50 }}>
-                                <View
-                                    style={{
-                                        width: 10,
-                                        height: 10,
-                                        borderRadius: 5,
-                                        backgroundColor: palette.secondary.main,
-                                    }}
-                                />
-                                <Text style={{ fontSize: 10, marginTop: 6, color: palette.disabled.main }}>30/30</Text>
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: -3,
+                                left: 0,
+                                width: '95%',
+                                height: 40,
+                            }}
+                        >
+                            <View style={{
+                                position: 'absolute',
+                                left: `${(BRONZE_POINT / TOTAL_RANGE) * 100}%`,
+                                alignItems: 'center',
+                                transform: [{ translateX: -25 }],
+                            }}>
+                                <View style={{
+                                    width: 10,
+                                    height: 10,
+                                    borderRadius: 5,
+                                    backgroundColor: (userData?.totalPoints || 0) >= BRONZE_POINT
+                                        ? palette.secondary.main
+                                        : 'rgb(231, 224, 236)',
+                                }} />
+                                <Text style={{ fontSize: 10, marginTop: 6, color: palette.disabled.main }}>{Math.min(userData?.totalPoints || 0, BRONZE_POINT)}/{BRONZE_POINT}</Text>
                                 <Text style={{ fontSize: 11, color: palette.disabled.secondary }}>Bronze</Text>
                             </View>
 
-                            <View style={{ alignItems: 'center', width: 50 }}>
-                                <View
-                                    style={{
-                                        width: 10,
-                                        height: 10,
-                                        borderRadius: 5,
-                                        backgroundColor: palette.secondary.main,
-                                    }}
-                                />
-                                <Text style={{ fontSize: 10, marginTop: 6, color: palette.disabled.main }}>100/100</Text>
+                            <View style={{
+                                position: 'absolute',
+                                left: `${(SILVER_POINT / TOTAL_RANGE) * 100}%`,
+                                alignItems: 'center',
+                                transform: [{ translateX: -25 }],
+                            }}>
+                                <View style={{
+                                    width: 10,
+                                    height: 10,
+                                    borderRadius: 5,
+                                    backgroundColor: (userData?.totalPoints || 0) >= SILVER_POINT
+                                        ? palette.secondary.main
+                                        : 'rgb(231, 224, 236)',
+                                }} />
+                                <Text style={{ fontSize: 10, marginTop: 6, color: palette.disabled.main }}>{Math.min(userData?.totalPoints || 0, SILVER_POINT)}/{SILVER_POINT}</Text>
                                 <Text style={{ fontSize: 11, color: palette.disabled.secondary }}>Silver</Text>
                             </View>
 
-                            <View style={{ alignItems: 'center', width: 50 }}>
-                                <View
-                                    style={{
-                                        width: 10,
-                                        height: 10,
-                                        borderRadius: 5,
-                                        backgroundColor: palette.secondary.main,
-                                    }}
-                                />
-                                <Text style={{ fontSize: 10, marginTop: 6, color: palette.disabled.main }}>300/300</Text>
+                            <View style={{
+                                position: 'absolute',
+                                left: '100%',
+                                alignItems: 'center',
+                                transform: [{ translateX: -25 }],
+                            }}>
+                                <View style={{
+                                    width: 10,
+                                    height: 10,
+                                    borderRadius: 5,
+                                    backgroundColor: (userData?.totalPoints || 0) >= GOLD_POINT
+                                        ? palette.secondary.main
+                                        : 'rgb(231, 224, 236)',
+                                }} />
+                                <Text style={{ fontSize: 10, marginTop: 6, color: palette.disabled.main }}>{Math.min(userData?.totalPoints || 0, GOLD_POINT)}/{GOLD_POINT}</Text>
                                 <Text style={{ fontSize: 11, color: palette.disabled.secondary }}>Gold</Text>
                             </View>
                         </View>
@@ -321,6 +376,7 @@ export default function ProfileScreen() {
                         loading={loading}
                         disabled={loading}
                         style={{ backgroundColor: '#000', borderRadius: 7, marginVertical: 10 }}
+                        labelStyle={{ color: '#fff' }}
                     >
                         Edit Profile
                     </Button>

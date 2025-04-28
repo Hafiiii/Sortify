@@ -83,6 +83,12 @@ export default function AuthSocial() {
                     email: user.email,
                     photoURL: user.photoURL,
                     dateJoined: new Date(),
+                    phoneNumber: "",
+                    gender: "",
+                    birthday: "",
+                    totalPoints: "",
+                    savedCO: "",
+                    totalWaste: "",
                 });
             }
 

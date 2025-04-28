@@ -7,7 +7,7 @@ import GoBackButton from '../../components/GoBackButton/GoBackButton';
 
 export default function PrivacyPolicy() {
     return (
-        <ScrollView style={{ paddingHorizontal: 30, paddingVertical: 20 }}>
+        <ScrollView contentContainerStyle={{ padding: 30 }} showsVerticalScrollIndicator={false}>
             <GoBackButton />
 
             <Text style={{ fontSize: 22, fontWeight: 700, marginBottom: 15 }}>Privacy Policy</Text>
@@ -30,7 +30,7 @@ export default function PrivacyPolicy() {
             </Text>
 
             <Text style={{ fontWeight: 700, marginBottom: 15 }}>2. PRIVACY</Text>
-            
+
         </ScrollView>
     );
 };

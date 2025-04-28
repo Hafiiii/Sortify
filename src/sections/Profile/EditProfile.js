@@ -376,6 +376,7 @@ export default function EditProfile() {
                         loading={loading}
                         disabled={loading}
                         style={{ backgroundColor: '#000' }}
+                        labelStyle={{ color: '#fff' }}
                     >
                         Save
                     </Button>

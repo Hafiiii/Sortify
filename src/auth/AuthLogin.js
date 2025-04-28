@@ -133,6 +133,7 @@ export default function AuthLoginForm() {
         loading={loading}
         disabled={loading}
         style={{ backgroundColor: '#000' }}
+        labelStyle={{ color: '#fff' }}
       >
         Login
       </Button>
