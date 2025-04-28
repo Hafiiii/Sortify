@@ -46,7 +46,6 @@ export default function ForgotPasswordScreen() {
 
             navigation.navigate("PasswordReset");
         } catch (err) {
-            console.error("Reset password error:", err);
             Toast.show({
                 type: 'error',
                 text1: 'Error sending reset email',

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Dimensions, Image, Alert, ImageBackground } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Image, Alert, ImageBackground, Keyboard } from 'react-native';
 import { Button, Text, TextInput, ActivityIndicator } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
@@ -26,6 +26,9 @@ import { Iconify } from 'react-native-iconify';
 // ----------------------------------------------------------------------
 
 const { width, height } = Dimensions.get('screen');
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
 
 const phoneRegExp = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
 
@@ -65,12 +68,13 @@ export default function EditProfile() {
                         setPhotoURL(userData.photoURL);
                     }
                 } catch (error) {
-                    console.error("Error fetching user data:", error);
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error fetching user data.',
+                    });
                 }
             };
             fetchUserProfile();
-            console.log('photo', photoURL);
-
         }
     }, [user, setValue]);
 
@@ -105,12 +109,29 @@ export default function EditProfile() {
         );
     };
 
+    const validateImage = (uri) => {
+        // Fetch the image and check its size and type
+        return new Promise(async (resolve, reject) => {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            const fileSize = blob.size;
+            const fileType = blob.type;
+
+            if (fileSize > MAX_IMAGE_SIZE) {
+                reject("Image size exceeds the 5MB limit.");
+            } else if (!ALLOWED_IMAGE_TYPES.includes(fileType)) {
+                reject("Invalid image type. Only JPEG and PNG are allowed.");
+            } else {
+                resolve(blob);
+            }
+        });
+    };
+
     const uploadImage = async (uri) => {
         try {
             setUploading(true);
 
-            const response = await fetch(uri);
-            const blob = await response.blob();
+            const blob = await validateImage(uri);
 
             const storageRef = ref(storage, `profile_images/${Date.now()}.jpg`);
             await uploadBytes(storageRef, blob);
@@ -132,8 +153,8 @@ export default function EditProfile() {
                 text1: 'Profile photo updated successfully!',
             });
         } catch (error) {
-            console.error('Upload Error:', error);
             setUploading(false);
+
             Toast.show({
                 type: 'error',
                 text1: 'Failed to upload image',
@@ -162,7 +183,7 @@ export default function EditProfile() {
 
             navigation.navigate("Main", { screen: "Profile", refresh: true });
         } catch (err) {
-            console.error("Error updating profile:", err);
+
             Toast.show({
                 type: 'error',
                 text1: 'Failed to update profile',
@@ -339,18 +360,24 @@ export default function EditProfile() {
                         render={({ field: { onChange, value } }) => (
                             <View style={{ marginBottom: 15 }}>
                                 <View style={{ position: 'relative' }}>
-                                    <TextInput
-                                        placeholder="Date of Birth"
-                                        value={value ? dayjs(value).format("DD-MM-YYYY") : ""}
-                                        onFocus={() => setShowDatePicker(true)}
-                                        underlineStyle={{ backgroundColor: 'transparent' }}
-                                        style={{ backgroundColor: "transparent", borderWidth: 1, borderColor: "#000", borderRadius: 8, height: 45, paddingRight: 40 }}
-                                    />
-                                    <Iconify
-                                        icon={'mdi:calendar-outline'}
-                                        size={20}
-                                        style={{ position: "absolute", top: "50%", right: 10, transform: [{ translateY: -8 }] }}
-                                    />
+                                    <TouchableOpacity onPress={() => {
+                                        Keyboard.dismiss();
+                                        setShowDatePicker(true);
+                                    }}
+                                    >
+                                        <TextInput
+                                            placeholder="Date of Birth"
+                                            value={value ? dayjs(value).format("DD-MM-YYYY") : ""}
+                                            editable={false}
+                                            underlineStyle={{ backgroundColor: 'transparent' }}
+                                            style={{ backgroundColor: "transparent", borderWidth: 1, borderColor: "#000", borderRadius: 8, height: 45, paddingRight: 40 }}
+                                        />
+                                        <Iconify
+                                            icon={'mdi:calendar-outline'}
+                                            size={20}
+                                            style={{ position: "absolute", top: "50%", right: 10, transform: [{ translateY: -8 }] }}
+                                        />
+                                    </TouchableOpacity>
                                 </View>
                                 {showDatePicker && (
                                     <DateTimePicker

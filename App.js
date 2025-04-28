@@ -22,7 +22,7 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import StatisticsScreen from './src/screens/StatisticsScreen';
 
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
-import Leaderboard from './src/sections/Activities/Leaderboard';
+import Leaderboard from './src/sections/Leaderboard/Leaderboard';
 
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfile from './src/sections/Profile/EditProfile';
@@ -85,7 +85,7 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="Profile" // Edit/Change
+      initialRouteName="ActivitiesStack" // Edit/Change
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',

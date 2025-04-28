@@ -46,7 +46,8 @@ module.exports = {
           'mdi:calendar-outline', // calendar for date textfield
           'mdi:star', // rating for feedback
           'mdi:star-outline', // rating for feedback
-          'fe:edit' // edit icon
+          'fe:edit', // edit icon
+          'eva:alert-circle-outline', // error icon
         ],
       },
     ],

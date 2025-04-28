@@ -1,41 +1,49 @@
-import { View, Image, ScrollView, SafeAreaView } from 'react-native';
-import { Text, Card } from 'react-native-paper';
+import { View, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { Text } from 'react-native-paper';
+// @react-navigation
+import { useNavigation } from '@react-navigation/native';
 // components
 import { Header } from '../components/Header/Header';
-import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 
 // ----------------------------------------------------------------------
 
 export default function ActivitiesScreen() {
+    const navigation = useNavigation();
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={{ padding: 30 }} showsVerticalScrollIndicator={false}>
                 <Header title="Activities" style={{ fontWeight: 700 }} />
 
-                <ActivitiesBox
-                    image={require("../../assets/recycling-value.png")}
-                    title="Recycling Value Calculator"
-                    iconName="Gold"
-                    desc="This feature estimates how much money users can earn by recycling based on the type and quantity of recyclable items."
-                />
+                <TouchableOpacity onPress={() => navigation.navigate('Leaderboard')} activeOpacity={0.7}>
+                    <ActivitiesBox
+                        image={require("../../assets/recycling-value.png")}
+                        title="Recycling Value Calculator"
+                        iconName="Gold"
+                        desc="This feature estimates how much money users can earn by recycling based on the type and quantity of recyclable items."
+                    />
+                </TouchableOpacity>
 
-                <ActivitiesBox
-                    image={require("../../assets/leaderboard.png")}
-                    title="Leaderboard"
-                    iconName="Silver"
-                    desc="The leaderboard promotes a sense of community and friendly competition by showcasing top recyclers and can track their ranking based on recycling efforts."
-                />
+                <TouchableOpacity onPress={() => navigation.navigate('Leaderboard')} activeOpacity={0.7}>
+                    <ActivitiesBox
+                        image={require("../../assets/leaderboard.png")}
+                        title="Leaderboard"
+                        iconName="Silver"
+                        desc="The leaderboard promotes a sense of community and friendly competition by showcasing top recyclers and can track their ranking based on recycling efforts."
+                    />
+                </TouchableOpacity>
 
-                <ActivitiesBox
-                    image={require("../../assets/carbon-footprint.jpeg")}
-                    title="Carbon Footprint Tracker"
-                    iconName="Bronze"
-                    desc="This feature helps users monitor their environmental impact by tracking their daily activities and provides a visual summary of their carbon footprint."
-                />
-
+                <TouchableOpacity onPress={() => navigation.navigate('Leaderboard')} activeOpacity={0.7}>
+                    <ActivitiesBox
+                        image={require("../../assets/carbon-footprint.jpeg")}
+                        title="Carbon Footprint Tracker"
+                        iconName="Bronze"
+                        desc="This feature helps users monitor their environmental impact by tracking their daily activities and provides a visual summary of their carbon footprint."
+                    />
+                </TouchableOpacity>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 

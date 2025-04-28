@@ -56,7 +56,10 @@ export default function ContactUsScreen() {
                 if (data.email) setValue('email', data.email);
             }
         } catch (error) {
-            console.error('Error fetching user data:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Error fetching user data.',
+            });
         }
     };
 
@@ -90,7 +93,6 @@ export default function ContactUsScreen() {
             reset();
             fetchUserData();
         } catch (error) {
-            console.error("Error saving contact issue: ", error);
             Toast.show({
                 type: 'error',
                 text1: 'Submission Failed',

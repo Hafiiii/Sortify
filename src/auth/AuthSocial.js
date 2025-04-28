@@ -101,7 +101,10 @@ export default function AuthSocial() {
             handleLogin(user);
             navigation.navigate("Main", { screen: "Home" });
         } catch (error) {
-            console.error('Google Sign-In Error:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Google Sign-In Error.',
+            });
         }
     }
 

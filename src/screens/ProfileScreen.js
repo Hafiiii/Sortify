@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 import moment from 'moment';
+import Toast from 'react-native-toast-message';
 
 // ----------------------------------------------------------------------
 
@@ -68,7 +69,10 @@ export default function ProfileScreen() {
                     console.log('User data not found in Firestore');
                 }
             } catch (error) {
-                console.error('Error fetching user data:', error);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error fetching user data.',
+                });
             } finally {
                 setLoading(false);
             }
@@ -82,7 +86,10 @@ export default function ProfileScreen() {
             signOut(auth);
             navigation.replace('Login');
         } catch (error) {
-            console.error('Error signing out:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Error signing out.',
+            });
         }
     };
 

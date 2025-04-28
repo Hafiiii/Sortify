@@ -61,7 +61,11 @@ export default function AuthLoginForm() {
       navigation.navigate("Main", { screen: "Home" });
 
     } catch (err) {
-      console.error("Error during login:", err);
+      Toast.show({
+        type: 'error',
+        text1: 'Error during login.',
+      });
+
       setError(err.message);
       setFieldError("afterSubmit", { message: "Incorrect email or password" });
     } finally {

@@ -10,6 +10,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 // components
 import { Iconify } from 'react-native-iconify';
+import Toast from 'react-native-toast-message';
 
 // ----------------------------------------------------------------------
 
@@ -32,7 +33,10 @@ export function Header({ title, style }) {
                 setUserData({ photoURL: userSnapshot.data().photoURL });
 
             } catch (error) {
-                console.error('Error fetching user photoURL:', error);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error fetching user photoURL.',
+                });
             } finally {
                 setLoading(false);
             }
@@ -75,7 +79,10 @@ export function HeaderTriple({ title, style }) {
                 setUserData({ photoURL: userSnapshot.data().photoURL });
 
             } catch (error) {
-                console.error('Error fetching user photoURL:', error);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error fetching user photoURL.',
+                });
             } finally {
                 setLoading(false);
             }
@@ -92,7 +99,7 @@ export function HeaderTriple({ title, style }) {
             </TouchableOpacity>
 
             <Text style={[{ fontSize: 16 }, style]}>{title}</Text>
-            
+
             {userData?.photoURL && (
                 <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
                     <Image

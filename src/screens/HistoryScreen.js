@@ -454,6 +454,7 @@ export default function HistoryScreen() {
                                                 borderRadius: 20,
                                                 flexDirection: 'row',
                                                 justifyContent: 'center',
+                                                alignItems: 'center', 
                                             }}
                                         >
                                             <Iconify icon="twemoji:coin" color={palette.primary.main} size={15} />
