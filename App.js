@@ -22,6 +22,7 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import StatisticsScreen from './src/screens/StatisticsScreen';
 
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
+import CarbonFootprint from './src/sections/CarbonFootprintTracker/CarbonFootprint';
 import Leaderboard from './src/sections/Leaderboard/Leaderboard';
 
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -74,8 +75,9 @@ const HistoryStackNavigator = () => {
 };
 
 const ActivitiesStackNavigator = () => (
-  <HomeStack.Navigator initialRouteName="Leaderboard" screenOptions={{ headerShown: false }}>
+  <HomeStack.Navigator initialRouteName="CarbonFootprint" screenOptions={{ headerShown: false }}>
     <HomeStack.Screen name="Activities" component={ActivitiesScreen} />
+    <HomeStack.Screen name="CarbonFootprint" component={CarbonFootprint} />
     <HomeStack.Screen name="Leaderboard" component={Leaderboard} />
   </HomeStack.Navigator>
 );

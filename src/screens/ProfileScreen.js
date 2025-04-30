@@ -14,6 +14,7 @@ import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 import moment from 'moment';
 import Toast from 'react-native-toast-message';
+import { BRONZE_POINT, SILVER_POINT, GOLD_POINT, TOTAL_RANGE } from '../utils/pointsConfig';
 
 // ----------------------------------------------------------------------
 
@@ -36,11 +37,6 @@ const censorPhoneNumber = (phone) => {
     if (!phone || phone.length < 4) return '';
     return `****${phone.slice(-4)}`;
 };
-
-const BRONZE_POINT = 30;
-const SILVER_POINT = 100;
-const GOLD_POINT = 300;
-const TOTAL_RANGE = GOLD_POINT;
 
 // ----------------------------------------------------------------------
 

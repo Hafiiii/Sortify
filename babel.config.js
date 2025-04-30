@@ -48,6 +48,7 @@ module.exports = {
           'mdi:star-outline', // rating for feedback
           'fe:edit', // edit icon
           'eva:alert-circle-outline', // error icon
+          'mingcute:lock-fill', //lock icon
         ],
       },
     ],
