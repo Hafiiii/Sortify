@@ -110,7 +110,6 @@ export default function EditProfile() {
     };
 
     const validateImage = (uri) => {
-        // Fetch the image and check its size and type
         return new Promise(async (resolve, reject) => {
             const response = await fetch(uri);
             const blob = await response.blob();
@@ -129,6 +128,7 @@ export default function EditProfile() {
 
     const uploadImage = async (uri) => {
         try {
+            console.log('uri:', uri);
             setUploading(true);
 
             const blob = await validateImage(uri);
@@ -159,6 +159,7 @@ export default function EditProfile() {
                 type: 'error',
                 text1: 'Failed to upload image',
             });
+            console.error("Error uploading image:", error);
         }
     };
 

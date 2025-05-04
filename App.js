@@ -87,7 +87,7 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="ActivitiesStack" // Edit/Change
+      initialRouteName="Scan" // Edit/Change
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',

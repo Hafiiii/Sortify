@@ -19,7 +19,7 @@ export default function HistoryList({ waste, onDelete }) {
             }}
         >
             <Image
-                source={require("../../../assets/recycling-value.png")}
+                source={waste.photoURL ? { uri: waste.photoURL } : require("../../../assets/sortify-logo.png")}
                 style={{
                     width: '25%',
                     height: '100%',
@@ -55,7 +55,7 @@ export default function HistoryList({ waste, onDelete }) {
                     <Text style={{ fontSize: 12, color: palette.disabled.main }}>
                         {waste.dateAdded ? moment(waste.dateAdded.toDate()).format('DD-MM-YYYY hh.mmA') : 'N/A'}
                     </Text>
-                    
+
                     <TouchableOpacity onPress={() => onDelete(waste.wasteId)}>
                         <Iconify icon="ic:outline-delete" color="#000" size={20} />
                     </TouchableOpacity>

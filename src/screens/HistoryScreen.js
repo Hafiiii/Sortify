@@ -39,63 +39,25 @@ const sortOptions = [
 
 export default function HistoryScreen() {
     const { user } = useAuth();
+    const slideAnim = useRef(new Animated.Value(-width)).current;
     const [wastes, setWastes] = useState([]);
-    const [userData, setUserData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterRole, setFilterRole] = useState('');
     const [filterDate, setFilterDate] = useState('');
+    const [tempFilterDate, setTempFilterDate] = useState('');
+    const [FilterDrawer, setFilterDrawer] = useState(false);
     const [sortOption, setSortOption] = useState('date-new');
     const [loading, setLoading] = useState(true);
-    const [FilterDrawer, setFilterDrawer] = useState(false);
     const [scrollHeight, setScrollHeight] = useState(0);
-
-    const [tempFilterRole, setTempFilterRole] = useState('');
-    const [tempFilterDate, setTempFilterDate] = useState('');
-
-    const sortAnim = useRef(new Animated.Value(height)).current;
-    const slideAnim = useRef(new Animated.Value(-width)).current;
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if (!user?.uid) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const userDocRef = doc(firestore, 'users', user.uid);
-                const userSnapshot = await getDoc(userDocRef);
-
-                if (userSnapshot.exists()) {
-                    const userData = userSnapshot.data();
-                    setUserData(userData);
-                } else {
-                    setUserData(null);
-                }
-            } catch (error) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error fetching user data',
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (user?.uid) {
-            fetchUserData();
-        }
-    }, [user]);
 
     useEffect(() => {
         const fetchUserWastes = async () => {
-            if (!userData?.userId) {
+            if (!user?.uid) {
                 return;
             }
 
             try {
                 const wastesCollectionRef = collection(firestore, 'wastes');
-                const q = query(wastesCollectionRef, where('userId', '==', userData.userId));
+                const q = query(wastesCollectionRef, where('uid', '==', user?.uid));
                 const wastesSnapshot = await getDocs(q);
 
                 if (!wastesSnapshot.empty) {
@@ -116,14 +78,16 @@ export default function HistoryScreen() {
                     type: 'error',
                     text1: 'An error occurred while fetching wastes.',
                 });
+            } finally {
+                setLoading(false);
             }
         };
 
-        if (userData) {
+        if (user?.uid) {
             fetchUserWastes();
         }
 
-    }, [userData]);
+    }, [user]);
 
     const toggleFilter = () => {
         Animated.timing(slideAnim, {
@@ -135,25 +99,20 @@ export default function HistoryScreen() {
     };
 
     const applyFilters = () => {
-        setFilterRole(tempFilterRole);
         setFilterDate(tempFilterDate);
         toggleFilter();
     };
 
     const cancelFilters = () => {
-        setTempFilterRole(filterRole);
         setTempFilterDate(filterDate);
         toggleFilter();
     };
 
     const clearAllFilters = () => {
-        setFilterRole('');
         setFilterDate('');
-        setTempFilterRole('');
         setTempFilterDate('');
     };
 
-    const now = new Date();
     const lastHour = moment().subtract(1, 'hour').toDate();
     const today = moment().startOf('day').toDate();
     const lastWeek = moment().subtract(7, 'days').startOf('day').toDate();
@@ -165,7 +124,6 @@ export default function HistoryScreen() {
         .filter(waste =>
             `${waste.wasteName}`.toLowerCase().includes(searchQuery.toLowerCase())
         )
-        .filter(waste => (filterRole ? waste.role === filterRole : true))
         .filter(waste => {
             if (!waste.dateAdded) return true;
             const wasteDate = waste.dateAdded.toDate();
@@ -379,42 +337,6 @@ export default function HistoryScreen() {
                         />
                     </TouchableWithoutFeedback>
                 )}
-
-                <Animated.View
-                    style={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        width: width,
-                        height: height / 2,
-                        backgroundColor: '#fff',
-                        paddingHorizontal: 20,
-                        paddingVertical: 10,
-                        borderTopLeftRadius: 16,
-                        borderTopRightRadius: 16,
-                        transform: [{ translateY: sortAnim }],
-                        zIndex: 4,
-                    }}
-                >
-                    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                        <Iconify icon="ri:arrow-down-wide-fill" size={36} color="#eaeaea" />
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }}>
-                        <Text style={{ fontSize: 18, fontWeight: 700 }}>Sort by</Text>
-                        <TouchableOpacity mode="outlined" onPress={() => setSortOption('')}>
-                            <Text style={{ textDecorationLine: 'underline' }}>Clear All</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <RadioButton.Group onValueChange={(newValue) => setSortOption(newValue)} value={sortOption}>
-                        {sortOptions.map(({ label, value }) => (
-                            <View key={value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
-                                <RadioButton value={value} />
-                                <Text onPress={() => setSortOption(value)}>{label}</Text>
-                            </View>
-                        ))}
-                    </RadioButton.Group>
-                </Animated.View>
 
                 {filteredWastes.length === 0 ? (
                     <Text>No waste found.</Text>

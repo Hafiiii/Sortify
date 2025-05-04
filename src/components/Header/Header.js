@@ -60,7 +60,7 @@ export function Header({ title, style }) {
     );
 }
 
-export function HeaderTriple({ title, style }) {
+export function HeaderTriple({ title, style, boxStyle }) {
     const { user } = useAuth();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -92,7 +92,7 @@ export function HeaderTriple({ title, style }) {
     }, [user]);
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }}>
+        <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }, boxStyle]}>
 
             <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Iconify icon="ri:arrow-left-s-line" size={30} />
