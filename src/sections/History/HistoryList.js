@@ -11,11 +11,12 @@ export default function HistoryList({ waste, onDelete }) {
     return (
         <View
             style={{
-                height: 100,
+                height: 90,
                 borderRadius: 20,
-                marginVertical: 10,
-                boxShadow: '0 3px 7px rgba(0, 0, 0, 0.3)',
+                marginVertical: 5,
+                boxShadow: '0 3px 5px rgba(0, 0, 0, 0.3)',
                 flexDirection: 'row',
+                backgroundColor: '#fff',
             }}
         >
             <Image
@@ -28,10 +29,10 @@ export default function HistoryList({ waste, onDelete }) {
                     borderBottomLeftRadius: 20,
                 }}
             />
-            <View style={{ flexDirection: 'column', justifyContent: 'space-between', padding: 10, width: '75%', borderTopRightRadius: 20, borderBottomRightRadius: 20 }}>
+            <View style={{ flexDirection: 'column', justifyContent: 'space-between', padding: 8, width: '75%', borderTopRightRadius: 20, borderBottomRightRadius: 20 }}>
                 <View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 16, fontWeight: 700 }}>{waste.wasteType}</Text>
+                        <Text style={{ fontSize: 14, fontWeight: 700 }}>{waste.wasteType}</Text>
                         <View
                             style={{
                                 backgroundColor: '#e5e5e5',
@@ -52,7 +53,7 @@ export default function HistoryList({ waste, onDelete }) {
                 </View>
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 12, color: palette.disabled.main }}>
+                    <Text style={{ fontSize: 10, color: palette.disabled.main }}>
                         {waste.dateAdded ? moment(waste.dateAdded.toDate()).format('DD-MM-YYYY hh.mmA') : 'N/A'}
                     </Text>
 

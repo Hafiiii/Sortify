@@ -37,7 +37,7 @@ module.exports = {
           'solar:gallery-bold', // file picker
           'majesticons:open', // open details (scanning results)
           'material-symbols:flag', // feedback/report (scanning results)
-          'material-symbols:share-outline', // share (scanning results)
+          'rivet-icons:share', // share (scanning results)
           'ph:star-four-fill', // star bling bling at leaderboard
           'akar-icons:statistic-up', // statistics icon
           'uil:setting', // settings icon

@@ -135,7 +135,7 @@ export default function ProfileScreen() {
         >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', margin: 15 }}>
                 <View style={{ flexDirection: 'row' }}>
-                    <Button onPress={() => { navigation.navigate("HistoryStack", { screen: "Statistics" }) }}>
+                    <Button onPress={() => { navigation.navigate("ProfileStack", { screen: "Statistics" }) }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Iconify
                                 icon={'akar-icons:statistic-up'}

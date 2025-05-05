@@ -63,16 +63,12 @@ const theme = {
 
 const HomeStack = createStackNavigator();
 
-const HistoryStackNavigator = () => {
-  const { user } = useAuth();
-
-  return (
-    <HomeStack.Navigator initialRouteName="History" screenOptions={{ headerShown: false }}>
-      <HomeStack.Screen name="History" component={HistoryScreen} />
-      <HomeStack.Screen name="Statistics" component={StatisticsScreen} />
-    </HomeStack.Navigator>
-  );
-};
+const ProfileStackNavigator = () => (
+  <HomeStack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false }}>
+    <HomeStack.Screen name="Profile" component={ProfileScreen} />
+    <HomeStack.Screen name="Statistics" component={StatisticsScreen} />
+  </HomeStack.Navigator>
+);
 
 const ActivitiesStackNavigator = () => (
   <HomeStack.Navigator initialRouteName="CarbonFootprint" screenOptions={{ headerShown: false }}>
@@ -87,7 +83,7 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="Scan" // Edit/Change
+      initialRouteName="History" // Edit/Change
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',
@@ -138,8 +134,8 @@ const BottomTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="HistoryStack"
-        component={user ? HistoryStackNavigator : LoginScreen}
+        name="History"
+        component={user ? HistoryScreen : LoginScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Iconify icon="maki:waste-basket" color={color} size={size} />,
         }}
@@ -153,8 +149,8 @@ const BottomTabNavigator = () => {
         })}
       />
       <Tab.Screen
-        name="Profile"
-        component={user ? ProfileScreen : LoginScreen}
+        name="ProfileStack"
+        component={user ? ProfileStackNavigator : LoginScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Iconify icon="iconamoon:profile-fill" color={color} size={size} />,
         }}

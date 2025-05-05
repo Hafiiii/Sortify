@@ -1,9 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
-import { View, Alert, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { Text, Chip, Button, Searchbar, Divider, RadioButton } from 'react-native-paper';
+import { useState, useRef, useCallback } from 'react';
+import { View, Alert, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
+import { Text, Chip, Button, Searchbar, Divider } from 'react-native-paper';
+// @react-navigation
+import { useFocusEffect } from '@react-navigation/native';
 // firebase
 import { firestore } from '../utils/firebase';
-import { collection, doc, getDocs, getDoc, deleteDoc, query, where } from 'firebase/firestore';
+import { collection, doc, getDocs, deleteDoc, query, where } from 'firebase/firestore';
 // auth
 import { useAuth } from '../context/AuthContext';
 // components
@@ -49,45 +51,45 @@ export default function HistoryScreen() {
     const [loading, setLoading] = useState(true);
     const [scrollHeight, setScrollHeight] = useState(0);
 
-    useEffect(() => {
-        const fetchUserWastes = async () => {
-            if (!user?.uid) {
-                return;
-            }
-
-            try {
-                const wastesCollectionRef = collection(firestore, 'wastes');
-                const q = query(wastesCollectionRef, where('uid', '==', user?.uid));
-                const wastesSnapshot = await getDocs(q);
-
-                if (!wastesSnapshot.empty) {
-                    const wastesList = wastesSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data(),
-                    }));
-
-                    setWastes(wastesList);
-                } else {
-                    Toast.show({
-                        type: 'error',
-                        text1: "Oops! You haven't scanned any waste item yet.",
-                    });
-                }
-            } catch (error) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'An error occurred while fetching wastes.',
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        if (user?.uid) {
-            fetchUserWastes();
+    const fetchUserWastes = async () => {
+        if (!user?.uid) {
+            return;
         }
 
-    }, [user]);
+        try {
+            const wastesCollectionRef = collection(firestore, 'wastes');
+            const q = query(wastesCollectionRef, where('uid', '==', user?.uid));
+            const wastesSnapshot = await getDocs(q);
+
+            if (!wastesSnapshot.empty) {
+                const wastesList = wastesSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
+                setWastes(wastesList);
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: "Oops! You haven't scanned any waste item yet.",
+                });
+            }
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'An error occurred while fetching wastes.',
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            if (user?.uid) {
+                fetchUserWastes();
+            }
+        }, [user?.uid])
+    );
 
     const toggleFilter = () => {
         Animated.timing(slideAnim, {
@@ -183,169 +185,172 @@ export default function HistoryScreen() {
     if (loading) return <Text>Loading...</Text>;
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView
-                contentContainerStyle={{ padding: 30 }}
-                showsVerticalScrollIndicator={false}
-                onContentSizeChange={(contentWidth, contentHeight) => {
-                    setScrollHeight(contentHeight);
-                }}
-            >
-                <Header title="History" style={{ fontWeight: 700 }} />
-
-                <Searchbar
-                    placeholder="Search"
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                    icon={props => <Iconify icon="ri:search-line" size={20} />}
-                    clearIcon={props => <Iconify icon="ic:baseline-clear" size={20} />}
-                    inputStyle={{ color: '#000', height: 45, marginTop: -4 }}
-                    style={{ borderRadius: 14, marginVertical: 15, height: 45, backgroundColor: '#eaeaea' }}
-                />
-
-                <View style={{ marginBottom: 15 }}>
-                    <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                        {sortOptions.map((option) => (
-                            <Chip
-                                key={option.value}
-                                selected={sortOption === option.value}
-                                onPress={() => setSortOption(option.value)}
-                                showSelectedCheck={false}
-                                style={{
-                                    marginRight: 5,
-                                    marginBottom: 8,
-                                    backgroundColor: sortOption === option.value ? palette.primary.main : '#eaeaea',
-                                    borderRadius: 20,
-                                }}
-                                textStyle={{
-                                    color: sortOption === option.value ? '#fff' : '#000',
-                                    fontSize: 12,
-                                    fontWeight: 700,
-                                }}
-                            >
-                                {option.label}
-                            </Chip>
-                        ))}
-                    </ScrollView>
-                </View>
-
-                <TouchableOpacity
-                    onPress={toggleFilter}
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginBottom: 5,
+        <ImageBackground
+            source={require('../../assets/sortify-logo-half-bg.png')}
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+            resizeMode="cover"
+            imageStyle={{ opacity: 0.4 }}
+        >
+            <SafeAreaView style={{ flex: 1, marginBottom: 60 }}>
+                <ScrollView
+                    contentContainerStyle={{ padding: 30 }}
+                    showsVerticalScrollIndicator={false}
+                    onContentSizeChange={(contentWidth, contentHeight) => {
+                        setScrollHeight(contentHeight);
                     }}
                 >
-                    <Iconify icon="circum:filter" size={16} color="#000" />
-                    <Text style={{ fontSize: 11, fontWeight: 700, marginLeft: 3 }}>FILTERS</Text>
-                </TouchableOpacity>
+                    <Header title="History" style={{ fontWeight: 700 }} />
 
-                <Animated.View
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        width: width - 60,
-                        height: height - 120,
-                        backgroundColor: '#fff',
-                        transform: [{ translateX: slideAnim }],
-                        zIndex: 4,
-                    }}
-                >
-                    <View style={{ flex: 1, paddingBottom: 60 }}>
-                        <ScrollView
-                            style={{ padding: 20 }}
-                            contentContainerStyle={{ paddingBottom: 20 }}
-                            showsVerticalScrollIndicator={false}
-                        >
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 13 }}>
-                                <Text style={{ fontSize: 18, fontWeight: 400 }}>Filter</Text>
-                                <Iconify icon="material-symbols:close" size={20} color={palette.disabled.main} onPress={cancelFilters} />
-                            </View>
+                    <Searchbar
+                        placeholder="Search"
+                        onChangeText={setSearchQuery}
+                        value={searchQuery}
+                        icon={props => <Iconify icon="ri:search-line" size={20} />}
+                        clearIcon={props => <Iconify icon="ic:baseline-clear" size={20} />}
+                        inputStyle={{ color: '#000', height: 45, marginTop: -4 }}
+                        style={{ borderRadius: 14, marginVertical: 10, height: 45, backgroundColor: '#eaeaea' }}
+                    />
 
-                            <Divider style={{ alignSelf: 'stretch' }} />
-
-                            <Text style={{ fontSize: 16, fontWeight: 700, marginVertical: 10 }}>Date Range</Text>
-                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
-                                {dateOptions.map(({ label, value }) => (
-                                    <Chip
-                                        key={value}
-                                        mode="outlined"
-                                        onPress={() => setTempFilterDate(value)}
-                                        style={{
-                                            backgroundColor: tempFilterDate === value ? '#000' : '#fff',
-                                            borderColor: tempFilterDate === value ? '#000' : palette.disabled.main,
-                                        }}
-                                        textStyle={{
-                                            color: tempFilterDate === value ? '#fff' : palette.disabled.secondary,
-                                        }}
-                                    >
-                                        {label}
-                                    </Chip>
-                                ))}
-                            </View>
+                    <View style={{ marginBottom: 10 }}>
+                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                            {sortOptions.map((option) => (
+                                <Chip
+                                    key={option.value}
+                                    selected={sortOption === option.value}
+                                    onPress={() => setSortOption(option.value)}
+                                    showSelectedCheck={false}
+                                    style={{
+                                        marginRight: 5,
+                                        marginBottom: 8,
+                                        backgroundColor: sortOption === option.value ? palette.primary.main : '#eaeaea',
+                                        borderRadius: 20,
+                                    }}
+                                    textStyle={{
+                                        color: sortOption === option.value ? '#fff' : '#000',
+                                        fontSize: 12,
+                                        fontWeight: 700,
+                                    }}
+                                >
+                                    {option.label}
+                                </Chip>
+                            ))}
                         </ScrollView>
-
-                        <View
-                            style={{
-                                position: 'absolute',
-                                bottom: 0,
-                                left: 0,
-                                right: 0,
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                backgroundColor: '#fff',
-                                padding: 10,
-                                borderTopWidth: 1,
-                                borderTopColor: palette.disabled.main,
-                            }}
-                        >
-                            <Button
-                                mode="outlined"
-                                onPress={clearAllFilters}
-                                style={{ flex: 1, marginRight: 5, borderRadius: 5, borderWidth: 1.5, color: '#000' }}
-                                labelStyle={{ color: '#000' }}
-                                theme={{ colors: { primary: '#000' } }}
-                            >
-                                Clear All
-                            </Button>
-                            <Button
-                                mode="contained"
-                                onPress={applyFilters}
-                                style={{ flex: 1, backgroundColor: '#000', borderRadius: 5 }}
-                            >
-                                Apply
-                            </Button>
-                        </View>
                     </View>
-                </Animated.View>
 
-                {FilterDrawer && (
-                    <TouchableWithoutFeedback onPress={toggleFilter}>
-                        <View
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: width,
-                                height: height,
-                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                zIndex: 3,
-                            }}
-                        />
-                    </TouchableWithoutFeedback>
-                )}
+                    <TouchableOpacity
+                        onPress={toggleFilter}
+                        style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 5 }}
+                    >
+                        <Iconify icon="circum:filter" size={16} color="#000" />
+                        <Text style={{ fontSize: 11, fontWeight: 700, marginLeft: 3 }}>FILTERS</Text>
+                    </TouchableOpacity>
 
-                {filteredWastes.length === 0 ? (
-                    <Text>No waste found.</Text>
-                ) : (
-                    filteredWastes.map(waste => (
-                        <HistoryList key={waste.id} waste={waste} onDelete={onDelete} />
-                    ))
-                )}
-            </ScrollView>
-        </SafeAreaView >
+                    <Animated.View
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            width: width - 60,
+                            height: height - 120,
+                            backgroundColor: '#fff',
+                            transform: [{ translateX: slideAnim }],
+                            zIndex: 4,
+                        }}
+                    >
+                        <View style={{ flex: 1, paddingBottom: 60 }}>
+                            <ScrollView
+                                style={{ padding: 20 }}
+                                contentContainerStyle={{ paddingBottom: 20 }}
+                                showsVerticalScrollIndicator={false}
+                            >
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 13 }}>
+                                    <Text style={{ fontSize: 18, fontWeight: 400 }}>Filter</Text>
+                                    <Iconify icon="material-symbols:close" size={20} color={palette.disabled.main} onPress={cancelFilters} />
+                                </View>
+
+                                <Divider style={{ alignSelf: 'stretch' }} />
+
+                                <Text style={{ fontSize: 16, fontWeight: 700, marginVertical: 10 }}>Date Range</Text>
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+                                    {dateOptions.map(({ label, value }) => (
+                                        <Chip
+                                            key={value}
+                                            mode="outlined"
+                                            onPress={() => setTempFilterDate(value)}
+                                            style={{
+                                                backgroundColor: tempFilterDate === value ? '#000' : '#fff',
+                                                borderColor: tempFilterDate === value ? '#000' : palette.disabled.main,
+                                            }}
+                                            textStyle={{
+                                                color: tempFilterDate === value ? '#fff' : palette.disabled.secondary,
+                                            }}
+                                        >
+                                            {label}
+                                        </Chip>
+                                    ))}
+                                </View>
+                            </ScrollView>
+
+                            <View
+                                style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    backgroundColor: '#fff',
+                                    padding: 10,
+                                    borderTopWidth: 1,
+                                    borderTopColor: palette.disabled.main,
+                                }}
+                            >
+                                <Button
+                                    mode="outlined"
+                                    onPress={clearAllFilters}
+                                    style={{ flex: 1, marginRight: 5, borderRadius: 5, borderWidth: 1.5, color: '#000' }}
+                                    labelStyle={{ color: '#000' }}
+                                    theme={{ colors: { primary: '#000' } }}
+                                >
+                                    Clear All
+                                </Button>
+                                <Button
+                                    mode="contained"
+                                    onPress={applyFilters}
+                                    style={{ flex: 1, backgroundColor: '#000', borderRadius: 5 }}
+                                >
+                                    Apply
+                                </Button>
+                            </View>
+                        </View>
+                    </Animated.View>
+
+                    {FilterDrawer && (
+                        <TouchableWithoutFeedback onPress={toggleFilter}>
+                            <View
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: width,
+                                    height: height,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                    zIndex: 3,
+                                }}
+                            />
+                        </TouchableWithoutFeedback>
+                    )}
+
+                    {filteredWastes.length === 0 ? (
+                        <Text>No waste found.</Text>
+                    ) : (
+                        filteredWastes.map(waste => (
+                            <HistoryList key={waste.id} waste={waste} onDelete={onDelete} />
+                        ))
+                    )}
+                </ScrollView>
+            </SafeAreaView >
+        </ImageBackground>
     );
 }
