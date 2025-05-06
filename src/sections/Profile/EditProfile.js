@@ -182,7 +182,7 @@ export default function EditProfile() {
                 text1: 'Profile Updated Successfully',
             });
 
-            navigation.navigate("Main", { screen: "Profile", refresh: true });
+            navigation.navigate("Main", { screen: "ProfileStack", params: { screen: "Profile" } });
         } catch (err) {
 
             Toast.show({

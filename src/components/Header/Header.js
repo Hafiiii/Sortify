@@ -49,7 +49,7 @@ export function Header({ title, style }) {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }}>
             <Text style={[{ fontSize: 16 }, style]}>{title}</Text>
             {userData?.photoURL && (
-                <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                <TouchableOpacity onPress={() => { navigation.navigate("ProfileStack", { screen: "Profile" }) }}>
                     <Image
                         source={{ uri: userData.photoURL }}
                         style={{ width: 40, height: 40, borderRadius: 50 }}
@@ -101,7 +101,7 @@ export function HeaderTriple({ title, style, boxStyle }) {
             <Text style={[{ fontSize: 16 }, style]}>{title}</Text>
 
             {userData?.photoURL && (
-                <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+                <TouchableOpacity onPress={() => { navigation.navigate("ProfileStack", { screen: "Profile" }) }}>
                     <Image
                         source={{ uri: userData.photoURL }}
                         style={{ width: 40, height: 40, borderRadius: 50 }}

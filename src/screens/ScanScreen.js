@@ -6,7 +6,7 @@ import Svg, { Rect, Text as SvgText } from "react-native-svg";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 // @react-navigation
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 // firebase
 import { firestore, storage } from '../utils/firebase';
 import { collection, doc, setDoc, query, where, getDocs } from 'firebase/firestore';
@@ -19,6 +19,7 @@ import { HeaderTriple } from "../components/Header/Header";
 import palette from "../theme/palette";
 import { Iconify } from 'react-native-iconify';
 import Toast from 'react-native-toast-message';
+import tacoData from '../../assets/taco/annotations.json'
 
 // ----------------------------------------------------------------------
 
@@ -27,20 +28,20 @@ const { width, height } = Dimensions.get('window');
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
 
-const WASTE_TYPE_MAP = {
-    'Plastic': 'Non-recyclable',
-    'Paper': 'Recyclable',
-    'Glass': 'Recyclable',
-    'Metal': 'Recyclable',
-    'Food': 'Organic',
-    'Organic': 'Organic',
-    // Add more mappings based on detected objects
-};
+// const WASTE_TYPE_MAP = {
+//     'banana': 'Organic',
+//     'can': 'Recyclable',
+//     'bottle': 'Recyclable',
+//     'styrofoam': 'Non-recyclable',
+//     'diaper': 'Hazardous',
+//     // Add more mappings based on detected objects
+// };
 
 // ----------------------------------------------------------------------
 
 export default function ScanScreen() {
     const { user } = useAuth();
+    const navigation = useNavigation();
     const [imageUri, setImageUri] = useState(null);
     const [detectedObjects, setDetectedObjects] = useState([]);
     const [cameraPermission, setCameraPermission] = useState(null);
@@ -51,6 +52,8 @@ export default function ScanScreen() {
     const [showPreview, setShowPreview] = useState(false);
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const isFocused = useIsFocused();
+    const [imageLayout, setImageLayout] = useState({ width: 0, height: 0 });
+    const aspectRatio = 1;
 
     const checkCameraPermission = async () => {
         const status = Camera.getCameraPermissionStatus();
@@ -66,6 +69,7 @@ export default function ScanScreen() {
     };
 
     useEffect(() => {
+        console.log('TACO DATA:', tacoData);
         checkCameraPermission();
     }, []);
 
@@ -137,7 +141,17 @@ export default function ScanScreen() {
         );
     };
 
-    const analyzeImage = async (base64Image, imageURL) => {
+    const getWasteTypeFromTaco = (objectName) => {
+        if (!objectName) return 'Unknown';
+
+        const matchedCategory = tacoData.categories.find(cat =>
+            objectName.toLowerCase().trim().includes(cat.name.toLowerCase().trim())
+        );
+
+        return matchedCategory ? matchedCategory.supercategory : 'Unknown';
+    };
+
+    const analyzeImage = async (base64Image, photoURL) => {
         try {
             const response = await axios.post(
                 `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
@@ -161,18 +175,21 @@ export default function ScanScreen() {
                     name: obj.name,
                     score: obj.score,
                     vertices: obj.boundingPoly.normalizedVertices,
-                    wasteType: WASTE_TYPE_MAP[obj.name] || 'Unknown',
+                    // wasteType: WASTE_TYPE_MAP[obj.name] || 'Unknown',
+                    wasteType: getWasteTypeFromTaco(obj.name) || 'Unknown',
+                    photoURL: photoURL,
                 }));
 
             setDetectedObjects(cleanedObjects);
             setIsDrawerVisible(true);
 
-            await addWasteToFirestore(cleanedObjects, imageURL);
+            await addWasteToFirestore(cleanedObjects, photoURL);
         } catch (error) {
             Toast.show({
                 type: 'error',
                 text1: 'There was a problem analyzing the image.',
             });
+            console.error('Error analyzing image:', error);
         }
     };
 
@@ -193,8 +210,8 @@ export default function ScanScreen() {
         });
     };
 
-    const addWasteToFirestore = async (detectedObjects, imageURL) => {
-        const blob = await validateImage(imageURL);
+    const addWasteToFirestore = async (detectedObjects, photoURL) => {
+        const blob = await validateImage(photoURL);
         const storageRef = ref(storage, `wastes_images/${Date.now()}.jpg`);
         await uploadBytes(storageRef, blob);
         const downloadURL = await getDownloadURL(storageRef);
@@ -245,6 +262,15 @@ export default function ScanScreen() {
         new Map(detectedObjects.map(obj => [obj.name, obj])).values()
     );
 
+    const resetScanScreen = () => {
+        setImageUri(null);
+        setDetectedObjects([]);
+        setCapturedPhoto(null);
+        setShowPreview(false);
+        setIsDrawerVisible(false);
+    };
+
+
     if (cameraPermission === null) {
         return <Text>Checking camera permission...</Text>;
     } else if (!cameraPermission) {
@@ -276,47 +302,59 @@ export default function ScanScreen() {
 
             {imageUri && (
                 <View>
-                    <View style={{ position: "relative" }}>
-                        <Image source={{ uri: imageUri }} style={{ width: 300, height: 300 }} />
-                        <Svg width={300} height={300} style={{ position: "absolute", top: 0, left: 0 }}>
-                            {detectedObjects.map((obj, index) => {
-                                if (!obj.vertices || obj.vertices.length < 4) return null;
-                                const [v1, v2, v3] = obj.vertices;
+                    <View style={{ position: "relative", width: "100%" }}
+                        onLayout={(event) => {
+                            const layoutWidth = event.nativeEvent.layout.width;
+                            setImageLayout({
+                                width: layoutWidth,
+                                height: layoutWidth / aspectRatio,
+                            });
+                        }}>
+                        <Image source={{ uri: imageUri }} style={{ aspectRatio, width }} />
 
-                                const boxX = v1.x * 300;
-                                const boxY = v1.y * 300;
-                                const boxWidth = (v3.x - v1.x) * 300;
-                                const boxHeight = (v3.y - v1.y) * 300;
+                        {imageLayout.width > 0 && (
+                            <Svg width={imageLayout.width}
+                                height={imageLayout.height} style={{ position: "absolute", top: 0, left: 0, aspectRatio: 1 }}>
 
-                                return (
-                                    <Fragment key={index}>
-                                        <Rect
-                                            x={boxX}
-                                            y={boxY}
-                                            width={boxWidth}
-                                            height={boxHeight}
-                                            stroke="red"
-                                            strokeWidth="2"
-                                            fill="none"
-                                        />
-                                        <SvgText
-                                            x={boxX}
-                                            y={boxY - 5}
-                                            fontSize="14"
-                                            fill="red"
-                                        >
-                                            {obj.name} ({(obj.score * 100).toFixed(1)}%)
-                                        </SvgText>
-                                    </Fragment>
-                                );
-                            })}
-                        </Svg>
+                                {detectedObjects.map((obj, index) => {
+                                    if (!obj.vertices || obj.vertices.length < 4) return null;
+                                    const [v1, v2, v3] = obj.vertices;
+
+                                    const boxX = v1.x * imageLayout.width;
+                                    const boxY = v1.y * imageLayout.height;
+                                    const boxWidth = (v3.x - v1.x) * imageLayout.width;
+                                    const boxHeight = (v3.y - v1.y) * imageLayout.height;
+
+                                    return (
+                                        <Fragment key={index}>
+                                            <Rect
+                                                x={boxX}
+                                                y={boxY}
+                                                width={boxWidth}
+                                                height={boxHeight}
+                                                stroke="red"
+                                                strokeWidth="2"
+                                                fill="none"
+                                            />
+                                            <SvgText
+                                                x={boxX}
+                                                y={boxY - 5}
+                                                fontSize="14"
+                                                fill="red"
+                                            >
+                                                {obj.name} ({(obj.score * 100).toFixed(1)}%)
+                                            </SvgText>
+                                        </Fragment>
+                                    );
+                                })}
+                            </Svg>
+                        )}
                     </View>
                 </View>
             )}
 
             <View style={{ flex: 1 }}>
-                {isFocused && (
+                {isFocused && !imageUri && (
                     <View style={{ flex: 1 }}>
                         <Camera
                             style={StyleSheet.absoluteFill}
@@ -329,6 +367,7 @@ export default function ScanScreen() {
                         />
                     </View>
                 )}
+
                 {showPreview && capturedPhoto ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                         <Image
@@ -376,33 +415,72 @@ export default function ScanScreen() {
                 transparent={true}
                 onRequestClose={() => setIsDrawerVisible(false)}
             >
-                <View style={{
-                    flex: 1,
-                    justifyContent: 'flex-end',
-                    backgroundColor: 'rgba(0, 0, 0, 0.4)'
-                }}>
-                    <View style={{
-                        backgroundColor: 'white',
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-                        padding: 20,
-                        maxHeight: '60%',
-                    }}>
-                        <Text style={{
-                            fontSize: 18,
-                            fontWeight: 'bold',
-                            marginBottom: 10,
-                        }}>Detected Objects</Text>
-                        <ScrollView>
-                            {uniqueDetectedObjects.map((obj, index) => (
-                                <Text key={index} style={{ fontSize: 16, marginTop: 5 }}>
-                                    • {obj.name} - Waste Type: {obj.wasteType}
-                                </Text>
-                            ))}
-                        </ScrollView>
-                        <TouchableOpacity onPress={() => setIsDrawerVisible(false)}>
-                            <Text style={{ color: palette.primary, marginTop: 10 }}>Close</Text>
-                        </TouchableOpacity>
+                <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
+                    <View
+                        style={{
+                            backgroundColor: 'white',
+                            borderTopLeftRadius: 20,
+                            borderTopRightRadius: 20,
+                            paddingHorizontal: 20,
+                            paddingVertical: 10,
+                            maxHeight: '70%',
+                        }}
+                    >
+
+                        {uniqueDetectedObjects.map((obj, index) => (
+                            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Image
+                                    source={obj.photoURL ? { uri: obj.photoURL } : require("../../assets/sortify-logo.png")}
+                                    style={{
+                                        width: '25%',
+                                        aspectRatio: 1,
+                                        resizeMode: 'cover',
+                                        borderTopLeftRadius: 20,
+                                        borderBottomLeftRadius: 20,
+                                    }}
+                                />
+
+                                <View style={{ flexDirection: 'column', justifyContent: 'center', width: '70%', }}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                                            {obj.wasteType}
+                                        </Text>
+
+                                        <TouchableOpacity onPress={() => { navigation.navigate('Feedback') }}>
+                                            <Iconify icon="material-symbols:flag" color="#000" size={25} style={{}} />
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <Text>{obj.name}</Text>
+
+                                    <View
+                                        style={{
+                                            backgroundColor: '#e5e5e5',
+                                            paddingVertical: 3,
+                                            paddingHorizontal: 5,
+                                            borderRadius: 20,
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            width: 58,
+                                            marginTop: 5,
+                                        }}
+                                    >
+                                        <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
+                                        <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{obj.point}</Text>
+                                    </View>
+                                </View>
+                            </View>
+                        ))}
+
+                        <Button
+                            mode="contained"
+                            onPress={resetScanScreen}
+                            style={{ backgroundColor: '#000', width: '100%', marginTop: 20 }}
+                            labelStyle={{ color: '#fff' }}
+                        >
+                            Sorted!
+                        </Button>
                     </View>
                 </View>
             </Modal>

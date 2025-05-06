@@ -83,7 +83,7 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="History" // Edit/Change
+      initialRouteName="Home" // Edit/Change
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',
