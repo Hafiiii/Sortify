@@ -1,13 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Text, Chip } from 'react-native-paper';
-// @react-navigation
-import { useFocusEffect } from '@react-navigation/native';
-// auth
-import { useAuth } from '../context/AuthContext';
-// firebase
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { firestore } from '../utils/firebase';
+// hooks
+import { getWastes } from '../hooks/getWastes';
 // chart
 import { PieChart, LineChart } from 'react-native-chart-kit';
 import moment from 'moment';
@@ -25,49 +20,10 @@ const { width, height } = Dimensions.get('window');
 // ----------------------------------------------------------------------
 
 export default function StatisticsScreen() {
-    const { user } = useAuth();
+    const { wasteData } = getWastes();
     const chartRef = useRef(null);
     const [selectedFilter, setSelectedFilter] = useState('Weekly');
     const [selectedDate, setSelectedDate] = useState(moment());
-    const [wasteData, setWasteData] = useState([]);
-
-    const fetchUserWastes = async () => {
-        if (!user?.uid) return;
-
-        try {
-            const wastesCollectionRef = collection(firestore, 'wastes');
-            const q = query(wastesCollectionRef, where('uid', '==', user?.uid));
-            const wastesSnapshot = await getDocs(q);
-
-            if (!wastesSnapshot.empty) {
-                const wastesList = wastesSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setWasteData(wastesList);
-            } else {
-                Toast.show({
-                    type: 'error',
-                    text1: "Oops! You haven't scanned any waste item yet.",
-                });
-            }
-        } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'An error occurred while fetching wastes.',
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useFocusEffect(
-        useCallback(() => {
-            if (user?.uid) {
-                fetchUserWastes();
-            }
-        }, [user?.uid])
-    );
 
     const getWeekDates = (date) =>
         Array.from({ length: 7 }, (_, i) => moment(date).startOf('week').add(i, 'days').format('YYYY-MM-DD'));

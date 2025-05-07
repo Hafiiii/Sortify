@@ -1,7 +1,7 @@
-import { View, Image, Dimensions } from 'react-native';
+import { View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 // @react-navigation
-import { Link } from '@react-navigation/native';
+import { Link, useNavigation } from '@react-navigation/native';
 // components
 import AuthLogin from '../auth/AuthLogin';
 import AuthSocial from '../auth/AuthSocial';
@@ -14,6 +14,8 @@ const { width, height } = Dimensions.get('screen');
 // ----------------------------------------------------------------------
 
 export default function LoginScreen() {
+  const navigation = useNavigation();
+
   return (
     <View
       style={{
@@ -23,22 +25,24 @@ export default function LoginScreen() {
         justifyContent: 'space-between',
       }}
     >
-      <View style={{ alignItems: 'center', marginVertical: 30 }}>
-        <Text
-          style={{
-            color: palette.primary.main,
-            fontSize: 22,
-            fontWeight: 700,
-            letterSpacing: 2.5
-          }}
-        >
-          SORTIFY
-        </Text>
-        <Image
-          source={require("../../assets/sortify-logo.png")}
-          style={{ width: 75, height: 102 }}
-        />
-      </View>
+      <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "Home" })}>
+        <View style={{ alignItems: 'center', marginVertical: 30 }}>
+          <Text
+            style={{
+              color: palette.primary.main,
+              fontSize: 22,
+              fontWeight: 700,
+              letterSpacing: 2.5
+            }}
+          >
+            SORTIFY
+          </Text>
+          <Image
+            source={require("../../assets/sortify-logo.png")}
+            style={{ width: 75, height: 102 }}
+          />
+        </View>
+      </TouchableOpacity>
 
       <View
         style={{

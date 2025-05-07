@@ -1,13 +1,11 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import { View, Alert, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
 import { Text, Chip, Button, Searchbar, Divider } from 'react-native-paper';
-// @react-navigation
-import { useFocusEffect } from '@react-navigation/native';
+// hooks
+import { getWastes } from '../hooks/getWastes';
 // firebase
 import { firestore } from '../utils/firebase';
-import { collection, doc, getDocs, deleteDoc, query, where } from 'firebase/firestore';
-// auth
-import { useAuth } from '../context/AuthContext';
+import { doc, deleteDoc } from 'firebase/firestore';
 // components
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
@@ -40,56 +38,14 @@ const sortOptions = [
 // ----------------------------------------------------------------------
 
 export default function HistoryScreen() {
-    const { user } = useAuth();
     const slideAnim = useRef(new Animated.Value(-width)).current;
-    const [wastes, setWastes] = useState([]);
+    const { wasteData, setWasteData, loading } = getWastes();
     const [searchQuery, setSearchQuery] = useState('');
     const [filterDate, setFilterDate] = useState('');
     const [tempFilterDate, setTempFilterDate] = useState('');
     const [FilterDrawer, setFilterDrawer] = useState(false);
     const [sortOption, setSortOption] = useState('date-new');
-    const [loading, setLoading] = useState(true);
     const [scrollHeight, setScrollHeight] = useState(0);
-
-    const fetchUserWastes = async () => {
-        if (!user?.uid) {
-            return;
-        }
-
-        try {
-            const wastesCollectionRef = collection(firestore, 'wastes');
-            const q = query(wastesCollectionRef, where('uid', '==', user?.uid));
-            const wastesSnapshot = await getDocs(q);
-
-            if (!wastesSnapshot.empty) {
-                const wastesList = wastesSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
-                setWastes(wastesList);
-            } else {
-                Toast.show({
-                    type: 'error',
-                    text1: "Oops! You haven't scanned any waste item yet.",
-                });
-            }
-        } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'An error occurred while fetching wastes.',
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useFocusEffect(
-        useCallback(() => {
-            if (user?.uid) {
-                fetchUserWastes();
-            }
-        }, [user?.uid])
-    );
 
     const toggleFilter = () => {
         Animated.timing(slideAnim, {
@@ -122,7 +78,7 @@ export default function HistoryScreen() {
     const last3Months = moment().subtract(3, 'months').startOf('day').toDate();
     const lastYear = moment().subtract(1, 'year').startOf('day').toDate();
 
-    const filteredWastes = wastes
+    const filteredWastes = wasteData
         .filter(waste =>
             `${waste.wasteName}`.toLowerCase().includes(searchQuery.toLowerCase())
         )
@@ -163,7 +119,7 @@ export default function HistoryScreen() {
                         try {
                             const wasteDocRef = doc(firestore, 'wastes', id);
                             await deleteDoc(wasteDocRef);
-                            setWastes(prevWastes => prevWastes.filter(waste => waste.id !== id));
+                            setWasteData(prevWastes => prevWastes.filter(waste => waste.id !== id));
                             Toast.show({
                                 type: 'success',
                                 text1: 'Waste item deleted successfully',

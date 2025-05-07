@@ -1,13 +1,9 @@
-import { useState, useEffect } from 'react';
 import { View, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
-// firebase
-import { firestore } from '../utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-// auth
-import { useAuth } from '../context/AuthContext';
+// hooks
+import { getUsers } from '../hooks/getUsers';
 // components
 import { Header } from '../components/Header/Header';
 import palette from '../theme/palette';
@@ -39,7 +35,7 @@ const activities = [
         desc: 'This feature helps users monitor their environmental impact by tracking their daily activities and carbon footprint.',
         iconName: 'Bronze',
         requiredPoints: BRONZE_POINT,
-        route: 'CarbonFootprint',
+        route: 'Leaderboard',
     },
 ];
 
@@ -47,39 +43,7 @@ const activities = [
 
 export default function ActivitiesScreen() {
     const navigation = useNavigation();
-    const { user } = useAuth();
-    const [userData, setUserData] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if (!user?.uid) {
-                console.log('No authenticated user found.');
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const userDocRef = doc(firestore, 'users', user.uid);
-                const userSnapshot = await getDoc(userDocRef);
-
-                if (userSnapshot.exists()) {
-                    setUserData(userSnapshot.data());
-                } else {
-                    console.log('User data not found in Firestore');
-                }
-            } catch (error) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error fetching user data.',
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserData();
-    }, [user]);
+    const { userData } = getUsers();
 
     return (
         <SafeAreaView style={{ flex: 1 }}>

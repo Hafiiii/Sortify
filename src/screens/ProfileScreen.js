@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
 import { View, Text, Image, Dimensions } from 'react-native';
 import { Button, ProgressBar } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
 // firebase
-import { auth, firestore } from '../utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { auth } from '../utils/firebase';
 import { signOut } from 'firebase/auth';
-// auth
-import { useAuth } from '../context/AuthContext';
+// hooks
+import { getUsers } from '../hooks/getUsers';
 // components
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
@@ -41,46 +39,14 @@ const censorPhoneNumber = (phone) => {
 // ----------------------------------------------------------------------
 
 export default function ProfileScreen() {
-    const { user } = useAuth();
-    const [userData, setUserData] = useState(null);
-    const [loading, setLoading] = useState(true);
     const navigation = useNavigation();
+    const { userData, loading } = getUsers();
     const formattedDate = moment(userData?.dateJoined.toDate()).format('DD/MM/YY');
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            if (!user?.uid) {
-                console.log('No authenticated user found.');
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const userDocRef = doc(firestore, 'users', user.uid);
-                const userSnapshot = await getDoc(userDocRef);
-
-                if (userSnapshot.exists()) {
-                    setUserData(userSnapshot.data());
-                } else {
-                    console.log('User data not found in Firestore');
-                }
-            } catch (error) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error fetching user data.',
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserData();
-    }, [user]);
 
     const handleLogout = async () => {
         try {
             signOut(auth);
-            navigation.replace('Login');
+            navigation.navigate("Main", { screen: "Home" });
         } catch (error) {
             Toast.show({
                 type: 'error',

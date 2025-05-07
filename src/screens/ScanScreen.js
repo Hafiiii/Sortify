@@ -19,7 +19,6 @@ import { HeaderTriple } from "../components/Header/Header";
 import palette from "../theme/palette";
 import { Iconify } from 'react-native-iconify';
 import Toast from 'react-native-toast-message';
-import tacoData from '../../assets/taco/annotations.json'
 
 // ----------------------------------------------------------------------
 
@@ -28,14 +27,14 @@ const { width, height } = Dimensions.get('window');
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
 
-// const WASTE_TYPE_MAP = {
-//     'banana': 'Organic',
-//     'can': 'Recyclable',
-//     'bottle': 'Recyclable',
-//     'styrofoam': 'Non-recyclable',
-//     'diaper': 'Hazardous',
-//     // Add more mappings based on detected objects
-// };
+const WASTE_TYPE_MAP = {
+    'banana': 'Organic',
+    'can': 'Recyclable',
+    'bottle': 'Recyclable',
+    'styrofoam': 'Non-recyclable',
+    'diaper': 'Hazardous',
+    // Add more mappings based on detected objects
+};
 
 // ----------------------------------------------------------------------
 
@@ -69,7 +68,6 @@ export default function ScanScreen() {
     };
 
     useEffect(() => {
-        console.log('TACO DATA:', tacoData);
         checkCameraPermission();
     }, []);
 
@@ -141,16 +139,6 @@ export default function ScanScreen() {
         );
     };
 
-    const getWasteTypeFromTaco = (objectName) => {
-        if (!objectName) return 'Unknown';
-
-        const matchedCategory = tacoData.categories.find(cat =>
-            objectName.toLowerCase().trim().includes(cat.name.toLowerCase().trim())
-        );
-
-        return matchedCategory ? matchedCategory.supercategory : 'Unknown';
-    };
-
     const analyzeImage = async (base64Image, photoURL) => {
         try {
             const response = await axios.post(
@@ -175,8 +163,7 @@ export default function ScanScreen() {
                     name: obj.name,
                     score: obj.score,
                     vertices: obj.boundingPoly.normalizedVertices,
-                    // wasteType: WASTE_TYPE_MAP[obj.name] || 'Unknown',
-                    wasteType: getWasteTypeFromTaco(obj.name) || 'Unknown',
+                    wasteType: WASTE_TYPE_MAP[obj.name] || 'Unknown',
                     photoURL: photoURL,
                 }));
 
@@ -189,7 +176,6 @@ export default function ScanScreen() {
                 type: 'error',
                 text1: 'There was a problem analyzing the image.',
             });
-            console.error('Error analyzing image:', error);
         }
     };
 
@@ -295,10 +281,12 @@ export default function ScanScreen() {
                 flex: 1,
                 width: width,
                 height: height,
-                padding: 20,
+                padding: imageUri ? 20 : 0,
             }}
         >
-            <HeaderTriple title="Scan" style={{ fontWeight: 700 }} boxStyle={{ marginBottom: 20 }} />
+            <View style={{ position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 20, paddingVertical: 10, zIndex: 9 }}>
+                <HeaderTriple title="Scan" style={{ fontWeight: 700 }} />
+            </View>
 
             {imageUri && (
                 <View>
@@ -355,7 +343,7 @@ export default function ScanScreen() {
 
             <View style={{ flex: 1 }}>
                 {isFocused && !imageUri && (
-                    <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1, position: 'relative' }}>
                         <Camera
                             style={StyleSheet.absoluteFill}
                             device={device}
@@ -404,7 +392,17 @@ export default function ScanScreen() {
 
             <TouchableOpacity
                 onPress={selectImage}
-                style={{ backgroundColor: '#fff', borderRadius: 50, width: 40, height: 40, alignItems: 'center', justifyContent: 'center', position: 'absolute', bottom: 40, right: 40 }}
+                style={{
+                    backgroundColor: '#fff',
+                    borderRadius: 50,
+                    width: 40,
+                    height: 40,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'absolute',
+                    bottom: 20,
+                    right: 20,
+                }}
             >
                 <Iconify icon="solar:gallery-bold" color="#000" size={24} />
             </TouchableOpacity>

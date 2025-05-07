@@ -71,7 +71,7 @@ const ProfileStackNavigator = () => (
 );
 
 const ActivitiesStackNavigator = () => (
-  <HomeStack.Navigator initialRouteName="CarbonFootprint" screenOptions={{ headerShown: false }}>
+  <HomeStack.Navigator initialRouteName="Activities" screenOptions={{ headerShown: false }}>
     <HomeStack.Screen name="Activities" component={ActivitiesScreen} />
     <HomeStack.Screen name="CarbonFootprint" component={CarbonFootprint} />
     <HomeStack.Screen name="Leaderboard" component={Leaderboard} />
