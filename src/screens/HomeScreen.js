@@ -1,21 +1,18 @@
-import { useState, useEffect } from 'react';
-import { View, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
-// firebase
-import { firestore } from '../utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 // auth
 import { useAuth } from '../context/AuthContext';
+// hooks
+import { getUsers } from '../hooks/getUsers';
 // sections
 import WasteType from '../sections/Home/WasteType';
-import GarbageTruck from '../components/Animation/GarbageTruck';
+import WasteCategoryCarousel from '../components/Animation/WasteCategoryCarousel';
 // components
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
-import Toast from 'react-native-toast-message';
 import { BRONZE_POINT, SILVER_POINT, GOLD_POINT } from '../utils/pointsConfig';
 
 // ----------------------------------------------------------------------
@@ -26,41 +23,8 @@ const { width, height } = Dimensions.get('screen');
 
 export default function HomeScreen() {
   const { user } = useAuth();
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { userData } = getUsers();
   const navigation = useNavigation();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!user?.uid) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const userSnapshot = await getDoc(userDocRef);
-
-        if (userSnapshot.exists()) {
-          setUserData(userSnapshot.data());
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: 'User data not found in Firestore',
-          });
-        }
-      } catch (error) {
-        Toast.show({
-          type: 'error',
-          text1: 'Error fetching user data',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, [user]);
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -71,7 +35,7 @@ export default function HomeScreen() {
           backgroundColor: palette.primary.main,
           padding: user ? 30 : 0,
           paddingTop: user ? 20 : 0,
-          height: height * 0.47,
+          height: user ? height * 0.47 : height * 0.42,
           marginBottom: 44,
         }}
       >
@@ -162,10 +126,35 @@ export default function HomeScreen() {
         ) : (
           <>
             <Text style={{ color: '#fff', fontSize: 36, fontWeight: 700, paddingHorizontal: user ? 0 : 30, }}>Hello! Ready to Sort?</Text>
-            <GarbageTruck />
+            
+            <WasteCategoryCarousel />
+
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                position: 'absolute',
+                right: -15,
+                left: 35,
+                bottom: -75,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Scan')}
+                style={{ backgroundColor: '#000', padding: 18, borderRadius: 50, marginTop: 40 }}
+              >
+                <Iconify icon="ph:scan-bold" size={28} color="#fff" />
+              </TouchableOpacity>
+
+              <Image
+                source={require('../../assets/bin.png')}
+                style={{ width: 190, height: 190 }}
+              />
+
+            </View>
           </>
         )}
-
       </View>
 
       <WasteType />
