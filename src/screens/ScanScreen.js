@@ -157,15 +157,22 @@ export default function ScanScreen() {
             );
 
             const objectAnnotations = response.data.responses[0].localizedObjectAnnotations || [];
-            const cleanedObjects = objectAnnotations
-                .filter(obj => obj.boundingPoly && obj.boundingPoly.normalizedVertices)
-                .map(obj => ({
-                    name: obj.name,
-                    score: obj.score,
-                    vertices: obj.boundingPoly.normalizedVertices,
-                    wasteType: WASTE_TYPE_MAP[obj.name] || 'Unknown',
-                    photoURL: photoURL,
-                }));
+
+            const cleanedObjects = await Promise.all(
+                objectAnnotations.map(async (obj) => {
+                    const categoryInfo = await getCategoryByObjectName(obj.name);
+
+                    return {
+                        name: obj.name,
+                        score: obj.score,
+                        vertices: obj.boundingPoly.normalizedVertices,
+                        category: categoryInfo?.categoryName || 'Unknown',
+                        recycleInstruction: categoryInfo?.categoryRecycle || 'N/A',
+                        isRecyclable: categoryInfo?.isRecyclable ?? false,
+                        photoURL: photoURL,
+                    };
+                })
+            );
 
             setDetectedObjects(cleanedObjects);
             setIsDrawerVisible(true);
@@ -178,6 +185,31 @@ export default function ScanScreen() {
             });
         }
     };
+
+    const getCategoryByObjectName = async (objectName) => {
+        try {
+            // Step 1: Find the object with objName
+            const objectQuery = query(collection(firestore, 'objects'), where('objName', '==', objectName));
+            const objectSnapshot = await getDocs(objectQuery);
+
+            if (objectSnapshot.empty) return null;
+
+            const objectDoc = objectSnapshot.docs[0].data();
+            const categoryId = objectDoc.categoryId;
+
+            // Step 2: Find the category using the categoryId
+            const categoryQuery = query(collection(firestore, 'categories'), where('categoryId', '==', categoryId));
+            const categorySnapshot = await getDocs(categoryQuery);
+
+            if (categorySnapshot.empty) return null;
+
+            return categorySnapshot.docs[0].data();
+        } catch (error) {
+            console.error("Error fetching category:", error);
+            return null;
+        }
+    };
+
 
     const validateImage = (uri) => {
         return new Promise(async (resolve, reject) => {
@@ -212,7 +244,7 @@ export default function ScanScreen() {
                 const q = query(
                     collection(firestore, 'wastes'),
                     where('wasteName', '==', obj.name),
-                    where('wasteType', '==', obj.wasteType),
+                    where('wasteType', '==', obj.category),
                     where('uid', '==', user.uid)
                 );
 
@@ -227,7 +259,7 @@ export default function ScanScreen() {
                 const wasteData = {
                     wasteId: wasteDocRef.id,
                     wasteName: obj.name,
-                    wasteType: obj.wasteType,
+                    wasteType: obj.category,
                     score: obj.score,
                     dateAdded: new Date(),
                     uid: user?.uid,
@@ -240,7 +272,9 @@ export default function ScanScreen() {
             Toast.show({
                 type: 'error',
                 text1: 'Failed to save waste data.',
+                text2: error.message,
             });
+            console.error("Error saving waste data:", error);
         }
     };
 
@@ -441,7 +475,7 @@ export default function ScanScreen() {
                                 <View style={{ flexDirection: 'column', justifyContent: 'center', width: '70%', }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                         <Text style={{ fontSize: 16, fontWeight: 700 }}>
-                                            {obj.wasteType}
+                                            {obj.category}
                                         </Text>
 
                                         <TouchableOpacity onPress={() => { navigation.navigate('Feedback') }}>

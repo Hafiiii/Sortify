@@ -45,7 +45,7 @@ export default function HomeScreen() {
           <>
             <View
               style={{
-                backgroundColor: palette.secondary.main,
+                backgroundColor: userData?.totalPoints < BRONZE_POINT ? '#f5f5f5' : palette.secondary.main,
                 padding: 3,
                 borderRadius: 20,
                 width: 58,
@@ -54,6 +54,7 @@ export default function HomeScreen() {
               }}
             >
               <TouchableOpacity onPress={() => { navigation.navigate("ProfileStack", { screen: "Profile" }) }}>
+                {userData?.totalPoints < BRONZE_POINT  && <Text style={{ fontSize: 12, fontWeight: 700, color: palette.disabled.secondary }}>Member</Text>}
                 {userData?.totalPoints >= BRONZE_POINT && userData?.totalPoints < SILVER_POINT && <Text style={{ fontSize: 12, fontWeight: 700 }}>Bronze</Text>}
                 {userData?.totalPoints >= SILVER_POINT && userData?.totalPoints < GOLD_POINT && <Text style={{ fontSize: 12, fontWeight: 700 }}>Silver</Text>}
                 {userData?.totalPoints >= GOLD_POINT && <Text style={{ fontSize: 12, fontWeight: 700 }}>Gold</Text>}

@@ -146,7 +146,7 @@ export default function ProfileScreen() {
             >
                 <Image
                     source={userData?.photoURL ? { uri: userData.photoURL } : require("../../assets/profile.jpeg")}
-                    style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 6, marginTop: -50 }}
+                    style={{ width: 100, height: 100, borderRadius: 50, marginTop: -50 }}
                 />
 
                 <Text style={{ fontSize: 20, fontWeight: 700 }}>{userData?.firstName} {userData?.lastName}</Text>
@@ -160,7 +160,7 @@ export default function ProfileScreen() {
                         backgroundColor: '#f5f5f5',
                         padding: 16,
                         borderRadius: 20,
-                        marginVertical: 20,
+                        marginVertical: 12,
                         boxShadow: '0 3px 7px rgba(0, 0, 0, 0.3)'
                     }}
                 >
@@ -186,7 +186,7 @@ export default function ProfileScreen() {
                             }}
                         >
                             <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
-                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{userData?.totalPoints}</Text>
+                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{userData?.totalPoints || 0}</Text>
                         </View>
                     </View>
 
@@ -281,7 +281,7 @@ export default function ProfileScreen() {
                         backgroundColor: '#f5f5f5',
                         padding: 16,
                         borderRadius: 20,
-                        marginBottom: 90,
+                        marginBottom: 88,
                         boxShadow: '0 3px 7px rgba(0, 0, 0, 0.3)'
                     }}
                 >
@@ -344,7 +344,7 @@ export default function ProfileScreen() {
                         onPress={() => { navigation.navigate('EditProfile') }}
                         loading={loading}
                         disabled={loading}
-                        style={{ backgroundColor: '#000', borderRadius: 7, marginVertical: 10 }}
+                        style={{ backgroundColor: '#000', borderRadius: 7, marginTop: 10, marginBottom: 3 }}
                         labelStyle={{ color: '#fff' }}
                     >
                         Edit Profile

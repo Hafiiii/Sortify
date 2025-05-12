@@ -104,6 +104,7 @@ export default function AuthSocial() {
             Toast.show({
                 type: 'error',
                 text1: 'Google Sign-In Error.',
+                text2: error.message,
             });
         }
     }
