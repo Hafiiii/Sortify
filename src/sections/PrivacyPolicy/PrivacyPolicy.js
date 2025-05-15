@@ -1,14 +1,14 @@
 import { ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 // components
-import GoBackButton from '../../components/GoBackButton/GoBackButton';
+import ReturnButton from '../../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
 export default function PrivacyPolicy() {
     return (
         <ScrollView contentContainerStyle={{ padding: 30 }} showsVerticalScrollIndicator={false}>
-            <GoBackButton />
+            <ReturnButton />
 
             <Text style={{ fontSize: 22, fontWeight: 700, marginBottom: 15 }}>Privacy Policy</Text>
 

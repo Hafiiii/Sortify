@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
@@ -7,7 +7,7 @@ import { Iconify } from 'react-native-iconify';
 
 // ----------------------------------------------------------------------
 
-export default function GoBackButton() {
+export function ReturnButton({ size = 20 }) {
     const navigation = useNavigation();
 
     return (
@@ -26,9 +26,23 @@ export default function GoBackButton() {
                     alignItems: 'center',
                 }}
             >
-                <Iconify icon="ri:arrow-left-s-line" size={20} />
+                <Iconify icon="ri:arrow-left-s-line" size={size} />
                 <Text style={{ fontSize: 12, fontWeight: '700', marginLeft: 2 }}>Return</Text>
             </View>
         </Button>
+    );
+};
+
+export function GoBackButton({ size = 26 }) {
+    const navigation = useNavigation();
+
+    return (
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Iconify
+                icon={'ri:arrow-left-s-line'}
+                size={size}
+                style={{ marginRight: 2, color: '#000' }}
+            />
+        </TouchableOpacity>
     );
 };

@@ -35,7 +35,7 @@ export default function HomeScreen() {
           backgroundColor: palette.primary.main,
           padding: user ? 30 : 0,
           paddingTop: user ? 20 : 0,
-          height: user ? height * 0.47 : height * 0.42,
+          height: user ? height * 0.50 : height * 0.42,
           marginBottom: 44,
         }}
       >

@@ -1,11 +1,10 @@
-import React from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Button, Divider } from 'react-native-paper';
+import { View, ScrollView } from 'react-native';
+import { Text, Button } from 'react-native-paper';
 // @react-navigation
 import { useNavigation, Link } from '@react-navigation/native';
 // components
-import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
+import { GoBackButton } from '../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
@@ -15,13 +14,7 @@ export default function SettingsScreen() {
     return (
         <ScrollView contentContainerStyle={{ padding: 30, backgroundColor: '#fff' }} showsVerticalScrollIndicator={false}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Iconify
-                        icon={'ri:arrow-left-s-line'}
-                        size={26}
-                        style={{ marginRight: 2, color: '#000' }}
-                    />
-                </TouchableOpacity>
+                <GoBackButton />
 
                 <Text style={{ fontSize: 20, fontWeight: 700 }}>Settings</Text>
             </View>

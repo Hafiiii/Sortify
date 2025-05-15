@@ -14,6 +14,7 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import Toast from 'react-native-toast-message';
 import palette from '../theme/palette';
 import { Iconify } from 'react-native-iconify';
+import { ReturnButton } from '../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
@@ -71,12 +72,7 @@ export default function ForgotPasswordScreen() {
                     padding: 40,
                 }}
             >
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
-                        <Iconify icon={'ri:arrow-left-s-line'} size={26} style={{ marginLeft: -7 }} />
-                        <Text style={{ fontSize: 12, fontWeight: 700 }}>Return</Text>
-                    </View>
-                </TouchableOpacity>
+                <ReturnButton />
 
                 <Text style={{ fontSize: 22, fontWeight: 700 }}>Forgot Password?</Text>
                 <Text style={{ marginTop: 10, marginBottom: 25, fontSize: 12 }}>Please enter the email associated with your account.</Text>

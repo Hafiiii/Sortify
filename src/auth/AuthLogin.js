@@ -9,7 +9,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 // firebase
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../utils/firebase';
+import { auth, firestore } from '../utils/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 // auth
 import { useAuth } from '../context/AuthContext';
 // components
@@ -45,20 +46,39 @@ export default function AuthLoginForm() {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
-      if (!user.emailVerified) {
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const userSnap = await getDoc(userDocRef);
+
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        const userId = userData.userId;
+
+        if (!user.emailVerified) {
+          Toast.show({
+            type: 'error',
+            text1: 'Please verify your email before logging in.',
+          });
+        }
+
+        Toast.show({
+          type: 'success',
+          text1: 'Login Successful',
+        });
+
+        handleLogin();
+
+        if (userId <= 5) {
+          navigation.navigate("UserCMS");
+        } else {
+          navigation.navigate("Main", { screen: "Home" });
+        }
+      } else {
         Toast.show({
           type: 'error',
-          text1: 'Please verify your email before logging in.',
+          text1: 'User profile not found in database.',
         });
       }
-
-      Toast.show({
-        type: 'success',
-        text1: 'Login Successful',
-      });
-
-      handleLogin();
-      navigation.navigate("Main", { screen: "Home" });
 
     } catch (err) {
       Toast.show({

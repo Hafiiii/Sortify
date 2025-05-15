@@ -2,6 +2,8 @@ import React from 'react';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 // context
 import { AuthProvider } from './src/context/AuthContext';
+// hooks
+import { getUsers } from './src/hooks/getUsers';
 // @react-navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -17,6 +19,9 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import DeleteAccount from './src/sections/Settings/DeleteAccount';
 
 import HomeScreen from './src/screens/HomeScreen';
+import CategoryObjects from './src/sections/Home/CategoryObjects';
+import ObjectDetail from './src/sections/Home/ObjectDetail';
+
 import ScanScreen from './src/screens/ScanScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import StatisticsScreen from './src/screens/StatisticsScreen';
@@ -32,6 +37,9 @@ import FeedbackScreen from './src/screens/FeedbackScreen';
 import ContactUs from './src/sections/ContactUs/ContactUs';
 import TermsOfService from './src/sections/TermsOfService/TermsOfService';
 import PrivacyPolicy from './src/sections/PrivacyPolicy/PrivacyPolicy';
+
+import UserCMS from './src/sections/Admin/UserCMS';
+import WasteCMS from './src/sections/Admin/WasteCMS';
 // auth
 import { useAuth } from './src/context/AuthContext';
 // components
@@ -39,6 +47,9 @@ import Toast from 'react-native-toast-message';
 import { ThemeProvider } from './src/theme';
 import { Iconify } from 'react-native-iconify';
 import palette from './src/theme/palette';
+
+import Upload from './src/screens/Upload';
+import ScanTest from './src/screens/ScanTest';
 
 // ----------------------------------------------------------------------
 
@@ -63,6 +74,14 @@ const theme = {
 
 const HomeStack = createStackNavigator();
 
+const HomeStackNavigator = () => (
+  <HomeStack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
+    <HomeStack.Screen name="Home" component={HomeScreen} />
+    <HomeStack.Screen name="CategoryObjects" component={CategoryObjects} />
+    <HomeStack.Screen name="ObjectDetail" component={ObjectDetail} />
+  </HomeStack.Navigator>
+);
+
 const ProfileStackNavigator = () => (
   <HomeStack.Navigator initialRouteName="Profile" screenOptions={{ headerShown: false }}>
     <HomeStack.Screen name="Profile" component={ProfileScreen} />
@@ -83,7 +102,7 @@ const BottomTabNavigator = () => {
 
   return (
     <Tab.Navigator
-      initialRouteName="Home" // Edit/Change
+      initialRouteName="HomeStack" // Edit/Change
       screenOptions={({ route }) => ({
         tabBarStyle: {
           position: 'absolute',
@@ -105,8 +124,8 @@ const BottomTabNavigator = () => {
       })}
     >
       <Tab.Screen
-        name="Home"
-        component={HomeScreen}
+        name="HomeStack"
+        component={HomeStackNavigator}
         options={{
           tabBarIcon: ({ color, size }) => <Iconify icon="mingcute:home-1-fill" color={color} size={size} />,
         }}
@@ -167,27 +186,42 @@ const BottomTabNavigator = () => {
   );
 };
 
-const AppNavigator = () => (
-  <Stack.Navigator initialRouteName="Main" screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Login" component={LoginScreen} />
-    <Stack.Screen name="Register" component={RegisterScreen} />
-    <Stack.Screen name="EmailVerification" component={EmailVerification} />
-    <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-    <Stack.Screen name="PasswordReset" component={PasswordReset} />
+const AppNavigator = () => {
+  const { userData, isLoading } = getUsers();
+  const isAdmin = userData?.userId <= 5;
 
-    <Stack.Screen name="Main" component={BottomTabNavigator} />
+  if (isLoading || !userData) {
+    return null;
+  }
 
-    <Stack.Screen name="EditProfile" component={EditProfile} />
+  return (
+    <Stack.Navigator initialRouteName={isAdmin ? 'UserCMS' : 'Main'} screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="EmailVerification" component={EmailVerification} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="PasswordReset" component={PasswordReset} />
 
-    <Stack.Screen name="Settings" component={SettingsScreen} />
-    <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
+      <Stack.Screen name="Main" component={BottomTabNavigator} />
 
-    <Stack.Screen name="ContactUs" component={ContactUs} />
-    <Stack.Screen name="Feedback" component={FeedbackScreen} />
-    <Stack.Screen name="TermsOfService" component={TermsOfService} />
-    <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
-  </Stack.Navigator>
-);
+      <Stack.Screen name="EditProfile" component={EditProfile} />
+
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
+
+      <Stack.Screen name="ContactUs" component={ContactUs} />
+      <Stack.Screen name="Feedback" component={FeedbackScreen} />
+      <Stack.Screen name="TermsOfService" component={TermsOfService} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
+
+      <Stack.Screen name="UserCMS" component={isAdmin ? UserCMS : HomeScreen} />
+      <Stack.Screen name="WasteCMS" component={isAdmin ? WasteCMS : HomeScreen} />
+
+      <Stack.Screen name="Upload" component={Upload} />
+      <Stack.Screen name="ScanTest" component={ScanTest} />
+    </Stack.Navigator>
+  );
+}
 
 // ----------------------------------------------------------------------
 

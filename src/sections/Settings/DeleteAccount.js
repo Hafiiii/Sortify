@@ -11,6 +11,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import Toast from 'react-native-toast-message';
 import palette from '../../theme/palette';
 import { Iconify } from 'react-native-iconify';
+import { ReturnButton } from '../../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
@@ -92,12 +93,7 @@ export default function DeleteAccount() {
 
     return (
         <ScrollView contentContainerStyle={{ flex: 1, padding: 30 }} showsVerticalScrollIndicator={false}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 5 }}>
-                    <Iconify icon={'ri:arrow-left-s-line'} size={26} style={{ marginLeft: -7, }} />
-                    <Text style={{ fontSize: 12, fontWeight: 700 }}>Return</Text>
-                </View>
-            </TouchableOpacity>
+            <ReturnButton />
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Image

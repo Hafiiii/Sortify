@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, Fragment } from "react";
-import { View, TouchableOpacity, Image, Modal, Linking, ScrollView, Alert, Dimensions, StyleSheet } from "react-native";
+import { View, TouchableOpacity, Image, Modal, Linking, ScrollView, FlatList, Alert, Dimensions, StyleSheet } from "react-native";
 import { Text, Button } from "react-native-paper";
 import axios from "axios";
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
@@ -43,6 +43,7 @@ export default function ScanScreen() {
     const navigation = useNavigation();
     const [imageUri, setImageUri] = useState(null);
     const [detectedObjects, setDetectedObjects] = useState([]);
+    const [categoryDesc, setCategoryDesc] = useState({});
     const [cameraPermission, setCameraPermission] = useState(null);
     const [isCameraActive, setIsCameraActive] = useState(null);
     const device = useCameraDevice('back');
@@ -139,6 +140,33 @@ export default function ScanScreen() {
         );
     };
 
+    const getCategoryByObjectName = async (objectName) => {
+        try {
+            const objectQuery = query(collection(firestore, 'objects'), where('objName', '==', objectName));
+            const objectSnapshot = await getDocs(objectQuery);
+
+            if (objectSnapshot.empty) return null;
+
+            const objectDoc = objectSnapshot.docs[0].data();
+            const categoryIds = objectDoc.categoryId;
+            const categoryDescs = objectDoc.categoryDesc;
+
+            const finalCategoryDesc = categoryDescs || categoryDesc || ['No description'];
+
+            const categoryQuery = query(collection(firestore, 'categories'), where('categoryId', 'in', categoryIds));
+            const categorySnapshot = await getDocs(categoryQuery);
+
+            if (categorySnapshot.empty) return null;
+
+            const categories = categorySnapshot.docs.map(doc => doc.data());
+
+            return { categories, categoryDesc: finalCategoryDesc };
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+            return null;
+        }
+    };
+
     const analyzeImage = async (base64Image, photoURL) => {
         try {
             const response = await axios.post(
@@ -160,15 +188,17 @@ export default function ScanScreen() {
 
             const cleanedObjects = await Promise.all(
                 objectAnnotations.map(async (obj) => {
-                    const categoryInfo = await getCategoryByObjectName(obj.name);
+                    const { categories, categoryDesc } = await getCategoryByObjectName(obj.name, categoryDesc);
+                    const categoryDescriptions = categoryDesc.length > 0 ? categoryDesc : ['No description'];
 
                     return {
                         name: obj.name,
                         score: obj.score,
                         vertices: obj.boundingPoly.normalizedVertices,
-                        category: categoryInfo?.categoryName || 'Unknown',
-                        recycleInstruction: categoryInfo?.categoryRecycle || 'N/A',
-                        isRecyclable: categoryInfo?.isRecyclable ?? false,
+                        categories: categories?.map(c => c.categoryName) || ['Unknown'],
+                        categoryDesc: categoryDescriptions,
+                        recycleInstruction: categories?.map(c => c.categoryRecycle) || ['N/A'],
+                        isRecyclable: categories?.[0]?.isRecyclable ?? false,
                         photoURL: photoURL,
                     };
                 })
@@ -185,31 +215,6 @@ export default function ScanScreen() {
             });
         }
     };
-
-    const getCategoryByObjectName = async (objectName) => {
-        try {
-            // Step 1: Find the object with objName
-            const objectQuery = query(collection(firestore, 'objects'), where('objName', '==', objectName));
-            const objectSnapshot = await getDocs(objectQuery);
-
-            if (objectSnapshot.empty) return null;
-
-            const objectDoc = objectSnapshot.docs[0].data();
-            const categoryId = objectDoc.categoryId;
-
-            // Step 2: Find the category using the categoryId
-            const categoryQuery = query(collection(firestore, 'categories'), where('categoryId', '==', categoryId));
-            const categorySnapshot = await getDocs(categoryQuery);
-
-            if (categorySnapshot.empty) return null;
-
-            return categorySnapshot.docs[0].data();
-        } catch (error) {
-            console.error("Error fetching category:", error);
-            return null;
-        }
-    };
-
 
     const validateImage = (uri) => {
         return new Promise(async (resolve, reject) => {
@@ -244,7 +249,7 @@ export default function ScanScreen() {
                 const q = query(
                     collection(firestore, 'wastes'),
                     where('wasteName', '==', obj.name),
-                    where('wasteType', '==', obj.category),
+                    where('wasteType', '==', obj.categories),
                     where('uid', '==', user.uid)
                 );
 
@@ -259,7 +264,7 @@ export default function ScanScreen() {
                 const wasteData = {
                     wasteId: wasteDocRef.id,
                     wasteName: obj.name,
-                    wasteType: obj.category,
+                    wasteType: obj.categories,
                     score: obj.score,
                     dateAdded: new Date(),
                     uid: user?.uid,
@@ -474,9 +479,19 @@ export default function ScanScreen() {
 
                                 <View style={{ flexDirection: 'column', justifyContent: 'center', width: '70%', }}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <Text style={{ fontSize: 16, fontWeight: 700 }}>
-                                            {obj.category}
-                                        </Text>
+                                        <View>
+                                            {obj.categories.map((category, index) => (
+                                                <View key={index}>
+                                                    <Text style={{ fontSize: 16, fontWeight: '700' }}>
+                                                        {category}
+                                                    </Text>
+                                                    {/* Check if there is a corresponding description */}
+                                                    <Text style={{ fontSize: 14, fontWeight: '400' }}>
+                                                        {obj.categoryDesc[index] || 'No description available'}
+                                                    </Text>
+                                                </View>
+                                            ))}
+                                        </View>
 
                                         <TouchableOpacity onPress={() => { navigation.navigate('Feedback') }}>
                                             <Iconify icon="material-symbols:flag" color="#000" size={25} style={{}} />

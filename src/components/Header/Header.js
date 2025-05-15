@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 // hooks
 import { getUsers } from '../../hooks/getUsers';
 // components
-import { Iconify } from 'react-native-iconify';
+import { GoBackButton } from '../GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
@@ -31,9 +31,7 @@ export function HeaderTriple({ title, style, boxStyle }) {
 
     return (
         <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }, boxStyle]}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Iconify icon="ri:arrow-left-s-line" size={30} />
-            </TouchableOpacity>
+            <GoBackButton />
 
             <Text style={[{ fontSize: 16 }, style]}>{title}</Text>
 
