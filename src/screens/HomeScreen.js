@@ -13,7 +13,7 @@ import WasteCategoryCarousel from '../components/Animation/WasteCategoryCarousel
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
-import { BRONZE_POINT, SILVER_POINT, GOLD_POINT } from '../utils/pointsConfig';
+import { BRONZE_POINT, SILVER_POINT, GOLD_POINT } from '../utils/helper';
 
 // ----------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ export default function HomeScreen() {
                 marginVertical: 5
               }}
             >
-              <TouchableOpacity onPress={() => { navigation.navigate("ProfileStack", { screen: "Profile" }) }}>
-                {userData?.totalPoints < BRONZE_POINT  && <Text style={{ fontSize: 12, fontWeight: 700, color: palette.disabled.secondary }}>Member</Text>}
+              <TouchableOpacity onPress={() => { navigation.navigate("Main", { screen: "ProfileStack", params: { screen: "Profile" } }) }}>
+                {userData?.totalPoints < BRONZE_POINT && <Text style={{ fontSize: 12, fontWeight: 700, color: palette.disabled.secondary }}>Member</Text>}
                 {userData?.totalPoints >= BRONZE_POINT && userData?.totalPoints < SILVER_POINT && <Text style={{ fontSize: 12, fontWeight: 700 }}>Bronze</Text>}
                 {userData?.totalPoints >= SILVER_POINT && userData?.totalPoints < GOLD_POINT && <Text style={{ fontSize: 12, fontWeight: 700 }}>Silver</Text>}
                 {userData?.totalPoints >= GOLD_POINT && <Text style={{ fontSize: 12, fontWeight: 700 }}>Gold</Text>}
@@ -127,7 +127,7 @@ export default function HomeScreen() {
         ) : (
           <>
             <Text style={{ color: '#fff', fontSize: 36, fontWeight: 700, paddingHorizontal: user ? 0 : 30, }}>Hello! Ready to Sort?</Text>
-            
+
             <WasteCategoryCarousel />
 
             <View

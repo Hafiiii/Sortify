@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, Fragment } from "react";
 import { View, TouchableOpacity, Image, Modal, Linking, ScrollView, FlatList, Alert, Dimensions, StyleSheet } from "react-native";
-import { Text, Button } from "react-native-paper";
+import { Text, Button, Divider } from "react-native-paper";
 import axios from "axios";
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
 import { launchImageLibrary } from "react-native-image-picker";
@@ -19,6 +19,7 @@ import { HeaderTriple } from "../components/Header/Header";
 import palette from "../theme/palette";
 import { Iconify } from 'react-native-iconify';
 import Toast from 'react-native-toast-message';
+import RNFS from 'react-native-fs';
 
 // ----------------------------------------------------------------------
 
@@ -26,15 +27,6 @@ const { width, height } = Dimensions.get('window');
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
-
-const WASTE_TYPE_MAP = {
-    'banana': 'Organic',
-    'can': 'Recyclable',
-    'bottle': 'Recyclable',
-    'styrofoam': 'Non-recyclable',
-    'diaper': 'Hazardous',
-    // Add more mappings based on detected objects
-};
 
 // ----------------------------------------------------------------------
 
@@ -107,17 +99,22 @@ export default function ScanScreen() {
     };
 
     const confirmPhoto = async () => {
+        console.log("Confirming photo:", capturedPhoto);
         try {
             if (!capturedPhoto) return;
 
+            const base64 = await RNFS.readFile(capturedPhoto, 'base64');
+
             setCapturedPhoto(null);
-            await analyzeImage(base64, capturedPhoto);
             setShowPreview(false);
+
+            await analyzeImage(base64, capturedPhoto);
         } catch (error) {
             Toast.show({
                 type: 'error',
                 text1: 'Failed to analyze or upload the image.',
             });
+            console.error("Error in confirmPhoto:", error);
         }
     };
 
@@ -140,33 +137,6 @@ export default function ScanScreen() {
         );
     };
 
-    const getCategoryByObjectName = async (objectName) => {
-        try {
-            const objectQuery = query(collection(firestore, 'objects'), where('objName', '==', objectName));
-            const objectSnapshot = await getDocs(objectQuery);
-
-            if (objectSnapshot.empty) return null;
-
-            const objectDoc = objectSnapshot.docs[0].data();
-            const categoryIds = objectDoc.categoryId;
-            const categoryDescs = objectDoc.categoryDesc;
-
-            const finalCategoryDesc = categoryDescs || categoryDesc || ['No description'];
-
-            const categoryQuery = query(collection(firestore, 'categories'), where('categoryId', 'in', categoryIds));
-            const categorySnapshot = await getDocs(categoryQuery);
-
-            if (categorySnapshot.empty) return null;
-
-            const categories = categorySnapshot.docs.map(doc => doc.data());
-
-            return { categories, categoryDesc: finalCategoryDesc };
-        } catch (error) {
-            console.error("Error fetching categories:", error);
-            return null;
-        }
-    };
-
     const analyzeImage = async (base64Image, photoURL) => {
         try {
             const response = await axios.post(
@@ -177,7 +147,7 @@ export default function ScanScreen() {
                             image: { content: base64Image },
                             features: [
                                 { type: "OBJECT_LOCALIZATION", maxResults: 10 },
-                                { type: "LABEL_DETECTION", maxResults: 10 },
+                                { type: "LABEL_DETECTION", maxResults: 10 }
                             ]
                         }
                     ]
@@ -185,24 +155,53 @@ export default function ScanScreen() {
             );
 
             const objectAnnotations = response.data.responses[0].localizedObjectAnnotations || [];
+            const labelAnnotations = response.data.responses[0].labelAnnotations || [];
 
-            const cleanedObjects = await Promise.all(
-                objectAnnotations.map(async (obj) => {
-                    const { categories, categoryDesc } = await getCategoryByObjectName(obj.name, categoryDesc);
-                    const categoryDescriptions = categoryDesc.length > 0 ? categoryDesc : ['No description'];
+            console.log('Detected objects:', objectAnnotations);
+            console.log('Detected labels:', labelAnnotations);
 
-                    return {
-                        name: obj.name,
-                        score: obj.score,
-                        vertices: obj.boundingPoly.normalizedVertices,
-                        categories: categories?.map(c => c.categoryName) || ['Unknown'],
-                        categoryDesc: categoryDescriptions,
-                        recycleInstruction: categories?.map(c => c.categoryRecycle) || ['N/A'],
-                        isRecyclable: categories?.[0]?.isRecyclable ?? false,
-                        photoURL: photoURL,
-                    };
-                })
-            );
+            const combinedRawObjects = [
+                ...objectAnnotations.map(obj => ({ ...obj, type: 'object' })),
+                ...labelAnnotations.map(label => ({
+                    name: label.description,
+                    score: label.score,
+                    boundingPoly: { normalizedVertices: [] },
+                    type: 'label'
+                }))
+            ];
+
+            const cleanedObjects = [];
+
+            for (const obj of combinedRawObjects) {
+                const { name, score, boundingPoly, type } = obj;
+
+                const objectQuery = query(collection(firestore, 'objects'), where('objName', '==', name));
+                const objectSnapshot = await getDocs(objectQuery);
+
+                if (objectSnapshot.empty) continue;
+
+                const objectDoc = objectSnapshot.docs[0].data();
+                const categoryIds = objectDoc.categoryId;
+                const categoryDescs = objectDoc.categoryDesc;
+
+                const categoryQuery = query(collection(firestore, 'categories'), where('categoryId', 'in', categoryIds));
+                const categorySnapshot = await getDocs(categoryQuery);
+
+                const categories = categorySnapshot.empty ? [] : categorySnapshot.docs.map(doc => doc.data());
+                const finalCategoryDesc = categoryDescs || ['No description'];
+
+                cleanedObjects.push({
+                    name,
+                    score,
+                    vertices: boundingPoly.normalizedVertices || [],
+                    categories: categories.map(c => c.categoryName) || ['Unknown'],
+                    categoryDesc: finalCategoryDesc,
+                    recycleInstruction: categories.map(c => c.categoryRecycle) || ['N/A'],
+                    isRecyclable: categories?.[0]?.isRecyclable ?? false,
+                    photoURL,
+                    detectionType: type,
+                });
+            }
 
             setDetectedObjects(cleanedObjects);
             setIsDrawerVisible(true);
@@ -213,6 +212,7 @@ export default function ScanScreen() {
                 type: 'error',
                 text1: 'There was a problem analyzing the image.',
             });
+            console.error('Vision API error:', error);
         }
     };
 
@@ -283,10 +283,6 @@ export default function ScanScreen() {
         }
     };
 
-    const uniqueDetectedObjects = Array.from(
-        new Map(detectedObjects.map(obj => [obj.name, obj])).values()
-    );
-
     const resetScanScreen = () => {
         setImageUri(null);
         setDetectedObjects([]);
@@ -313,6 +309,8 @@ export default function ScanScreen() {
     if (!device) {
         return <Text>No camera device available</Text>;
     }
+
+    console.log("Firestore: ", detectedObjects);
 
     return (
         <View
@@ -452,85 +450,116 @@ export default function ScanScreen() {
                 transparent={true}
                 onRequestClose={() => setIsDrawerVisible(false)}
             >
-                <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.4)' }}>
+                <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
                     <View
                         style={{
-                            backgroundColor: 'white',
+                            backgroundColor: '#fff',
                             borderTopLeftRadius: 20,
                             borderTopRightRadius: 20,
                             paddingHorizontal: 20,
                             paddingVertical: 10,
-                            maxHeight: '70%',
+                            maxHeight: '40%',
                         }}
                     >
+                        <ScrollView showsVerticalScrollIndicator={false}>
+                            {detectedObjects.map((obj, index) => (
+                                <View key={index} >
+                                    <Text style={{ fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', paddingVertical: 5, backgroundColor: palette.primary.light }}>{obj.name}</Text>
 
-                        {uniqueDetectedObjects.map((obj, index) => (
-                            <View key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                <Image
-                                    source={obj.photoURL ? { uri: obj.photoURL } : require("../../assets/sortify-logo.png")}
-                                    style={{
-                                        width: '25%',
-                                        aspectRatio: 1,
-                                        resizeMode: 'cover',
-                                        borderTopLeftRadius: 20,
-                                        borderBottomLeftRadius: 20,
-                                    }}
-                                />
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
+                                        {/* <Image
+                                            source={obj.photoURL ? { uri: obj.photoURL } : require("../../assets/sortify-logo.png")}
+                                            style={{
+                                                width: '25%',
+                                                aspectRatio: 1,
+                                                resizeMode: 'cover',
+                                                borderTopLeftRadius: 20,
+                                                borderBottomLeftRadius: 20,
+                                            }}
+                                        /> */}
 
-                                <View style={{ flexDirection: 'column', justifyContent: 'center', width: '70%', }}>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <View>
-                                            {obj.categories.map((category, index) => (
-                                                <View key={index}>
-                                                    <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                                                        {category}
-                                                    </Text>
-                                                    {/* Check if there is a corresponding description */}
-                                                    <Text style={{ fontSize: 14, fontWeight: '400' }}>
-                                                        {obj.categoryDesc[index] || 'No description available'}
-                                                    </Text>
+                                        <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <View>
+                                                    {obj.categories.map((category, index) => (
+                                                        <View key={index} style={{ marginBottom: 5 }}>
+                                                            <Text style={{ fontWeight: 700 }}>
+                                                                {category || 'Unknown'}
+                                                            </Text>
+
+                                                            <Text style={{ textAlign: 'justify', lineHeight: 18 }}>
+                                                                {obj.categoryDesc[index] || 'No description available'}
+                                                            </Text>
+                                                        </View>
+                                                    ))}
                                                 </View>
-                                            ))}
+                                            </View>
+
+                                            {/* <View
+                                            style={{
+                                                backgroundColor: '#e5e5e5',
+                                                paddingVertical: 3,
+                                                paddingHorizontal: 5,
+                                                borderRadius: 20,
+                                                flexDirection: 'row',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                width: 58,
+                                                marginTop: 5,
+                                            }}
+                                        >
+                                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
+                                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{obj.point}</Text>
+                                        </View> */}
                                         </View>
-
-                                        <TouchableOpacity onPress={() => { navigation.navigate('Feedback') }}>
-                                            <Iconify icon="material-symbols:flag" color="#000" size={25} style={{}} />
-                                        </TouchableOpacity>
                                     </View>
 
-                                    <Text>{obj.name}</Text>
 
-                                    <View
-                                        style={{
-                                            backgroundColor: '#e5e5e5',
-                                            paddingVertical: 3,
-                                            paddingHorizontal: 5,
-                                            borderRadius: 20,
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            width: 58,
-                                            marginTop: 5,
-                                        }}
-                                    >
-                                        <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
-                                        <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{obj.point}</Text>
-                                    </View>
+
+
+                                    {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+                                        <View
+                                            style={{
+                                                backgroundColor: obj?.isRecyclable ? 'green' : 'red',
+                                                width: 8,
+                                                height: 8,
+                                                borderRadius: 50,
+                                            }}
+                                        />
+                                        <Text
+                                            style={{
+                                                color: obj?.isRecyclable ? 'green' : 'red',
+                                                fontWeight: '700',
+                                            }}
+                                        >
+                                            {obj?.isRecyclable === true
+                                                ? 'Recyclable'
+                                                : obj?.isRecyclable === false
+                                                    ? 'Not Recyclable'
+                                                    : 'No description available'}
+                                        </Text>
+                                    </View> */}
                                 </View>
-                            </View>
-                        ))}
+                            ))}
+                        </ScrollView>
 
-                        <Button
-                            mode="contained"
-                            onPress={resetScanScreen}
-                            style={{ backgroundColor: '#000', width: '100%', marginTop: 20 }}
-                            labelStyle={{ color: '#fff' }}
-                        >
-                            Sorted!
-                        </Button>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20 }}>
+                            <Button
+                                mode="contained"
+                                onPress={resetScanScreen}
+                                style={{ backgroundColor: '#000', width: '90%' }}
+                                labelStyle={{ color: '#fff' }}
+                            >
+                                Sorted!
+                            </Button>
+
+                            <TouchableOpacity onPress={() => { navigation.navigate('Feedback') }} style={{ width: '10%', alignItems: 'center' }}>
+                                <Iconify icon="material-symbols:flag" color="#000" size={25} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            </Modal>
-        </View>
+                </View >
+            </Modal >
+        </View >
     );
 }

@@ -12,7 +12,7 @@ import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 import moment from 'moment';
 import Toast from 'react-native-toast-message';
-import { BRONZE_POINT, SILVER_POINT, GOLD_POINT, TOTAL_RANGE } from '../utils/pointsConfig';
+import { BRONZE_POINT, SILVER_POINT, GOLD_POINT, TOTAL_RANGE } from '../utils/helper';
 
 // ----------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ export default function ProfileScreen() {
     const handleLogout = async () => {
         try {
             signOut(auth);
-            navigation.navigate("Main", { screen: "Home" });
+            navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
         } catch (error) {
             Toast.show({
                 type: 'error',

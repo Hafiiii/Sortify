@@ -74,8 +74,8 @@ export default function Leaderboard() {
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: palette.secondary.main }}>
-                <ActivityIndicator size="large" color={palette.primary.main} />
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
             </View>
         );
     }

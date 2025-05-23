@@ -1,5 +1,6 @@
 import React from 'react';
-import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
+import { View } from 'react-native';
+import { Provider as PaperProvider, DefaultTheme, ActivityIndicator } from 'react-native-paper';
 // context
 import { AuthProvider } from './src/context/AuthContext';
 // hooks
@@ -27,7 +28,6 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import StatisticsScreen from './src/screens/StatisticsScreen';
 
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
-import CarbonFootprint from './src/sections/CarbonFootprintTracker/CarbonFootprint';
 import Leaderboard from './src/sections/Leaderboard/Leaderboard';
 
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -40,6 +40,8 @@ import PrivacyPolicy from './src/sections/PrivacyPolicy/PrivacyPolicy';
 
 import UserCMS from './src/sections/Admin/UserCMS';
 import WasteCMS from './src/sections/Admin/WasteCMS';
+import CategoryCMS from './src/sections/Admin/CategoryCMS';
+import ObjectCMS from './src/sections/Admin/ObjectCMS';
 // auth
 import { useAuth } from './src/context/AuthContext';
 // components
@@ -92,7 +94,6 @@ const ProfileStackNavigator = () => (
 const ActivitiesStackNavigator = () => (
   <HomeStack.Navigator initialRouteName="Activities" screenOptions={{ headerShown: false }}>
     <HomeStack.Screen name="Activities" component={ActivitiesScreen} />
-    <HomeStack.Screen name="CarbonFootprint" component={CarbonFootprint} />
     <HomeStack.Screen name="Leaderboard" component={Leaderboard} />
   </HomeStack.Navigator>
 );
@@ -187,15 +188,19 @@ const BottomTabNavigator = () => {
 };
 
 const AppNavigator = () => {
-  const { userData, isLoading } = getUsers();
+  const { userData, loading } = getUsers();
   const isAdmin = userData?.userId <= 5;
 
-  if (isLoading || !userData) {
-    return null;
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
   }
 
   return (
-    <Stack.Navigator initialRouteName={isAdmin ? 'UserCMS' : 'Main'} screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName={isAdmin ? 'ObjectCMS' : 'Main'} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="EmailVerification" component={EmailVerification} />
@@ -216,6 +221,8 @@ const AppNavigator = () => {
 
       <Stack.Screen name="UserCMS" component={isAdmin ? UserCMS : HomeScreen} />
       <Stack.Screen name="WasteCMS" component={isAdmin ? WasteCMS : HomeScreen} />
+      <Stack.Screen name="CategoryCMS" component={isAdmin ? CategoryCMS : HomeScreen} />
+      <Stack.Screen name="ObjectCMS" component={isAdmin ? ObjectCMS : HomeScreen} />
 
       <Stack.Screen name="Upload" component={Upload} />
       <Stack.Screen name="ScanTest" component={ScanTest} />

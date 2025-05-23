@@ -13,13 +13,13 @@ import Toast from 'react-native-toast-message';
 
 export const getObjects = () => {
   const { user } = useAuth();
-  const [objectData, setObjectData] = useState([]);
+  const [objects, setObjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
 
   useFocusEffect(
     useCallback(() => {
-      const fetchObjectData = async () => {
+      const fetchObject = async () => {
         if (!user?.uid) {
           setLoading(false);
           return;
@@ -34,13 +34,13 @@ export const getObjects = () => {
               id: doc.id,
               ...doc.data(),
             }));
-            setObjectData(objectsList);
+            setObjects(objectsList);
           } else {
             Toast.show({
               type: 'error',
               text1: 'No objects found.',
             });
-            setObjectData([]);
+            setObjects([]);
           }
         } catch (error) {
           Toast.show({
@@ -52,11 +52,11 @@ export const getObjects = () => {
         }
       };
 
-      fetchObjectData();
+      fetchObject();
 
       return () => { };
     }, [user?.uid])
   );
 
-  return { objectData, loading, setObjectData };
+  return { objects, loading, setObjects };
 };

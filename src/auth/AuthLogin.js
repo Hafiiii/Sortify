@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Image } from 'react-native';
-import { TextInput, Button, Text, IconButton } from 'react-native-paper';
+import { TextInput, Button, Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation, Link } from '@react-navigation/native';
 // form
@@ -71,7 +71,7 @@ export default function AuthLoginForm() {
         if (userId <= 5) {
           navigation.navigate("UserCMS");
         } else {
-          navigation.navigate("Main", { screen: "Home" });
+          navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
         }
       } else {
         Toast.show({

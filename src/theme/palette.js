@@ -22,6 +22,7 @@ const palette = {
   disabled: {
     main: '#9e9e9e', // Light Grey
     secondary: '#505050', // Dark Grey
+    tertiery: '#727171', // Dark Grey
   },
 };
 

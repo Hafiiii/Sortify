@@ -49,6 +49,8 @@ module.exports = {
           'fe:edit', // edit icon
           'eva:alert-circle-outline', // error icon
           'mingcute:lock-fill', //lock icon
+          'material-symbols:menu', //menu icon
+          'ph:dots-three-vertical-bold', //three dots icon
         ],
       },
     ],

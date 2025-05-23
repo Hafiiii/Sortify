@@ -99,7 +99,7 @@ export default function AuthSocial() {
 
             await new Promise(resolve => setTimeout(resolve, 1000));
             handleLogin(user);
-            navigation.navigate("Main", { screen: "Home" });
+            navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
         } catch (error) {
             Toast.show({
                 type: 'error',

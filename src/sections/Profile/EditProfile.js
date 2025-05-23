@@ -23,6 +23,7 @@ import Toast from 'react-native-toast-message';
 import palette from '../../theme/palette';
 import { Iconify } from 'react-native-iconify';
 import { ReturnButton } from '../../components/GoBackButton/GoBackButton';
+import { phoneRegExp } from '../../utils/helper';
 
 // ----------------------------------------------------------------------
 
@@ -30,8 +31,6 @@ const { width, height } = Dimensions.get('screen');
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
-
-const phoneRegExp = /^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/;
 
 const ProfileSchema = Yup.object().shape({
     firstName: Yup.string().required('First Name is required').max(50, 'First Name cannot exceed 50 characters'),
@@ -323,7 +322,7 @@ export default function EditProfile() {
                                     onChangeText={onChange}
                                     value={value}
                                     disabled={true}
-                                    error={!!errors.phoneNumber}
+                                    error={!!errors.email}
                                     underlineStyle={{ backgroundColor: 'transparent' }}
                                     style={{ backgroundColor: 'transparent', borderWidth: 1, borderColor: '#000', borderRadius: 8, height: 45 }}
                                 />

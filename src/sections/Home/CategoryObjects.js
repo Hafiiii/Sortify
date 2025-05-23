@@ -16,15 +16,16 @@ export default function CategoryObjects() {
   const navigation = useNavigation();
   const route = useRoute();
   const { categoryId, categoryName } = route.params;
-  const { objectData } = getObjects();
+  const { objects } = getObjects();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredObjects = objectData
+  const filteredObjects = objects
     .filter((obj) => obj.categoryId?.includes(categoryId))
     .sort((a, b) => a.objName.localeCompare(b.objName))
     .filter(obj =>
       `${obj.objName}`.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    )
+    ;
 
   return (
     <View style={{ padding: 30, backgroundColor: '#fff' }}>

@@ -13,7 +13,7 @@ import Toast from 'react-native-toast-message';
 
 export const getCategories = () => {
   const { user } = useAuth();
-  const [categoryData, setCategoryData] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -33,13 +33,13 @@ export const getCategories = () => {
               id: doc.id,
               ...doc.data(),
             }));
-            setCategoryData(categoriesList);
+            setCategories(categoriesList);
           } else {
             Toast.show({
               type: 'error',
               text1: 'No waste type found.',
             });
-            setCategoryData([]);
+            setCategories([]);
           }
         } catch (error) {
           Toast.show({
@@ -57,5 +57,5 @@ export const getCategories = () => {
     }, [user?.uid])
   );
 
-  return { categoryData, loading, setCategoryData };
+  return { categories, loading, setCategories };
 };

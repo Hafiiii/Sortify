@@ -13,7 +13,7 @@ const BOX_SIZE = 130;
 
 export default function WasteType() {
     const navigation = useNavigation();
-    const { categoryData } = getCategories();
+    const { categories } = getCategories();
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
@@ -65,7 +65,7 @@ export default function WasteType() {
             </View>
 
             <FlatList
-                data={categoryData.slice(0, 10)}
+                data={categories.slice(0, 10)}
                 keyExtractor={(item) => item.id}
                 horizontal
                 showsHorizontalScrollIndicator={false}

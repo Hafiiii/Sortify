@@ -1,31 +1,17 @@
-import { useState, useCallback } from 'react';
-// @react-navigation
-import { useFocusEffect } from '@react-navigation/native';
-// firebase
+import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { firestore } from '../utils/firebase';
-// auth
-import { useAuth } from '../context/AuthContext';
-// components
+import { firestore, auth } from '../utils/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import Toast from 'react-native-toast-message';
 
-// ----------------------------------------------------------------------
-
 export function getUsers() {
-    const { user } = useAuth();
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useFocusEffect(
-        useCallback(() => {
-            const fetchUserData = async () => {
-                if (!user?.uid) {
-                    setLoading(false);
-                    return;
-                }
-
-                setLoading(true);
-
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setLoading(true);
+            if (user?.uid) {
                 try {
                     const userDocRef = doc(firestore, 'users', user.uid);
                     const userSnapshot = await getDoc(userDocRef);
@@ -33,22 +19,25 @@ export function getUsers() {
 
                     if (data) {
                         setUserData(data);
+                    } else {
+                        setUserData(null);
                     }
                 } catch (error) {
                     Toast.show({
                         type: 'error',
                         text1: 'Error fetching user data.',
                     });
-                } finally {
-                    setLoading(false);
+                    setUserData(null);
                 }
-            };
+            } else {
+                // User is signed out
+                setUserData(null);
+            }
+            setLoading(false);
+        });
 
-            fetchUserData();
-
-            return () => { };
-        }, [user?.uid])
-    );
+        return () => unsubscribe();
+    }, []);
 
     return { userData, loading };
 }

@@ -8,7 +8,7 @@ import { getUsers } from '../hooks/getUsers';
 import { Header } from '../components/Header/Header';
 import palette from '../theme/palette';
 import Iconify from 'react-native-iconify';
-import { BRONZE_POINT, SILVER_POINT, GOLD_POINT } from '../utils/pointsConfig';
+import { BRONZE_POINT, SILVER_POINT, GOLD_POINT } from '../utils/helper';
 
 // ----------------------------------------------------------------------
 

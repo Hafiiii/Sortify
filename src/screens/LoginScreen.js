@@ -25,7 +25,7 @@ export default function LoginScreen() {
         justifyContent: 'space-between',
       }}
     >
-      <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "Home" })}>
+      <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } })}>
         <View style={{ alignItems: 'center', marginVertical: 30 }}>
           <Text
             style={{

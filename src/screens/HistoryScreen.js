@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { View, Alert, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
-import { Text, Chip, Button, Searchbar, Divider } from 'react-native-paper';
+import { Text, Chip, Button, Searchbar, Divider, ActivityIndicator } from 'react-native-paper';
 // hooks
 import { getWastes } from '../hooks/getWastes';
 // firebase
@@ -138,7 +138,13 @@ export default function HistoryScreen() {
         );
     };
 
-    if (loading) return <Text>Loading...</Text>;
+    if (loading || !wasteData) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
 
     return (
         <ImageBackground
