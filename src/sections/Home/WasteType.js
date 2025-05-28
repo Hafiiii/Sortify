@@ -1,19 +1,16 @@
 import { View, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Text, ActivityIndicator } from 'react-native-paper';
 // @rect-navigation
 import { useNavigation } from '@react-navigation/native';
-// hooks
-import { getCategories } from '../../hooks/getCategories';
 
 // ----------------------------------------------------------------------
 
-const BOX_SIZE = 130;
+const BOX_SIZE = 110;
 
 // ----------------------------------------------------------------------
 
-export default function WasteType() {
+export default function WasteType({ categories }) {
     const navigation = useNavigation();
-    const { categories } = getCategories();
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
@@ -28,8 +25,8 @@ export default function WasteType() {
             <View
                 style={{
                     backgroundColor: '#F5F5F5',
-                    borderRadius: 25,
-                    marginRight: 7,
+                    borderRadius: 20,
+                    marginRight: 5,
                     width: BOX_SIZE,
                     height: BOX_SIZE,
                     overflow: 'hidden',
@@ -59,10 +56,8 @@ export default function WasteType() {
     );
 
     return (
-        <View style={{ padding: 30 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-                <Text style={{ fontSize: 16, fontWeight: '700' }}>Explore Waste Type</Text>
-            </View>
+        <View style={{ paddingHorizontal: 30, paddingVertical: 10 }}>
+            <Text style={{ fontSize: 16, fontWeight: 700, marginBottom: 5 }}>Explore Waste Type</Text>
 
             <FlatList
                 data={categories.slice(0, 10)}

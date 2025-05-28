@@ -1,4 +1,4 @@
-import { View, Text, Image, Dimensions } from 'react-native';
+import { View, Text, Image, Dimensions, Alert } from 'react-native';
 import { Button, ProgressBar } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
@@ -16,7 +16,7 @@ import { BRONZE_POINT, SILVER_POINT, GOLD_POINT, TOTAL_RANGE } from '../utils/he
 
 // ----------------------------------------------------------------------
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 const censorEmail = (curr_email) => {
     if (curr_email && curr_email.length > 5) {
@@ -43,16 +43,29 @@ export default function ProfileScreen() {
     const { userData, loading } = getUsers();
     const formattedDate = moment(userData?.dateJoined.toDate()).format('DD/MM/YY');
 
-    const handleLogout = async () => {
-        try {
-            signOut(auth);
-            navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
-        } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error signing out.',
-            });
-        }
+    const handleLogout = () => {
+        Alert.alert(
+            "Confirm Logout",
+            "Are you sure you want to log out?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Logout",
+                    style: "destructive",
+                    onPress: async () => {
+                        try {
+                            await signOut(auth);
+                            navigation.navigate("Main", {screen: "HomeStack",params: { screen: "Home" }});
+                        } catch (error) {
+                            Toast.show({ type: 'error', text1: 'Error signing out.', text2: error.message || 'Please try again later.' });
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const getTier = () => {

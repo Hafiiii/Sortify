@@ -55,17 +55,10 @@ export default function AuthLoginForm() {
         const userId = userData.userId;
 
         if (!user.emailVerified) {
-          Toast.show({
-            type: 'error',
-            text1: 'Please verify your email before logging in.',
-          });
+          Toast.show({ type: 'error', text1: 'Please verify your email before logging in.', text2: error.message || 'Check your inbox for the verification email.' });
         }
 
-        Toast.show({
-          type: 'success',
-          text1: 'Login Successful',
-        });
-
+        Toast.show({ type: 'success', text1: 'Login Successful' });
         handleLogin();
 
         if (userId <= 5) {
@@ -74,10 +67,7 @@ export default function AuthLoginForm() {
           navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
         }
       } else {
-        Toast.show({
-          type: 'error',
-          text1: 'User profile not found in database.',
-        });
+        Toast.show({ type: 'error', text1: 'User profile not found in database.', text2: error.message || 'Please contact support.' });
       }
 
     } catch (err) {

@@ -12,7 +12,6 @@ import Toast from 'react-native-toast-message';
 // ----------------------------------------------------------------------
 
 export const getObjects = () => {
-  const { user } = useAuth();
   const [objects, setObjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,11 +19,6 @@ export const getObjects = () => {
   useFocusEffect(
     useCallback(() => {
       const fetchObject = async () => {
-        if (!user?.uid) {
-          setLoading(false);
-          return;
-        }
-
         try {
           const objectsCollectionRef = collection(firestore, 'objects');
           const objectsSnapshot = await getDocs(objectsCollectionRef);
@@ -36,17 +30,11 @@ export const getObjects = () => {
             }));
             setObjects(objectsList);
           } else {
-            Toast.show({
-              type: 'error',
-              text1: 'No objects found.',
-            });
+            Toast.show({ type: 'error', text1: 'No objects found.', text2: error.message || 'Please try again later.' });
             setObjects([]);
           }
         } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'Error fetching objects.',
-          });
+          Toast.show({ type: 'error', text1: 'Error fetching objects.', text2: error.message || 'Please try again later.' });
         } finally {
           setLoading(false);
         }
@@ -55,7 +43,7 @@ export const getObjects = () => {
       fetchObject();
 
       return () => { };
-    }, [user?.uid])
+    })
   );
 
   return { objects, loading, setObjects };

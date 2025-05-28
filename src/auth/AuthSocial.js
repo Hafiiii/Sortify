@@ -92,20 +92,13 @@ export default function AuthSocial() {
                 });
             }
 
-            Toast.show({
-                type: 'success',
-                text1: 'Google Signin Successful',
-            });
+            Toast.show({ type: 'success', text1: 'Google Signin Successful' });
 
             await new Promise(resolve => setTimeout(resolve, 1000));
             handleLogin(user);
             navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Google Sign-In Error.',
-                text2: error.message,
-            });
+            Toast.show({ type: 'error', text1: 'Google Sign-In Error.', text2: error.message || 'Please try again later.' });
         }
     }
 

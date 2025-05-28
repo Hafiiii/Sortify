@@ -36,17 +36,11 @@ export const getCategoryByCategoryId = (categoryId) => {
                         }));
                         setCategory(categoriesList);
                     } else {
-                        Toast.show({
-                            type: 'error',
-                            text1: 'No matching categories found.',
-                        });
+                        Toast.show({ type: 'error', text1: 'No matching categories found.', text2: error.message || 'Please try again later.' });
                         setCategory([]);
                     }
                 } catch (error) {
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Error fetching categories.',
-                    });
+                    Toast.show({ type: 'error', text1: 'Error fetching categories.', text2: error.message || 'Please try again later.' });
                 } finally {
                     setLoading(false);
                 }

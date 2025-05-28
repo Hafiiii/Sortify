@@ -27,17 +27,11 @@ export const getAllWastes = () => {
             }));
             setWastes(wastesList);
           } else {
-            Toast.show({
-              type: 'info',
-              text1: 'No waste items found.',
-            });
+            Toast.show({ type: 'info', text1: 'No waste items found.' });
             setWastes([]);
           }
         } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'An error occurred while fetching all wastes.',
-          });
+          Toast.show({ type: 'error', text1: 'An error occurred while fetching all wastes.', text2: error.message || 'Please try again later.' });
         } finally {
           setLoading(false);
         }
@@ -45,7 +39,7 @@ export const getAllWastes = () => {
 
       fetchWasteData();
 
-      return () => {};
+      return () => { };
     }, [])
   );
 

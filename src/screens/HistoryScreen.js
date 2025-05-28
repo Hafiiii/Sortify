@@ -31,8 +31,8 @@ const dateOptions = [
 const sortOptions = [
     { label: 'Date Added (Latest)', value: 'date-new' },
     { label: 'Date Added (Oldest)', value: 'date-old' },
-    { label: 'Waste Type (A-Z)', value: 'name-asc' },
-    { label: 'Waste Type (Z-A)', value: 'name-desc' },
+    { label: 'Name (A-Z)', value: 'name-asc' },
+    { label: 'Name (Z-A)', value: 'name-desc' },
 ];
 
 // ----------------------------------------------------------------------
@@ -80,7 +80,7 @@ export default function HistoryScreen() {
 
     const filteredWastes = wasteData
         .filter(waste =>
-            `${waste.wasteName}`.toLowerCase().includes(searchQuery.toLowerCase())
+            `${waste.wasteName} ${waste.wasteType}`.toLowerCase().includes(searchQuery.toLowerCase())
         )
         .filter(waste => {
             if (!waste.dateAdded) return true;
@@ -120,15 +120,9 @@ export default function HistoryScreen() {
                             const wasteDocRef = doc(firestore, 'wastes', id);
                             await deleteDoc(wasteDocRef);
                             setWasteData(prevWastes => prevWastes.filter(waste => waste.id !== id));
-                            Toast.show({
-                                type: 'success',
-                                text1: 'Waste item deleted successfully',
-                            });
+                            Toast.show({ type: 'success', text1: 'Waste item deleted successfully' });
                         } catch (error) {
-                            Toast.show({
-                                type: 'error',
-                                text1: 'Error deleting waste item',
-                            });
+                            Toast.show({ type: 'error', text1: 'Error deleting waste item', text2: error.message || 'Please try again later.' });
                         }
                     },
                     style: 'destructive',
@@ -153,9 +147,9 @@ export default function HistoryScreen() {
             resizeMode="cover"
             imageStyle={{ opacity: 0.4 }}
         >
-            <SafeAreaView style={{ flex: 1, marginBottom: 60 }}>
+            <SafeAreaView style={{ flex: 1 }}>
                 <ScrollView
-                    contentContainerStyle={{ padding: 30 }}
+                    contentContainerStyle={{ paddingHorizontal: 30, paddingVertical: 10, paddingBottom: 80 }}
                     showsVerticalScrollIndicator={false}
                     onContentSizeChange={(contentWidth, contentHeight) => {
                         setScrollHeight(contentHeight);
@@ -170,10 +164,10 @@ export default function HistoryScreen() {
                         icon={props => <Iconify icon="ri:search-line" size={20} />}
                         clearIcon={props => <Iconify icon="ic:baseline-clear" size={20} />}
                         inputStyle={{ color: '#000', height: 45, marginTop: -4 }}
-                        style={{ borderRadius: 14, marginVertical: 10, height: 45, backgroundColor: '#eaeaea' }}
+                        style={{ borderRadius: 14, marginVertical: 7, height: 45, backgroundColor: '#eaeaea' }}
                     />
 
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={{ marginBottom: 15 }}>
                         <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                             {sortOptions.map((option) => (
                                 <Chip
@@ -183,7 +177,6 @@ export default function HistoryScreen() {
                                     showSelectedCheck={false}
                                     style={{
                                         marginRight: 5,
-                                        marginBottom: 8,
                                         backgroundColor: sortOption === option.value ? palette.primary.main : '#eaeaea',
                                         borderRadius: 20,
                                     }}
@@ -207,103 +200,6 @@ export default function HistoryScreen() {
                         <Text style={{ fontSize: 11, fontWeight: 700, marginLeft: 3 }}>FILTERS</Text>
                     </TouchableOpacity>
 
-                    <Animated.View
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            width: width - 60,
-                            height: height - 120,
-                            backgroundColor: '#fff',
-                            transform: [{ translateX: slideAnim }],
-                            zIndex: 4,
-                        }}
-                    >
-                        <View style={{ flex: 1, paddingBottom: 60 }}>
-                            <ScrollView
-                                style={{ padding: 20 }}
-                                contentContainerStyle={{ paddingBottom: 20 }}
-                                showsVerticalScrollIndicator={false}
-                            >
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 13 }}>
-                                    <Text style={{ fontSize: 18, fontWeight: 400 }}>Filter</Text>
-                                    <Iconify icon="material-symbols:close" size={20} color={palette.disabled.main} onPress={cancelFilters} />
-                                </View>
-
-                                <Divider style={{ alignSelf: 'stretch' }} />
-
-                                <Text style={{ fontSize: 16, fontWeight: 700, marginVertical: 10 }}>Date Range</Text>
-                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
-                                    {dateOptions.map(({ label, value }) => (
-                                        <Chip
-                                            key={value}
-                                            mode="outlined"
-                                            onPress={() => setTempFilterDate(value)}
-                                            style={{
-                                                backgroundColor: tempFilterDate === value ? '#000' : '#fff',
-                                                borderColor: tempFilterDate === value ? '#000' : palette.disabled.main,
-                                            }}
-                                            textStyle={{
-                                                color: tempFilterDate === value ? '#fff' : palette.disabled.secondary,
-                                            }}
-                                        >
-                                            {label}
-                                        </Chip>
-                                    ))}
-                                </View>
-                            </ScrollView>
-
-                            <View
-                                style={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    backgroundColor: '#fff',
-                                    padding: 10,
-                                    borderTopWidth: 1,
-                                    borderTopColor: palette.disabled.main,
-                                }}
-                            >
-                                <Button
-                                    mode="outlined"
-                                    onPress={clearAllFilters}
-                                    style={{ flex: 1, marginRight: 5, borderRadius: 5, borderWidth: 1.5, color: '#000' }}
-                                    labelStyle={{ color: '#000' }}
-                                    theme={{ colors: { primary: '#000' } }}
-                                >
-                                    Clear All
-                                </Button>
-                                <Button
-                                    mode="contained"
-                                    onPress={applyFilters}
-                                    style={{ flex: 1, backgroundColor: '#000', borderRadius: 5 }}
-                                >
-                                    Apply
-                                </Button>
-                            </View>
-                        </View>
-                    </Animated.View>
-
-                    {FilterDrawer && (
-                        <TouchableWithoutFeedback onPress={toggleFilter}>
-                            <View
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: width,
-                                    height: height,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                    zIndex: 3,
-                                }}
-                            />
-                        </TouchableWithoutFeedback>
-                    )}
-
                     {filteredWastes.length === 0 ? (
                         <Text>No waste found.</Text>
                     ) : (
@@ -313,6 +209,101 @@ export default function HistoryScreen() {
                     )}
                 </ScrollView>
             </SafeAreaView >
+
+            <Animated.View
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    width: width - 60,
+                    height: height,
+                    backgroundColor: '#fff',
+                    transform: [{ translateX: slideAnim }],
+                    zIndex: 4,
+                }}
+            >
+                <View style={{ flex: 1 }}>
+                    <ScrollView style={{ padding: 20 }} showsVerticalScrollIndicator={false}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <Text style={{ fontSize: 16, marginTop: 3 }}>Filter</Text>
+                            <Iconify icon="material-symbols:close" size={20} color={palette.disabled.main} onPress={cancelFilters} />
+                        </View>
+
+                        <Divider style={{ alignSelf: 'stretch' }} />
+
+                        <Text style={{ fontWeight: 700, marginVertical: 8 }}>Date Range</Text>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
+                            {dateOptions.map(({ label, value }) => (
+                                <Chip
+                                    key={value}
+                                    mode="outlined"
+                                    onPress={() => setTempFilterDate(value)}
+                                    style={{
+                                        backgroundColor: tempFilterDate === value ? '#000' : '#fff',
+                                        borderColor: tempFilterDate === value ? '#000' : palette.disabled.main,
+                                    }}
+                                    textStyle={{
+                                        color: tempFilterDate === value ? '#fff' : palette.disabled.secondary,
+                                    }}
+                                >
+                                    {label}
+                                </Chip>
+                            ))}
+                        </View>
+                    </ScrollView>
+
+                    <View
+                        style={{
+                            position: 'absolute',
+                            bottom: 74,
+                            left: 0,
+                            right: 0,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            backgroundColor: '#fff',
+                            padding: 10,
+                            borderTopWidth: 0.5,
+                            borderTopColor: palette.disabled.main,
+                        }}
+                    >
+                        <Button
+                            mode="outlined"
+                            onPress={clearAllFilters}
+                            style={{ flex: 1, marginRight: 5, borderRadius: 5, borderWidth: 1, color: '#000' }}
+                            labelStyle={{ color: '#000' }}
+                            theme={{ colors: { primary: '#000' } }}
+                        >
+                            Clear All
+                        </Button>
+
+                        <Button
+                            mode="contained"
+                            onPress={applyFilters}
+                            style={{ flex: 1, backgroundColor: '#000', borderRadius: 5 }}
+                        >
+                            Apply
+                        </Button>
+                    </View>
+                </View>
+            </Animated.View>
+
+            {FilterDrawer && (
+                <TouchableWithoutFeedback onPress={toggleFilter}>
+                    <View
+                        style={{
+                            flex: 1,
+                            position: 'absolute',
+                            top: 0,
+                            right: 0,
+                            width: width,
+                            height: height,
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            zIndex: 3,
+                        }}
+                    />
+                </TouchableWithoutFeedback>
+            )}
         </ImageBackground>
     );
 }

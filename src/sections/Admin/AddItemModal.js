@@ -134,7 +134,7 @@ export default function AddItemModal({
                         console.warn('Document not found');
                     }
                 } catch (error) {
-                    console.error('Error fetching data:', error);
+                    Toast.show({ type: 'error', text1: 'Error fetching data.', text2: error.message || 'Please try again later.' });
                 }
             };
 

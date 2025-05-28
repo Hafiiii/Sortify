@@ -27,17 +27,11 @@ export const getAllUsers = () => {
             }));
             setUsers(usersList);
           } else {
-            Toast.show({
-              type: 'info',
-              text1: 'No users found.',
-            });
+            Toast.show({ type: 'info', text1: 'No users found.' });
             setUsers([]);
           }
         } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'An error occurred while fetching all users.',
-          });
+          Toast.show({ type: 'error', text1: 'An error occurred while fetching all users.', text2: error.message || 'Please try again later.' });
         } finally {
           setLoading(false);
         }
@@ -45,7 +39,7 @@ export const getAllUsers = () => {
 
       fetchUsers();
 
-      return () => {};
+      return () => { };
     }, [])
   );
 

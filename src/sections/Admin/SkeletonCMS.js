@@ -144,18 +144,12 @@ export default function SkeletonCMS({
 
                                 setData(prevItems => prevItems.filter(item => item.id !== id));
 
-                                Toast.show({
-                                    type: 'success',
-                                    text1: 'Item deleted successfully',
-                                });
+                                Toast.show({ type: 'success', text1: 'Item deleted successfully' });
                             } else {
                                 throw new Error('Document not found');
                             }
                         } catch (error) {
-                            Toast.show({
-                                type: 'error',
-                                text1: 'Error deleting item',
-                            });
+                            Toast.show({ type: 'error', text1: 'Error deleting item', text2: error.message || 'Please try again later.' });
                         }
                     },
                     style: 'destructive',
@@ -194,8 +188,7 @@ export default function SkeletonCMS({
             setIsAddModalVisible(false);
             Toast.show({ type: 'success', text1: 'Item added successfully' });
         } catch (error) {
-            console.error('Error adding item:', error);
-            Toast.show({ type: 'error', text1: 'Error adding item' });
+            Toast.show({ type: 'error', text1: 'Error adding item', text2: error.message || 'Please try again later.' });
         }
         finally {
             setLoadingButton(false);
@@ -236,8 +229,7 @@ export default function SkeletonCMS({
             Toast.show({ type: 'success', text1: 'Item updated successfully' });
             closeModal();
         } catch (error) {
-            console.error('Error updating item:', error);
-            Toast.show({ type: 'error', text1: 'Error updating item' });
+            Toast.show({ type: 'error', text1: 'Error updating item', text2: error.message || 'Please try again later.' });
         } finally {
             setLoadingButton(false);
         }

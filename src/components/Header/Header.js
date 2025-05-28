@@ -74,11 +74,7 @@ export function HeaderAdmin({ title, style, boxStyle }) {
                             await signOut(auth);
                             navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
                         } catch (error) {
-                            Toast.show({
-                                type: 'error',
-                                text1: 'Error signing out.',
-                            });
-                            console.error('Error signing out:', error);
+                            Toast.show({ type: 'error', text1: 'Error signing out.', text2: error.message || 'Please try again later.' });
                         }
                     },
                 },

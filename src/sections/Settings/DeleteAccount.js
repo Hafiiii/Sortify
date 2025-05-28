@@ -35,10 +35,7 @@ export default function DeleteAccount() {
         const userAcc = auth.currentUser;
 
         if (!selectedReason) {
-            Toast.show({
-                type: 'error',
-                text1: 'Please select a reason for deletion.',
-            });
+            Toast.show({ type: 'error', text1: 'Please select a reason for deletion.' });
             return;
         }
 
@@ -46,10 +43,7 @@ export default function DeleteAccount() {
             setLoading(true);
 
             if (!userAcc) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'No user is logged in',
-                });
+                Toast.show({ type: 'error', text1: 'No user is logged in', text2: 'Please log in to delete your account.' });
             }
 
             const userRef = doc(firestore, 'users', userAcc.uid);
@@ -60,17 +54,10 @@ export default function DeleteAccount() {
 
             await deleteUser(userAcc);
 
-            Toast.show({
-                type: 'success',
-                text1: 'Account deleted successfully!',
-            });
-
+            Toast.show({ type: 'success', text1: 'Account deleted successfully!' });
             navigation.navigate('Login');
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error deleting account. Please try again later.',
-            });
+            Toast.show({ type: 'error', text1: 'Error deleting account. Please try again later.', text2: error.message || 'An unexpected error occurred.' });
         } finally {
             setLoading(false);
         }

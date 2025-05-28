@@ -1,4 +1,4 @@
-import { View, Image, Dimensions, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { View, Image, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
@@ -6,8 +6,10 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 // hooks
 import { getUsers } from '../hooks/getUsers';
+import { getCategories } from '../hooks/getCategories';
 // sections
 import WasteType from '../sections/Home/WasteType';
+import EcoTips from '../sections/Home/EcoTips';
 import WasteCategoryCarousel from '../components/Animation/WasteCategoryCarousel';
 // components
 import { Header } from '../components/Header/Header';
@@ -17,13 +19,14 @@ import { BRONZE_POINT, SILVER_POINT, GOLD_POINT } from '../utils/helper';
 
 // ----------------------------------------------------------------------
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 // ----------------------------------------------------------------------
 
 export default function HomeScreen() {
   const { user } = useAuth();
   const { userData } = getUsers();
+  const { categories } = getCategories();
   const navigation = useNavigation();
 
   return (
@@ -35,7 +38,7 @@ export default function HomeScreen() {
           backgroundColor: palette.primary.main,
           padding: user ? 30 : 0,
           paddingTop: user ? 20 : 0,
-          height: user ? height * 0.50 : height * 0.42,
+          height: height * 0.50,
           marginBottom: 44,
         }}
       >
@@ -70,31 +73,31 @@ export default function HomeScreen() {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 backgroundColor: palette.secondary.main,
-                paddingVertical: 18,
-                paddingHorizontal: 40,
+                paddingVertical: 13,
+                paddingHorizontal: 34,
                 borderRadius: 20,
-                marginTop: 15,
+                marginTop: 10,
               }}
             >
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <Iconify icon="pepicons-pencil:coins-circle-filled" size={30} color="#000" />
-                <Text style={{ fontSize: 17, fontWeight: 700, marginTop: 3 }}>{userData?.totalPoints || 0}</Text>
+                <Iconify icon="pepicons-pencil:coins-circle-filled" size={28} color="#000" />
+                <Text style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{userData?.totalPoints || 0}</Text>
                 <Text style={{ fontSize: 10 }}>POINTS</Text>
               </View>
 
               <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <Iconify icon="tdesign:cloud-filled" size={30} color="#000" />
-                <Text style={{ fontSize: 17, fontWeight: 700, marginTop: 3 }}>{userData?.savedCO || 0}g</Text>
+                <Iconify icon="tdesign:cloud-filled" size={28} color="#000" />
+                <Text style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{userData?.savedCO || 0}g</Text>
                 <Text style={{ fontSize: 10 }}>SAVED CO2</Text>
               </View>
 
               <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <Iconify icon="mingcute:wastebasket-fill" size={30} color="#000" />
-                <Text style={{ fontSize: 17, fontWeight: 700, marginTop: 3 }}>{userData?.totalWaste || 0}</Text>
+                <Iconify icon="mingcute:wastebasket-fill" size={28} color="#000" />
+                <Text style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{userData?.totalWaste || 0}</Text>
                 <Text style={{ fontSize: 10 }}>SORTED</Text>
               </View>
             </View>
@@ -158,7 +161,9 @@ export default function HomeScreen() {
         )}
       </View>
 
-      <WasteType />
+      <WasteType categories={categories} />
+
+      <EcoTips />
     </ScrollView >
   );
 }

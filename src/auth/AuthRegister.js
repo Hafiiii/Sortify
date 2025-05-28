@@ -87,11 +87,7 @@ export default function AuthRegisterForm() {
 
             await sendEmailVerification(user);
 
-            Toast.show({
-                type: 'success',
-                text1: 'Registration Successful. Please check your email to verify your account.',
-            });
-
+            Toast.show({ type: 'success', text1: 'Registration Successful. Please check your email to verify your account.' });
             handleRegister();
             navigation.navigate('EmailVerification', { email });
         } catch (err) {

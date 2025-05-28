@@ -1,7 +1,8 @@
 const palette = {
   primary: {
     main: '#80b564', // Dark Green
-    light: '#E1EFE1', // Light Green
+    light: '#E7F0E2', // Light Green
+    dark: '#0d590e', // Darker Green
   },
   secondary: {
     main: '#FFC665', // Dark Orange

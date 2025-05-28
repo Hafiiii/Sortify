@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
-import { Text, Searchbar } from 'react-native-paper';
+import { Text, Searchbar, ActivityIndicator } from 'react-native-paper';
 // @react-navigation
 import { useRoute, useNavigation } from '@react-navigation/native';
 // hooks
@@ -16,7 +16,7 @@ export default function CategoryObjects() {
   const navigation = useNavigation();
   const route = useRoute();
   const { categoryId, categoryName } = route.params;
-  const { objects } = getObjects();
+  const { objects, loading } = getObjects();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredObjects = objects
@@ -24,12 +24,18 @@ export default function CategoryObjects() {
     .sort((a, b) => a.objName.localeCompare(b.objName))
     .filter(obj =>
       `${obj.objName}`.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    ;
+    );
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
-    <View style={{ padding: 30, backgroundColor: '#fff' }}>
-
+    <View style={{ paddingHorizontal: 30, paddingTop: 10, paddingBottom: 0, backgroundColor: '#fff', flex: 1 }}>
       <HeaderTriple title={categoryName} style={{ fontWeight: 700, fontSize: 18 }} />
 
       <Searchbar
@@ -39,14 +45,14 @@ export default function CategoryObjects() {
         icon={props => <Iconify icon="ri:search-line" size={20} />}
         clearIcon={props => <Iconify icon="ic:baseline-clear" size={20} />}
         inputStyle={{ color: '#000', height: 45, marginTop: -4 }}
-        style={{ borderRadius: 14, marginTop: 10, marginBottom: 16, height: 45, backgroundColor: '#eaeaea' }}
+        style={{ borderRadius: 14, marginVertical: 5, height: 45, backgroundColor: '#eaeaea' }}
       />
 
       <FlatList
         data={filteredObjects}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 175 }}
+        contentContainerStyle={{ paddingBottom: 80 }}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>

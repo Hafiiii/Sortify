@@ -57,10 +57,7 @@ export default function ContactUsScreen() {
                 if (data.email) setValue('email', data.email);
             }
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error fetching user data.',
-            });
+            Toast.show({ type: 'error', text1: 'Error fetching user data.', text2: error.message || 'Please try again later.' });
         }
     };
 
@@ -85,20 +82,12 @@ export default function ContactUsScreen() {
             const issuesDocRef = doc(firestore, 'issues', issuesId);
             await setDoc(issuesDocRef, issuesData);
 
-            Toast.show({
-                type: 'success',
-                text1: 'Your Concern is Submitted',
-                text2: 'Thank you for reaching out to us. We will get back to you soon!',
-            });
+            Toast.show({ type: 'success', text1: 'Your Concern is Submitted', text2: 'Thank you for reaching out to us. We will get back to you soon!' });
 
             reset();
             fetchUserData();
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Submission Failed',
-                text2: 'An error occurred while submitting your issue.',
-            });
+            Toast.show({ type: 'error', text1: 'Submission Failed', text2: error.message || 'Please try again later.' });
         } finally {
             setLoading(false);
         }

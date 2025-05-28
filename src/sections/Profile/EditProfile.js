@@ -27,7 +27,7 @@ import { phoneRegExp } from '../../utils/helper';
 
 // ----------------------------------------------------------------------
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
@@ -68,10 +68,7 @@ export default function EditProfile() {
                         setPhotoURL(userData.photoURL);
                     }
                 } catch (error) {
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Error fetching user data.',
-                    });
+                    Toast.show({ type: 'error', text1: 'Error fetching user data.', text2: error.message || 'Please try again later.' });
                 }
             };
             fetchUserProfile();
@@ -148,18 +145,11 @@ export default function EditProfile() {
             setPhotoURL(downloadURL);
             setUploading(false);
 
-            Toast.show({
-                type: 'success',
-                text1: 'Profile photo updated successfully!',
-            });
+            Toast.show({ type: 'success', text1: 'Profile photo updated successfully!' });
         } catch (error) {
             setUploading(false);
 
-            Toast.show({
-                type: 'error',
-                text1: 'Failed to upload image',
-            });
-            console.error("Error uploading image:", error);
+            Toast.show({ type: 'error', text1: 'Failed to upload image', text2: error.message || 'Please try again later.' });
         }
     };
 
@@ -177,18 +167,11 @@ export default function EditProfile() {
                 photoURL: photoURL,
             });
 
-            Toast.show({
-                type: 'success',
-                text1: 'Profile Updated Successfully',
-            });
-
+            Toast.show({ type: 'success', text1: 'Profile Updated Successfully' });
             navigation.navigate("Main", { screen: "ProfileStack", params: { screen: "Profile" } });
-        } catch (err) {
+        } catch (error) {
 
-            Toast.show({
-                type: 'error',
-                text1: 'Failed to update profile',
-            });
+            Toast.show({ type: 'error', text1: 'Failed to update profile', text2: error.message || 'Please try again later.' });
         } finally {
             setLoading(false);
         }

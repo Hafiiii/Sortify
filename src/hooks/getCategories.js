@@ -12,18 +12,12 @@ import Toast from 'react-native-toast-message';
 // ----------------------------------------------------------------------
 
 export const getCategories = () => {
-  const { user } = useAuth();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
       const fetchCategoryData = async () => {
-        if (!user?.uid) {
-          setLoading(false);
-          return;
-        }
-
         try {
           const categoriesCollectionRef = collection(firestore, 'categories');
           const categoriesSnapshot = await getDocs(categoriesCollectionRef);
@@ -35,17 +29,11 @@ export const getCategories = () => {
             }));
             setCategories(categoriesList);
           } else {
-            Toast.show({
-              type: 'error',
-              text1: 'No waste type found.',
-            });
+            Toast.show({ type: 'error', text1: 'No waste type found.' });
             setCategories([]);
           }
         } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'Error fetching waste types.',
-          });
+          Toast.show({ type: 'error', text1: 'Error fetching waste types.', text2: error.message || 'Please try again later.' });
         } finally {
           setLoading(false);
         }
@@ -54,7 +42,7 @@ export const getCategories = () => {
       fetchCategoryData();
 
       return () => { };
-    }, [user?.uid])
+    })
   );
 
   return { categories, loading, setCategories };

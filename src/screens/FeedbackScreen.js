@@ -63,10 +63,7 @@ export default function FeedbackScreen() {
                 if (data.email) setValue('email', data.email);
             }
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error fetching user data',
-            });
+            Toast.show({ type: 'error', text1: 'Error fetching user data', text2: error.message || 'Please try again later.' });
         }
     };
 
@@ -98,22 +95,14 @@ export default function FeedbackScreen() {
             const feedbackDocRef = doc(firestore, 'feedbacks', feedbackId);
             await setDoc(feedbackDocRef, feedbackData);
 
-            Toast.show({
-                type: 'success',
-                text1: 'Feedback Submitted',
-                text2: 'Thank you for your feedback!',
-            });
+            Toast.show({ type: 'success', text1: 'Feedback Submitted', text2: 'Thank you for your feedback!' });
 
             setRating(0);
             setIsAnonymous(false);
             reset();
             fetchUserData();
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Submission Failed',
-                text2: 'An error occurred while submitting your feedback.',
-            });
+            Toast.show({ type: 'error', text1: 'Submission Failed', text2: error.message || 'Please try again later.' });
         } finally {
             setLoading(false);
         }

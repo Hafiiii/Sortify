@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, TouchableOpacity, Dimensions, ImageBackground } from 'react-native';
+import { View, Dimensions, ImageBackground } from 'react-native';
 import { Button, Text, TextInput } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
@@ -13,12 +13,11 @@ import { sendPasswordResetEmail } from "firebase/auth";
 // components
 import Toast from 'react-native-toast-message';
 import palette from '../theme/palette';
-import { Iconify } from 'react-native-iconify';
 import { ReturnButton } from '../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 const AccountSchema = Yup.object().shape({
     email: Yup.string().required('Email is required').email('Invalid email format'),
@@ -39,19 +38,10 @@ export default function ForgotPasswordScreen() {
         try {
             await sendPasswordResetEmail(auth, data.email);
 
-            Toast.show({
-                type: 'success',
-                text1: 'Reset Email Sent',
-                text2: 'Check your inbox to reset your password.',
-            });
-
+            Toast.show({ type: 'success', text1: 'Reset Email Sent', text2: 'Check your inbox to reset your password.' });
             navigation.navigate("PasswordReset");
-        } catch (err) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error sending reset email',
-                text2: err.message,
-            });
+        } catch (error) {
+            Toast.show({ type: 'error', text1: 'Error sending reset email', text2: error.message || 'Please try again later.' });
         } finally {
             setLoading(false);
         }

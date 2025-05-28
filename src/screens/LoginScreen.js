@@ -9,7 +9,7 @@ import palette from '../theme/palette';
 
 // ----------------------------------------------------------------------
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 // ----------------------------------------------------------------------
 

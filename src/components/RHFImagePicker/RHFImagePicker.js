@@ -52,7 +52,6 @@ export default function RHFImagePicker({ name, control, errors, imageName, stora
                 const downloadURL = await uploadImage(uri, imageName);
                 onChange(downloadURL);
             } catch (error) {
-                console.error(error);
                 Toast.show({ type: 'error', text1: error.message || 'Image upload failed' });
             }
         }

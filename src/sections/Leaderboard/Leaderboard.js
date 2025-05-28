@@ -60,10 +60,7 @@ export default function Leaderboard() {
             } catch (error) {
                 setError(true);
 
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error fetching leaderboard data.',
-                });
+                Toast.show({ type: 'error', text1: 'Error fetching leaderboard data.', text2: error.message || 'Please try again later.' });
             } finally {
                 setLoading(false);
             }

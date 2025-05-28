@@ -36,17 +36,11 @@ export const getWastes = () => {
             }));
             setWasteData(wastesList);
           } else {
-            Toast.show({
-              type: 'error',
-              text1: "Oops! You haven't scanned any waste item yet.",
-            });
+            Toast.show({ type: 'error', text1: "Oops! You haven't scanned any waste item yet.", text2: error.message || 'Please try again later.' });
             setWasteData([]);
           }
         } catch (error) {
-          Toast.show({
-            type: 'error',
-            text1: 'An error occurred while fetching wastes.',
-          });
+          Toast.show({ type: 'error', text1: 'An error occurred while fetching wastes.', text2: error.message || 'Please try again later.' });
         } finally {
           setLoading(false);
         }

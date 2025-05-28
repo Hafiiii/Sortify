@@ -116,7 +116,8 @@ export default function WasteCategoryCarousel() {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 8,
+            gap: 10,
+            paddingHorizontal: 20,
           },
           animatedStyle,
         ]}
@@ -125,14 +126,9 @@ export default function WasteCategoryCarousel() {
           style={{
             width: '30%',
             maxHeight: 130,
-            borderRadius: 500,
-            alignItems: 'center',
-            justifyContent: 'center',
-            shadowColor: '#fff',
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.9,
-            shadowRadius: 20,
-            elevation: 20,
+            aspectRatio: 1,
+            borderRadius: 100,
+            backgroundColor: '#f0f0f0',
           }}
         >
           <Image
@@ -145,11 +141,18 @@ export default function WasteCategoryCarousel() {
           />
         </View>
 
-        <View style={{ backgroundColor: '#fff', height: 80, width: 4 }} />
-
-        <Text style={{ width: '50%', padding: 5, lineHeight: 20, fontWeight: 700, color: '#fff' }}>
-          {currentItem.facts}
-        </Text>
+        <View
+          style={{
+            width: '60%',
+            backgroundColor: 'rgba(255,255,255,0.1)',
+            borderRadius: 12,
+            padding: 12,
+          }}
+        >
+          <Text style={{ lineHeight: 22, fontWeight: 700, color: '#fff', textAlign: 'justify' }}>
+            {currentItem.facts}
+          </Text>
+        </View>
       </Animated.View>
     </View>
   );

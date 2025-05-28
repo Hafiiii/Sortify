@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { Provider as PaperProvider, DefaultTheme, ActivityIndicator } from 'react-native-paper';
 // context
 import { AuthProvider } from './src/context/AuthContext';
@@ -64,6 +64,7 @@ const theme = {
     ...DefaultTheme.colors,
     primary: '#80b564',
   },
+  backgroundColor: '#fff',
   fonts: {
     ...DefaultTheme.fonts,
     default: {
@@ -110,7 +111,7 @@ const BottomTabNavigator = () => {
           bottom: 16,
           left: 0,
           right: 0,
-          borderRadius: 20,
+          borderRadius: 14,
           height: 60,
           backgroundColor: '#000',
           marginHorizontal: 15,
@@ -120,8 +121,12 @@ const BottomTabNavigator = () => {
         },
         tabBarShowLabel: false,
         headerShown: false,
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: palette.primary.main,
         tabBarInactiveTintColor: '#fff',
+        tabBarButton: (props) => (
+          <TouchableOpacity {...props} />
+        ),
       })}
     >
       <Tab.Screen

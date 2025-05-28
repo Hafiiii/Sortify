@@ -59,7 +59,7 @@ export default function ActivitiesScreen() {
                             onPress={() => !isLocked && navigation.navigate(activity.route)}
                             activeOpacity={0.7}
                             disabled={isLocked}
-                            style={{ marginVertical: 10 }}
+                            style={{ marginVertical: 3 }}
                         >
                             <View style={{ position: 'relative' }}>
                                 <ActivitiesBox

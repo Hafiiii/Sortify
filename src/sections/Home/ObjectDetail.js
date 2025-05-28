@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // ----------------------------------------------------------------------
 
-const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +21,10 @@ export default function ObjectDetailScreen() {
     const { objName, categoryId } = route.params;
     const { category } = getCategoryByCategoryId(categoryId);
     const { object } = getObjectByObjName(objName);
+
+    console.log('obj', object)
+    console.log(category)
+    const currentObject = object?.[0];
 
     return (
         <View
@@ -32,59 +36,69 @@ export default function ObjectDetailScreen() {
                 backgroundColor: '#fff',
             }}
         >
-            <View style={{ paddingHorizontal: 30, paddingVertical: 20 }}>
+            <View style={{ paddingHorizontal: 30, paddingVertical: 10 }}>
                 <HeaderTriple title={objName} style={{ fontWeight: 700, fontSize: 18 }} />
             </View>
 
             <View
                 style={{
                     backgroundColor: palette.primary.main,
-                    borderTopLeftRadius: 30,
-                    borderTopRightRadius: 30,
+                    borderTopLeftRadius: 25,
+                    borderTopRightRadius: 25,
                     alignItems: 'center',
-                    paddingHorizontal: 20,
-                    paddingVertical: 35,
-                    paddingBottom: 70,
+                    padding: 15,
+                    paddingBottom: 74,
                     flex: 1
                 }}
             >
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    {category?.map((cat, index) => (
-                        <View
-                            key={index}
-                            style={{
-                                marginBottom: 15,
-                                backgroundColor: '#fff',
-                                padding: 15,
-                                borderRadius: 20,
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                gap: 8,
-                            }}
-                        >
-                            <Icon name={cat.categoryIcon} size={60} color="#000" />
+                    {currentObject?.categoryId?.map((id, index) => {
+                        const matchedCategory = category?.find(cat => String(cat.categoryId) === String(id));
+                        const desc = currentObject.categoryDesc?.[index];
 
-                            <View style={{ width: '80%', flexDirection: 'column', gap: 8 }}>
-                                <Text style={{ fontSize: 16, fontWeight: 700 }}>{cat.categoryName}</Text>
+                        if (!matchedCategory) return null;
 
-                                {object?.map((obj, index) => (
-                                    <Text key={index} style={{ textAlign: 'justify' }}>{obj.categoryDesc}</Text>
-                                ))}
+                        return (
+                            <View
+                                key={id}
+                                style={{
+                                    marginBottom: 7,
+                                    backgroundColor: '#fff',
+                                    paddingHorizontal: 15,
+                                    paddingVertical: 10,
+                                    borderRadius: 22,
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    gap: 6,
+                                }}
+                            >
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                    <Icon name={matchedCategory.categoryIcon} size={35} color="#000" />
+                                    <Text style={{ fontSize: 16, fontWeight: '700' }}>{matchedCategory.categoryName}</Text>
+                                </View>
 
-                                <Text style={{ color: palette.disabled.secondary, textAlign: 'justify' }}>
-                                    Recycle Info: {cat.categoryRecycle}
+                                <Text style={{ textAlign: 'justify', lineHeight: 20 }}>{desc}</Text>
+
+                                <Text style={{ color: palette.disabled.secondary, textAlign: 'justify', lineHeight: 20 }}>
+                                    Recycle Info: {matchedCategory.categoryRecycle}
                                 </Text>
 
                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                                    <View style={{ backgroundColor: cat.isRecyclables ? 'red' : 'green', width: 8, height: 8, borderRadius: 50 }} />
-
-                                    <Text style={{ color: cat.isRecyclables ? 'red' : 'green', fontWeight: 700 }}>
-                                        {cat.isRecyclables ? 'Not Recyclable' : 'Recyclable'}
+                                    <View
+                                        style={{
+                                            backgroundColor: matchedCategory.isRecyclable ? 'green' : 'red',
+                                            width: 8,
+                                            height: 8,
+                                            borderRadius: 50,
+                                        }}
+                                    />
+                                    <Text style={{ color: matchedCategory.isRecyclable ? 'green' : 'red', fontWeight: '700' }}>
+                                        {matchedCategory.isRecyclable ? 'Recyclable' : 'Not Recyclable'}
                                     </Text>
                                 </View>
                             </View>
-                        </View>
-                    ))}
+                        );
+                    })}
                 </ScrollView>
             </View>
         </View>
