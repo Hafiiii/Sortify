@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useCallback, Fragment } from "react";
-import { View, TouchableOpacity, Image, Modal, Linking, ScrollView, FlatList, Alert, Dimensions, StyleSheet } from "react-native";
-import { Text, Button, Divider } from "react-native-paper";
+import { View, TouchableOpacity, Image, Modal, Linking, ScrollView, Alert, Dimensions, StyleSheet } from "react-native";
+import { Text, Button, ActivityIndicator } from "react-native-paper";
 import axios from "axios";
+// image
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
+import ImageResizer from 'react-native-image-resizer';
 // @react-navigation
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 // firebase
@@ -34,8 +36,9 @@ export default function ScanScreen() {
     const { user } = useAuth();
     const navigation = useNavigation();
     const [imageUri, setImageUri] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [analyzeLoading, setAnalyzeLoading] = useState(false);
     const [detectedObjects, setDetectedObjects] = useState([]);
-    const [categoryDesc, setCategoryDesc] = useState({});
     const [cameraPermission, setCameraPermission] = useState(null);
     const [isCameraActive, setIsCameraActive] = useState(null);
     const device = useCameraDevice('back');
@@ -67,77 +70,85 @@ export default function ScanScreen() {
     useFocusEffect(
         useCallback(() => {
             setIsCameraActive(true);
-            return () => setIsCameraActive(false);
+            setImageUri(null);
+            setCapturedPhoto(null);
+            setShowPreview(false);
+            setDetectedObjects([]);
+            setIsDrawerVisible(false);
+            setAnalyzeLoading(false);
+
+            return () => {
+                setIsCameraActive(false);
+            };
         }, [])
     );
 
     const takePhoto = async () => {
         try {
             if (!camera.current) {
-                console.error('Camera reference not available.', camera.current);
+                Toast.show({ type: 'error', text1: 'Camera reference not available.', text2: error.message || 'Please ensure the camera is functioning properly.' });
                 return;
             }
 
             const photo = await camera.current.takePhoto();
-            console.log(photo);
 
             if (photo) {
-                setCapturedPhoto(`file://${photo.path}`);
-                setShowPreview(true);
+                const uri = `file://${photo.path}`;
+                try {
+                    const resizedImage = await ImageResizer.createResizedImage(
+                        uri,
+                        800,
+                        800,
+                        'JPEG',
+                        80
+                    );
+
+                    const base64 = await RNFS.readFile(resizedImage.uri, 'base64');
+                    setImageUri(resizedImage.uri);
+                    await analyzeImage(base64, resizedImage.uri);
+                } catch (err) {
+                    Toast.show({ type: 'error', text1: 'Image resizing failed.', text2: err.message });
+                }
             } else {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Photo captured is undefined or empty.',
-                });
+                Toast.show({ type: 'error', text1: 'Photo captured is undefined or empty.', text2: error.message || 'Please try again.' });
             }
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error capturing photo.',
-            });
+            Toast.show({ type: 'error', text1: 'Error capturing photo.', text2: error.message || 'Please ensure the camera is functioning properly.' });
         }
-    };
-
-    const confirmPhoto = async () => {
-        console.log("Confirming photo:", capturedPhoto);
-        try {
-            if (!capturedPhoto) return;
-
-            const base64 = await RNFS.readFile(capturedPhoto, 'base64');
-
-            setCapturedPhoto(null);
-            setShowPreview(false);
-
-            await analyzeImage(base64, capturedPhoto);
-        } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Failed to analyze or upload the image.',
-            });
-            console.error("Error in confirmPhoto:", error);
-        }
-    };
-
-    const retakePhoto = () => {
-        setCapturedPhoto(null);
-        setShowPreview(false);
     };
 
     const selectImage = async () => {
         launchImageLibrary(
-            { mediaType: "photo", quality: 1, includeBase64: true },
+            { mediaType: "photo", quality: 1, includeBase64: false },
             async (response) => {
                 if (response.didCancel) return;
                 if (response.assets && response.assets.length > 0) {
                     const image = response.assets[0];
-                    setImageUri(image.uri);
-                    await analyzeImage(image.base64, image.uri);
+
+                    try {
+                        const resizedImage = await ImageResizer.createResizedImage(
+                            image.uri,
+                            800,
+                            800,
+                            'JPEG',
+                            80
+                        );
+
+                        const resizedBase64 = await RNFS.readFile(resizedImage.uri, 'base64');
+                        setImageUri(resizedImage.uri);
+                        await analyzeImage(resizedBase64, resizedImage.uri);
+                    } catch (err) {
+                        Toast.show({ type: 'error', text1: 'Image resizing failed.', text2: err.message });
+                    }
                 }
             }
         );
     };
 
+
     const analyzeImage = async (base64Image, photoURL) => {
+        setAnalyzeLoading(true);
+
         try {
             const response = await axios.post(
                 `https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_VISION_API_KEY}`,
@@ -157,18 +168,31 @@ export default function ScanScreen() {
             const objectAnnotations = response.data.responses[0].localizedObjectAnnotations || [];
             const labelAnnotations = response.data.responses[0].labelAnnotations || [];
 
-            console.log('Detected objects:', objectAnnotations);
+            console.log('Detected objects localization:', objectAnnotations);
             console.log('Detected labels:', labelAnnotations);
 
-            const combinedRawObjects = [
-                ...objectAnnotations.map(obj => ({ ...obj, type: 'object' })),
-                ...labelAnnotations.map(label => ({
-                    name: label.description,
-                    score: label.score,
-                    boundingPoly: { normalizedVertices: [] },
-                    type: 'label'
-                }))
-            ];
+            const objectMap = new Map();
+
+            objectAnnotations.forEach(obj => {
+                objectMap.set(obj.name.toLowerCase(), {
+                    ...obj,
+                    detectionType: 'object'
+                });
+            });
+
+            labelAnnotations.forEach(label => {
+                const key = label.description.toLowerCase();
+                if (!objectMap.has(key)) {
+                    objectMap.set(key, {
+                        name: label.description,
+                        score: label.score,
+                        boundingPoly: { normalizedVertices: [] },
+                        detectionType: 'label'
+                    });
+                }
+            });
+
+            const combinedRawObjects = Array.from(objectMap.values());
 
             const cleanedObjects = [];
 
@@ -205,14 +229,10 @@ export default function ScanScreen() {
 
             setDetectedObjects(cleanedObjects);
             setIsDrawerVisible(true);
-
-            await addWasteToFirestore(cleanedObjects, photoURL);
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'There was a problem analyzing the image.',
-            });
-            console.error('Vision API error:', error);
+            Toast.show({ type: 'error', text1: 'There was a problem analyzing the image.', text2: error.message || 'Please try again later.' });
+        } finally {
+            setAnalyzeLoading(false);
         }
     };
 
@@ -238,6 +258,7 @@ export default function ScanScreen() {
         const storageRef = ref(storage, `wastes_images/${Date.now()}.jpg`);
         await uploadBytes(storageRef, blob);
         const downloadURL = await getDownloadURL(storageRef);
+        setLoading(true);
 
         try {
             if (!user?.uid) {
@@ -274,12 +295,39 @@ export default function ScanScreen() {
                 await setDoc(wasteDocRef, wasteData);
             }
         } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Failed to save waste data.',
-                text2: error.message,
-            });
-            console.error("Error saving waste data:", error);
+            Toast.show({ type: 'error', text1: 'Failed to save waste data.', text2: error.message || 'Please try again.' });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSorted = async () => {
+        if (!user) {
+            Alert.alert(
+                'Login Required',
+                'Please log in to save sorted items.',
+                [
+                    {
+                        text: 'Cancel',
+                        onPress: () => navigation.navigate('Scan'),
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('Login'),
+                    },
+                ]
+            );
+            return;
+        }
+
+        try {
+            await addWasteToFirestore(detectedObjects, imageUri, user.uid);
+            Toast.show({ type: 'success', text1: 'Sorted!', text2: 'Data saved successfully.' });
+            resetScanScreen();
+        } catch (error) {
+            Toast.show({ type: 'error', text1: 'Failed to save sorted data.', text2: error.message });
+            console.error('Error saving sorted data:', error);
         }
     };
 
@@ -290,7 +338,6 @@ export default function ScanScreen() {
         setShowPreview(false);
         setIsDrawerVisible(false);
     };
-
 
     if (cameraPermission === null) {
         return <Text>Checking camera permission...</Text>;
@@ -310,7 +357,13 @@ export default function ScanScreen() {
         return <Text>No camera device available</Text>;
     }
 
-    console.log("Firestore: ", detectedObjects);
+    if (analyzeLoading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
 
     return (
         <View
@@ -399,10 +452,6 @@ export default function ScanScreen() {
                             source={{ uri: capturedPhoto }}
                             style={{ width: 300, height: 300, marginBottom: 20 }}
                         />
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Button title="Retake" onPress={retakePhoto} />
-                            <Button title="Confirm" onPress={confirmPhoto} />
-                        </View>
                     </View>
                 ) : (
                     <View style={{ position: 'absolute', bottom: 20, left: 0, right: 0, alignItems: 'center' }}>
@@ -462,12 +511,13 @@ export default function ScanScreen() {
                         }}
                     >
                         <ScrollView showsVerticalScrollIndicator={false}>
-                            {detectedObjects.map((obj, index) => (
-                                <View key={index} >
-                                    <Text style={{ fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', paddingVertical: 5, backgroundColor: palette.primary.light }}>{obj.name}</Text>
+                            {detectedObjects && detectedObjects.length > 0 ? (
+                                detectedObjects.map((obj, index) => (
+                                    <View key={index} >
+                                        <Text style={{ fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', paddingVertical: 3, backgroundColor: palette.primary.light }}>{obj.name}</Text>
 
-                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
-                                        {/* <Image
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
+                                            {/* <Image
                                             source={obj.photoURL ? { uri: obj.photoURL } : require("../../assets/sortify-logo.png")}
                                             style={{
                                                 width: '25%',
@@ -478,24 +528,24 @@ export default function ScanScreen() {
                                             }}
                                         /> */}
 
-                                        <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <View>
-                                                    {obj.categories.map((category, index) => (
-                                                        <View key={index} style={{ marginBottom: 5 }}>
-                                                            <Text style={{ fontWeight: 700 }}>
-                                                                {category || 'Unknown'}
-                                                            </Text>
+                                            <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <View style={{ marginBottom: 15 }}>
+                                                        {obj.categories.map((category, index) => (
+                                                            <View key={index} style={{ marginBottom: 5 }}>
+                                                                <Text style={{ fontWeight: 700 }}>
+                                                                    {category || 'Unknown'}
+                                                                </Text>
 
-                                                            <Text style={{ textAlign: 'justify', lineHeight: 18 }}>
-                                                                {obj.categoryDesc[index] || 'No description available'}
-                                                            </Text>
-                                                        </View>
-                                                    ))}
+                                                                <Text style={{ textAlign: 'justify', lineHeight: 18 }}>
+                                                                    {obj.categoryDesc[index] || 'No description available'}
+                                                                </Text>
+                                                            </View>
+                                                        ))}
+                                                    </View>
                                                 </View>
-                                            </View>
 
-                                            {/* <View
+                                                {/* <View
                                             style={{
                                                 backgroundColor: '#e5e5e5',
                                                 paddingVertical: 3,
@@ -511,13 +561,13 @@ export default function ScanScreen() {
                                             <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
                                             <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{obj.point}</Text>
                                         </View> */}
+                                            </View>
                                         </View>
-                                    </View>
 
 
 
 
-                                    {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
+                                        {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
                                         <View
                                             style={{
                                                 backgroundColor: obj?.isRecyclable ? 'green' : 'red',
@@ -539,22 +589,55 @@ export default function ScanScreen() {
                                                     : 'No description available'}
                                         </Text>
                                     </View> */}
+                                    </View>
+                                ))
+                            ) : (
+                                <View style={{ gap: 5, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Image
+                                        source={require('../../assets/sortify-search.png')}
+                                        style={{
+                                            width: 75,
+                                            height: 75,
+                                            resizeMode: 'contain',
+                                        }}
+                                    />
+
+                                    <Text style={{ fontSize: 16, color: palette.disabled.secondary }}>
+                                        No item detected
+                                    </Text>
+
+                                    <Text style={{ textAlign: 'center', color: palette.disabled.main }}>
+                                        We couldn’t recognize any recyclable items in your image. Make sure it’s clear, well-lit, and shows only one item at a time for better results.
+                                    </Text>
                                 </View>
-                            ))}
+                            )}
                         </ScrollView>
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20 }}>
-                            <Button
-                                mode="contained"
-                                onPress={resetScanScreen}
-                                style={{ backgroundColor: '#000', width: '90%' }}
-                                labelStyle={{ color: '#fff' }}
-                            >
-                                Sorted!
-                            </Button>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 15 }}>
+                            {detectedObjects && detectedObjects.length > 0 ? (
+                                <Button
+                                    mode="contained"
+                                    onPress={handleSorted}
+                                    loading={loading}
+                                    disabled={loading}
+                                    style={{ backgroundColor: '#000', width: '85%' }}
+                                    labelStyle={{ color: '#fff' }}
+                                >
+                                    Sorted!
+                                </Button>
+                            ) : (
+                                <Button
+                                    mode="contained"
+                                    onPress={resetScanScreen}
+                                    style={{ backgroundColor: '#000', width: '85%' }}
+                                    labelStyle={{ color: '#fff' }}
+                                >
+                                    Return to Scan
+                                </Button>
+                            )}
 
                             <TouchableOpacity onPress={() => { navigation.navigate('Feedback') }} style={{ width: '10%', alignItems: 'center' }}>
-                                <Iconify icon="material-symbols:flag" color="#000" size={25} />
+                                <Iconify icon="material-symbols:flag" size={25} />
                             </TouchableOpacity>
                         </View>
                     </View>
