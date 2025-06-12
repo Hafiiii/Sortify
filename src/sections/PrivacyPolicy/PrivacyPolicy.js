@@ -1,7 +1,7 @@
-import { ScrollView } from 'react-native';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 // components
-import ReturnButton from '../../components/GoBackButton/GoBackButton';
+import { ReturnButton } from '../../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
@@ -30,6 +30,44 @@ export default function PrivacyPolicy() {
             </Text>
 
             <Text style={{ fontWeight: 700, marginBottom: 15 }}>2. PRIVACY</Text>
+            <Text style={{ fontWeight: 700, marginBottom: 5 }}>2.1 Data Collection</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                We collect personal information such as your name, email address, location, and usage data when you create an account or use our Services. We may also collect data from your device such as IP address, device type, operating system, and app usage statistics.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 5 }}>2.2 How We Use Your Data</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                Your data is used to provide and improve our Services, respond to inquiries, send updates, and enhance the waste sorting features through analytics and machine learning. We do not sell your data to third parties.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 5 }}>2.3 Data Security</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                We take reasonable measures to protect your information from unauthorized access, loss, misuse, or alteration. However, no method of transmission over the internet is completely secure.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 5 }}>2.4 Data Sharing</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                We may share your data with third-party service providers who help us operate the app, such as analytics services or cloud storage providers. These third parties are bound by confidentiality agreements.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 5 }}>2.5 Children's Privacy</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                We do not knowingly collect personal information from individuals under the age of 13. If we learn that we have collected such data, we will take steps to delete it promptly.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 5 }}>2.6 Changes to Privacy Policy</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                Sortify may update this Privacy Policy from time to time. You are encouraged to review this page periodically for any changes. Continued use of the App after changes constitutes your acceptance of the new terms.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 10 }}>3. CONTACT US</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                For any questions or concerns about this Privacy Policy or how your data is handled, please <TouchableOpacity onPress={() => navigation.navigate('ContactUs')} >
+                    <Text style={{ textDecorationLine: 'underline', marginBottom: -8 }}>
+                        CONTACT US
+                    </Text>
+                </TouchableOpacity>.
+            </Text>
 
         </ScrollView>
     );

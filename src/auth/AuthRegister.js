@@ -76,9 +76,7 @@ export default function AuthRegisterForm() {
                 phoneNumber: "",
                 gender: "",
                 birthday: "",
-                totalPoints: "",
-                // savedCO: "",
-                // totalWaste: "",
+                totalPoints: 0,
             });
 
             // await sendEmailVerification(user);

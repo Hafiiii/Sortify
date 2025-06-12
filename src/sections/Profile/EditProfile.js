@@ -72,7 +72,6 @@ export default function EditProfile() {
         }
     }, [user, setValue]);
 
-
     const pickImage = async () => {
         Alert.alert(
             "Choose an option",
@@ -133,7 +132,6 @@ export default function EditProfile() {
                     const oldImagePath = decodeURIComponent(photoURL.split('/o/')[1].split('?')[0]);
                     const oldImageRef = ref(storage, oldImagePath);
                     await deleteObject(oldImageRef);
-                    console.log('Old image deleted.');
                 } catch (deleteError) {
                     console.warn('Failed to delete old image:', deleteError.message);
                 }

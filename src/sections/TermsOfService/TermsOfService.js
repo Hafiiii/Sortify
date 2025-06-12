@@ -1,7 +1,7 @@
-import { ScrollView } from 'react-native';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 // components
-import ReturnButton from '../../components/GoBackButton/GoBackButton';
+import { ReturnButton } from '../../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +30,57 @@ export default function TermsOfService() {
             </Text>
 
             <Text style={{ fontWeight: 700, marginBottom: 15 }}>2. PRIVACY</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                2.1 We value your privacy. By using the Sortify App, you agree that Sortify may collect, use, and disclose your personal data as described in our Privacy Policy. We will handle your data responsibly and in accordance with all applicable privacy laws.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                2.2 Information collected may include personal information (e.g., name, email address), usage data, and image data uploaded by users for the purpose of waste identification. This data may be used to improve the App’s services, enhance user experience, and for analytics.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                2.3 You are responsible for keeping your account credentials secure. Sortify is not liable for any unauthorized access to your account resulting from your failure to safeguard your information.
+            </Text>
 
+            <Text style={{ fontWeight: 700, marginBottom: 15 }}>3. USER CONDUCT</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                3.1 You agree to use the App only for lawful purposes and in a way that does not infringe on the rights of, restrict, or inhibit anyone else's use and enjoyment of the App.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                3.2 You may not misuse the App by knowingly introducing viruses, trojans, or other material that is malicious or technologically harmful. You must not attempt to gain unauthorized access to our Services or servers.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 15 }}>4. INTELLECTUAL PROPERTY</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                4.1 All content on Sortify, including but not limited to text, images, icons, logos, and software, is the property of Sortify or its licensors and is protected by intellectual property laws.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                4.2 You may not reproduce, distribute, modify, or create derivative works of any content without express written permission from Sortify.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 15 }}>5. TERMINATION</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                5.1 Sortify reserves the right to suspend or terminate your access to the App or Services at our sole discretion, without notice, for conduct that we believe violates these Terms, is harmful to other users, or is otherwise inappropriate.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 15 }}>6. DISCLAIMER AND LIMITATION OF LIABILITY</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                6.1 The App is provided on an "as-is" and "as-available" basis. We do not guarantee that the App will always be safe, secure, or error-free, or that it will function without disruptions, delays, or imperfections.
+            </Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                6.2 To the fullest extent permitted by law, Sortify disclaims all warranties, express or implied, and shall not be liable for any damages arising from the use of or inability to use the App.
+            </Text>
+
+            <Text style={{ fontWeight: 700, marginBottom: 15 }}>7. CONTACT INFORMATION</Text>
+            <Text style={{ marginBottom: 10, textAlign: 'justify' }}>
+                If you have any questions about these Terms, please <TouchableOpacity onPress={() => navigation.navigate('ContactUs')} >
+                    <Text style={{ textDecorationLine: 'underline', marginBottom: -8 }}>
+                        CONTACT US
+                    </Text>
+                </TouchableOpacity>.
+            </Text>
+
+            <Text style={{ fontSize: 12, marginTop: 20, textAlign: 'center' }}>
+                Last updated: June 12, 2025
+            </Text>
         </ScrollView>
     );
 };

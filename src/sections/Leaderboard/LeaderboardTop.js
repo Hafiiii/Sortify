@@ -1,9 +1,8 @@
 import { View, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 // components
-import palette from '../../theme/palette';
-import { Iconify } from 'react-native-iconify';
 import Star from '../../components/Icon/Star';
+import ModalPoints from '../../components/Points/ModalPoints';
 
 // ----------------------------------------------------------------------
 
@@ -23,129 +22,75 @@ export default function LeaderboardTop({ leaderboardData, width }) {
 
             <Star />
 
-            {leaderboardData.length >= 3 && (
+            {leaderboardData.length > 0 && (
                 <View style={{ position: 'relative', width: 320, height: 200, zIndex: 2 }}>
-                    <View
-                        style={{
-                            alignItems: 'center',
-                            marginHorizontal: 5,
-                            position: 'absolute',
-                            width: width * 0.75,
-                            height: 200,
-                            top: 50,
-                            left: -110,
-                        }}
-                    >
-                        <Image
-                            source={leaderboardData[1]?.photoURL ? { uri: leaderboardData[1]?.photoURL } : require("../../../assets/profile.jpeg")}
-                            style={{
-                                width: 75,
-                                height: 75,
-                                borderRadius: 40,
-                                marginBottom: 20,
-                            }}
+                    {leaderboardData.length > 1 &&
+                        <RankPodium
+                            leaderboardData={leaderboardData}
+                            width={width}
+                            index={1}
+                            style={{ top: 50, left: -115 }}
                         />
-                        
-                        <Text style={{ fontWeight: 700, marginBottom: 5 }}>{leaderboardData[1]?.firstName} {leaderboardData[1]?.lastName}</Text>
-                        
-                        <View
-                            style={{
-                                backgroundColor: '#e5e5e5',
-                                paddingVertical: 4,
-                                paddingHorizontal: 7,
-                                borderRadius: 20,
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={11} />
-                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 4 }}>{leaderboardData[1]?.totalPoints}</Text>
-                        </View>
-                    </View>
+                    }
 
-                    <View
-                        style={{
-                            alignItems: 'center',
-                            marginHorizontal: 5,
-                            position: 'absolute',
-                            width: width * 0.75,
-                            height: 200,
-                            top: 0,
-                        }}
-                    >
-                        <Image
-                            source={leaderboardData[0]?.photoURL ? { uri: leaderboardData[0]?.photoURL } : require("../../../assets/profile.jpeg")}
-                            style={{
-                                width: 75,
-                                height: 75,
-                                borderRadius: 50,
-                                marginBottom: 20,
-                            }}
+                    <RankPodium
+                        leaderboardData={leaderboardData}
+                        width={width}
+                        index={0}
+                        style={{ top: 0 }}
+                    />
+
+                    {leaderboardData.length > 2 &&
+                        <RankPodium
+                            leaderboardData={leaderboardData}
+                            width={width}
+                            index={2}
+                            style={{ top: 90, right: -110 }}
                         />
-                        
-                        <Text style={{ fontWeight: 700, marginBottom: 5 }}>{leaderboardData[0]?.firstName} {leaderboardData[0]?.lastName}</Text>
-                        
-                        <View
-                            style={{
-                                backgroundColor: '#e5e5e5',
-                                paddingVertical: 4,
-                                paddingHorizontal: 7,
-                                borderRadius: 20,
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={11} />
-                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 4 }}>{leaderboardData[0]?.totalPoints}</Text>
-                        </View>
-                    </View>
-
-                    <View
-                        style={{
-                            alignItems: 'center',
-                            marginHorizontal: 5,
-                            position: 'absolute',
-                            width: width * 0.75,
-                            height: 200,
-                            top: 90,
-                            right: -110,
-                        }}
-                    >
-                        <Image
-                            source={leaderboardData[2]?.photoURL ? { uri: leaderboardData[2]?.photoURL } : require("../../../assets/profile.jpeg")}
-                            style={{
-                                width: 75,
-                                height: 75,
-                                borderRadius: 40,
-                                marginBottom: 20,
-                            }}
-                        />
-                        
-                        <Text style={{ fontWeight: 700, marginBottom: 5 }}>
-                            {`${leaderboardData[2]?.firstName || ''} ${leaderboardData[2]?.lastName || ''}`.length > 13
-                                ? `${`${leaderboardData[2]?.firstName || ''} ${leaderboardData[2]?.lastName || ''}`.slice(0, 13)}..`
-                                : `${leaderboardData[2]?.firstName || ''} ${leaderboardData[2]?.lastName || ''}`}
-                        </Text>
-
-                        <View
-                            style={{
-                                backgroundColor: '#e5e5e5',
-                                paddingVertical: 4,
-                                paddingHorizontal: 7,
-                                borderRadius: 20,
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={11} />
-                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 4 }}>{leaderboardData[2]?.totalPoints}</Text>
-                        </View>
-                    </View>
+                    }
                 </View>
             )}
+        </View>
+    );
+}
+
+function RankPodium({ leaderboardData, width, index, style = {} }) {
+    return (
+        <View
+            style={{
+                alignItems: 'center',
+                marginHorizontal: 5,
+                position: 'absolute',
+                width: width * 0.75,
+                height: 200,
+                ...style,
+            }}
+        >
+            <Image
+                source={leaderboardData[index]?.photoURL ? { uri: leaderboardData[index]?.photoURL } : require("../../../assets/profile.jpeg")}
+                style={{
+                    width: 75,
+                    height: 75,
+                    borderRadius: 40,
+                    marginBottom: 20,
+                }}
+            />
+
+            <Text
+                style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    marginBottom: 3,
+                    maxWidth: 100,
+                    textAlign: 'center',
+                }}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+            >
+                {leaderboardData[index]?.firstName} {leaderboardData[index]?.lastName}
+            </Text>
+
+            <ModalPoints data={leaderboardData[index]?.totalPoints} style={{ maxWidth: 100, paddingVertical: 1 }} />
         </View>
     );
 }

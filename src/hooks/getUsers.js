@@ -17,9 +17,18 @@ export function getUsers() {
     const fetchUserData = useCallback(async (uid) => {
         setLoading(true);
         try {
-            const userDocRef = doc(firestore, 'users', uid);
-            const userSnapshot = await getDoc(userDocRef);
-            const data = userSnapshot.data();
+            let tries = 0;
+            let data = null;
+            while (tries < 5 && !data) {
+                const userDocRef = doc(firestore, 'users', uid);
+                const userSnapshot = await getDoc(userDocRef);
+                data = userSnapshot.data();
+
+                if (!data) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    tries++;
+                }
+            }
 
             setUserData(data || null);
         } catch (error) {

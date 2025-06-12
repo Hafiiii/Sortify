@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { auth, firestore, storage } from '../utils/firebase';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 // auth
 import { useAuth } from '../context/AuthContext';
 // components
@@ -31,10 +31,8 @@ export default function AuthSocial() {
 
     async function uploadProfileImage(photoURL, uid) {
         try {
-            // Local path to save the image temporarily
             const localFilePath = `${RNFS.CachesDirectoryPath}/${uid}.jpg`;
 
-            // Download the file to local storage
             const downloadResult = await RNFS.downloadFile({
                 fromUrl: photoURL,
                 toFile: localFilePath,
@@ -44,37 +42,28 @@ export default function AuthSocial() {
                 throw new Error('Failed to download image');
             }
 
-            // Fetch the local file as a blob
             const response = await fetch('file://' + localFilePath);
             const blob = await response.blob();
-
-            // Create a Firebase Storage ref
             const storageRef = ref(storage, `profile_images/${uid}.jpg`);
 
-            // Upload the blob
             await uploadBytes(storageRef, blob);
 
-            // Get the download URL after upload
             const downloadURL = await getDownloadURL(storageRef);
-            console.log('Uploaded profile image URL:', downloadURL);
 
-            // Delete temp file after upload
             await RNFS.unlink(localFilePath);
 
             return downloadURL;
         } catch (error) {
-            console.error('uploadProfileImage error:', error);
+            Toast.show({ type: 'error', text1: 'Image Upload Error', text2: error.message || 'Please try again later.' });
             return null;
         }
     }
-
 
     async function onGoogleButtonPress() {
         try {
             await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
             await GoogleSignin.signOut();
             const signInResult = await GoogleSignin.signIn();
-            console.log("Google Sign-In Result:", signInResult);
 
             idToken = signInResult.data?.idToken;
             if (!idToken) {
@@ -120,7 +109,6 @@ export default function AuthSocial() {
                     }
                 }
 
-
                 await setDoc(userRef, {
                     uid: user.uid,
                     userId,
@@ -132,9 +120,7 @@ export default function AuthSocial() {
                     phoneNumber: "",
                     gender: "",
                     birthday: "",
-                    totalPoints: "",
-                    // savedCO: "",
-                    // totalWaste: "",
+                    totalPoints: 0,
                 });
             }
 

@@ -49,7 +49,7 @@ export default function SettingsScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
                 <Text style={{ textAlign: 'center', color: palette.disabled.secondary }}>Need Help? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('ContactUs')} >
-                    <Text style={{ color: palette.disabled.secondary, textDecorationLine: 'underline', textDecorationColor: '#000' }}>
+                    <Text style={{ color: palette.disabled.secondary, textDecorationLine: 'underline' }}>
                         CONTACT US
                     </Text>
                 </TouchableOpacity>

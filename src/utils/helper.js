@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------
 
-const BRONZE_POINT = 30;
-const SILVER_POINT = 100;
-const GOLD_POINT = 300;
+const BRONZE_POINT = 5;
+const SILVER_POINT = 20;
+const GOLD_POINT = 40;
 
 const TOTAL_RANGE = GOLD_POINT;
 

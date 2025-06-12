@@ -262,7 +262,7 @@ export default function ScanScreen() {
                 totalPoints: increment(1)
             });
         } catch (error) {
-            console.error('Failed to add to total points:', error);
+            Toast.show({ type: 'error', text1: 'Failed to update total points.', text2: error.message || 'Please try again.' });
         }
     };
 
@@ -341,7 +341,6 @@ export default function ScanScreen() {
             resetScanScreen();
         } catch (error) {
             Toast.show({ type: 'error', text1: 'Failed to save sorted data.', text2: error.message });
-            console.error('Error saving sorted data:', error);
         }
     };
 

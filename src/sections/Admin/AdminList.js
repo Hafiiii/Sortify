@@ -33,7 +33,7 @@ export default function AdminList({ data, onDelete, onEdit, modal, isArray }) {
             [modal.fourth, data.id || '-'],
             [modal.fifth, formattedDate],
             [modal.sixth, data.points || 0],
-            [modal.seventh, data.totalWaste || 0],
+            // [modal.seventh, data.totalWaste || 0],
             [modal.eight, data.fifth || '-'],
             [modal.ninth, data.sixth || '-'],
         ]
@@ -66,27 +66,26 @@ export default function AdminList({ data, onDelete, onEdit, modal, isArray }) {
             {isArray ? (
                 <View style={{ width: '60%', paddingVertical: 5, flexDirection: 'column', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'column' }}>
-                        <Text style={{ fontSize: 12, fontWeight: '700' }}>{data.first}</Text>
+                        <Text style={{ fontSize: 11 }}>{data.first}</Text>
                         {Array.isArray(data.second) && (
-                            <Text style={{ fontSize: 16, fontWeight: '700' }}>
+                            <Text style={{ fontSize: 12, fontWeight: '700' }}>
                                 {data.second.join(', ')}
                             </Text>
                         )}
                     </View>
                 </View>
             ) : (
-                <View style={{ width: '60%', paddingVertical: 5, flexDirection: 'column', justifyContent: 'space-between' }}>
+                <View style={{ width: '55%', paddingVertical: 5, flexDirection: 'column', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'column' }}>
-                        <Text style={{ fontSize: 12, fontWeight: '700' }}>{data.first} {data.second}</Text>
-                        {Array.isArray(data.data.third) ? (
-                            <Text style={{ fontSize: 16, fontWeight: '700' }}>
-                                {data.data.third.join(', ')}
+                        <Text style={{ fontSize: 11 }}>{data.first} {data.second}</Text>
+                        {Array.isArray(data.third) ? (
+                            <Text style={{ fontSize: 11, fontWeight: 700 }}>
+                                {data.third.join(', ')}
                             </Text>
                         ) : (
-                            <Text style={{ fontSize: 16, fontWeight: '700' }}>{data.data.third}</Text>
+                            <Text style={{ fontSize: 10, color: palette.disabled.tertiery, overflow: 'hidden' }}>{data.third}</Text>
                         )}
-                        {data.third && <Text style={{ fontSize: 11, color: palette.disabled.tertiery, overflow: 'hidden' }}>{data.third}</Text>}
-                        {data.fourth && <Text style={{ fontSize: 11, color: palette.disabled.tertiery }}>{data.fourth}</Text>}
+                        {data.fourth && <Text style={{ fontSize: 10, color: palette.disabled.tertiery }}>{data.fourth}</Text>}
                     </View>
 
                     {data.isRecyclable &&
@@ -94,11 +93,11 @@ export default function AdminList({ data, onDelete, onEdit, modal, isArray }) {
                             {isRecyclable ? 'Recyclable' : 'Not Recyclable'}
                         </Text>
                     }
-                    {data.date && <Text style={{ fontSize: 10, color: palette.disabled.main }}>{formattedDate}</Text>}
+                    {data.date && <Text style={{ fontSize: 8, color: palette.disabled.main }}>{formattedDate}</Text>}
                 </View>
             )}
 
-            <View style={{ width: '10%', justifyContent: 'space-between', alignItems: 'flex-end', paddingVertical: 5, paddingRight: 5 }}>
+            <View style={{ width: '15%', justifyContent: 'space-between', alignItems: 'flex-end', paddingVertical: 5, paddingRight: 5 }}>
                 <Menu
                     visible={menuVisible}
                     onDismiss={closeMenu}
@@ -127,56 +126,55 @@ export default function AdminList({ data, onDelete, onEdit, modal, isArray }) {
                         style={{
                             backgroundColor: '#e5e5e5',
                             paddingVertical: 3,
-                            paddingHorizontal: 6,
+                            paddingHorizontal: 4,
                             borderRadius: 20,
                             flexDirection: 'row',
                             alignItems: 'center',
+                            gap: 3,
                         }}
                     >
-                        <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
-                        <Text style={{ fontWeight: 700, fontSize: 10, marginLeft: 5 }}>{data.points || 0}</Text>
+                        <Iconify icon="twemoji:coin" color={palette.primary.main} size={7} />
+                        <Text style={{ fontWeight: 700, fontSize: 8 }}>{data.points || 0}</Text>
                     </View>
                 }
             </View>
 
-            {
-                modal && (
-                    <Portal>
-                        <Modal
-                            visible={modalVisible}
-                            onDismiss={closeModal}
-                            contentContainerStyle={{
-                                backgroundColor: 'white',
-                                padding: 20,
-                                margin: 20,
-                                borderRadius: 10,
-                            }}
-                        >
-                            <View style={{ paddingVertical: 10 }}>
-                                <Text style={{ fontWeight: 700, marginBottom: 12, textAlign: 'center' }}>DETAILS</Text>
+            {modal && (
+                <Portal>
+                    <Modal
+                        visible={modalVisible}
+                        onDismiss={closeModal}
+                        contentContainerStyle={{
+                            backgroundColor: 'white',
+                            padding: 20,
+                            margin: 20,
+                            borderRadius: 10,
+                        }}
+                    >
+                        <View style={{ paddingVertical: 10 }}>
+                            <Text style={{ fontWeight: 700, marginBottom: 12, textAlign: 'center' }}>DETAILS</Text>
 
-                                {detailItems.map(([label, value], index) => (
-                                    <View
-                                        key={index}
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            paddingVertical: 6,
-                                            borderBottomWidth: 1,
-                                            borderBottomColor: '#e5e5e5',
-                                        }}
-                                    >
-                                        <Text style={{ fontSize: 12, fontWeight: 700, width: '30%' }}>{label}</Text>
-                                        <Text style={{ fontSize: 12, width: '65%', textAlign: 'right' }}>{value}</Text>
-                                    </View>
-                                ))}
-                            </View>
+                            {detailItems.map(([label, value], index) => (
+                                <View
+                                    key={index}
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        paddingVertical: 6,
+                                        borderBottomWidth: 1,
+                                        borderBottomColor: '#e5e5e5',
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 12, fontWeight: 700, width: '30%' }}>{label}</Text>
+                                    <Text style={{ fontSize: 12, width: '65%', textAlign: 'right' }}>{value}</Text>
+                                </View>
+                            ))}
+                        </View>
 
-                            <Button onPress={closeModal} style={{ marginTop: 20 }}>Close</Button>
-                        </Modal>
-                    </Portal>
-                )
-            }
+                        <Button onPress={closeModal} style={{ marginTop: 20 }}>Close</Button>
+                    </Modal>
+                </Portal>
+            )}
         </View >
     );
 }

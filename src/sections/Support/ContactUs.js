@@ -126,7 +126,6 @@ export default function ContactUsScreen() {
             setSelectedImage(null);
         } catch (error) {
             Toast.show({ type: 'error', text1: 'Submission Failed', text2: error.message || 'Please try again later.' });
-            console.error('Error submitting issue:', error);
         } finally {
             setLoading(false);
         }

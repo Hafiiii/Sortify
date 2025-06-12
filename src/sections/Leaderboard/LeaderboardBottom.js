@@ -1,8 +1,7 @@
 import { View, ScrollView } from 'react-native';
 import { Text } from 'react-native-paper';
 // components
-import palette from '../../theme/palette';
-import { Iconify } from 'react-native-iconify';
+import ModalPoints from '../../components/Points/ModalPoints';
 
 // ----------------------------------------------------------------------
 
@@ -18,37 +17,28 @@ export default function LeaderboardBottom({ leaderboardData }) {
             }}
         >
             <ScrollView showsVerticalScrollIndicator={false}>
-                {leaderboardData.slice(3).map((user) => (
-                    <View key={user.id} style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingVertical: 10,
-                        borderBottomWidth: 1,
-                        borderBottomColor: '#eee'
-                    }}>
+                {leaderboardData.slice(3, 30).map((user) => (
+                    <View
+                        key={user.id}
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            paddingVertical: 10,
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#eee',
+                            gap: 3,
+                        }}
+                    >
                         {user.rank < 10 ? (
-                            <Text style={{ fontSize: 16, fontWeight: 700 }}>0{user.rank}</Text>
+                            <Text style={{ fontSize: 18, fontWeight: 700, maxWidth: '10%' }}>0{user.rank}</Text>
                         ) : (
-                            <Text style={{ fontSize: 16, fontWeight: 700 }}>{user.rank}</Text>
+                            <Text style={{ fontSize: 18, fontWeight: 700, maxWidth: '10%' }}>{user.rank}</Text>
                         )}
 
-                        <Text style={{ fontWeight: 700 }}>{user.firstName} {user.lastName}</Text>
+                        <Text style={{ fontWeight: 700, width: '65%', textAlign: 'center' }} numberOfLines={1} ellipsizeMode="tail">{user.firstName} {user.lastName}</Text>
 
-                        <View
-                            style={{
-                                backgroundColor: '#e5e5e5',
-                                paddingVertical: 4,
-                                paddingHorizontal: 7,
-                                borderRadius: 20,
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={11} />
-                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 4 }}>{user.totalPoints}</Text>
-                        </View>
+                        <ModalPoints data={user.totalPoints} style={{ maxWidth: '17%' }} />
                     </View>
                 ))}
             </ScrollView>

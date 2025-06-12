@@ -13,6 +13,7 @@ import palette from '../theme/palette';
 import moment from 'moment';
 import Toast from 'react-native-toast-message';
 import { BRONZE_POINT, SILVER_POINT, GOLD_POINT, censorEmail, censorPhoneNumber } from '../utils/helper';
+import ModalPoints from '../components/Points/ModalPoints';
 
 // ----------------------------------------------------------------------
 
@@ -130,21 +131,8 @@ export default function ProfileScreen() {
                             <Text style={{ fontWeight: 700 }}>{getTier()}</Text>
                         </View>
 
-                        <View
-                            style={{
-                                backgroundColor: '#e5e5e5',
-                                paddingVertical: 2,
-                                paddingHorizontal: 7,
-                                borderRadius: 20,
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                gap: 6,
-                            }}
-                        >
-                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={10} />
-                            <Text style={{ fontWeight: 700, fontSize: 10 }}>{userData?.totalPoints || 0}</Text>
-                        </View>
+                        <ModalPoints data={userData?.totalPoints || 0} style={{ paddingVertical: 2, paddingHorizontal: 7 }} />
+
                     </View>
 
                     <Text style={{ color: palette.disabled.secondary, fontSize: 12 }}>

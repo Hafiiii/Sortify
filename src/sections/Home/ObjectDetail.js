@@ -21,9 +21,6 @@ export default function ObjectDetailScreen() {
     const { objName, categoryId } = route.params;
     const { category } = getCategoryByCategoryId(categoryId);
     const { object } = getObjectByObjName(objName);
-
-    console.log('obj', object)
-    console.log(category)
     const currentObject = object?.[0];
 
     return (

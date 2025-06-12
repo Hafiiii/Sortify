@@ -97,7 +97,7 @@ export default function DeleteAccount() {
                 <Text style={{ color: palette.disabled.secondary, marginBottom: 20, textAlign: 'justify', lineHeight: 25 }}>
                     This action will be permanently erase all of your information and you will not be able to recover it. If you
                     have any issues, please <TouchableOpacity onPress={() => navigation.navigate("ContactUs")}>
-                        <Text style={{ color: '#000', textDecorationLine: 'underline', textDecorationColor: '#000', marginBottom: -8 }}>CONTACT US</Text>
+                        <Text style={{ color: '#000', textDecorationLine: 'underline', marginBottom: -8 }}>CONTACT US</Text>
                     </TouchableOpacity>.
                 </Text>
 

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { View, Alert, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
+import { View, Alert, ScrollView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
 import { Text, Chip, Button, Searchbar, Divider, ActivityIndicator } from 'react-native-paper';
 // firebase
 import { firestore, storage } from '../../utils/firebase';
@@ -261,7 +261,7 @@ export default function SkeletonCMS({
             resizeMode="cover"
             imageStyle={{ opacity: 0.4 }}
         >
-            <SafeAreaView style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
                 <ScrollView
                     contentContainerStyle={{ padding: 30 }}
                     showsVerticalScrollIndicator={false}
@@ -459,7 +459,7 @@ export default function SkeletonCMS({
                         storageFileName={storageFileName}
                     /> */}
                 </ScrollView>
-            </SafeAreaView >
+            </View >
         </ImageBackground>
     );
 }

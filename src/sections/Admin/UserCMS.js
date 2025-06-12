@@ -54,7 +54,7 @@ export default function UserCMS() {
                 date: data.dateJoined,
                 fifth: data.gender,
                 sixth: data.birthday,
-                seventh: data.totalWaste,
+                // seventh: data.totalWaste,
             })}
             modalData={{
                 first: 'Name',
@@ -63,7 +63,7 @@ export default function UserCMS() {
                 fourth: 'User ID',
                 fifth: 'Date Joined',
                 sixth: 'Total Points',
-                seventh: 'Total Wastes',
+                // seventh: 'Total Wastes',
                 eight: 'Gender',
                 ninth: 'Birthday',
             }}
