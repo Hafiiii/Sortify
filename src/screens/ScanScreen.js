@@ -6,12 +6,12 @@ import axios from "axios";
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
 import { launchImageLibrary } from "react-native-image-picker";
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
-import ImageResizer from 'react-native-image-resizer';
+import ImageResizer from '@bam.tech/react-native-image-resizer';
 // @react-navigation
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 // firebase
 import { firestore, storage } from '../utils/firebase';
-import { collection, doc, setDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, query, where, getDocs, increment, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 // auth
 import { useAuth } from '../context/AuthContext';
@@ -22,13 +22,11 @@ import palette from "../theme/palette";
 import { Iconify } from 'react-native-iconify';
 import Toast from 'react-native-toast-message';
 import RNFS from 'react-native-fs';
+import { MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } from '../utils/helper';
 
 // ----------------------------------------------------------------------
 
 const { width, height } = Dimensions.get('window');
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
 
 // ----------------------------------------------------------------------
 
@@ -52,14 +50,16 @@ export default function ScanScreen() {
 
     const checkCameraPermission = async () => {
         const status = Camera.getCameraPermissionStatus();
-
         if (status === 'granted') {
             setCameraPermission(true);
+            return true;
         } else if (status === 'notDetermined') {
             const permission = await Camera.requestCameraPermission();
             setCameraPermission(permission === 'authorized');
+            return permission === 'authorized';
         } else {
             setCameraPermission(false);
+            return false;
         }
     };
 
@@ -144,7 +144,6 @@ export default function ScanScreen() {
             }
         );
     };
-
 
     const analyzeImage = async (base64Image, photoURL) => {
         setAnalyzeLoading(true);
@@ -253,6 +252,20 @@ export default function ScanScreen() {
         });
     };
 
+    const incrementUserTotalPoints = async (uid) => {
+        if (!uid) return;
+
+        const userDocRef = doc(firestore, 'users', uid);
+
+        try {
+            await updateDoc(userDocRef, {
+                totalPoints: increment(1)
+            });
+        } catch (error) {
+            console.error('Failed to add to total points:', error);
+        }
+    };
+
     const addWasteToFirestore = async (detectedObjects, photoURL) => {
         const blob = await validateImage(photoURL);
         const storageRef = ref(storage, `wastes_images/${Date.now()}.jpg`);
@@ -293,6 +306,7 @@ export default function ScanScreen() {
                 };
 
                 await setDoc(wasteDocRef, wasteData);
+                await incrementUserTotalPoints(user.uid);
             }
         } catch (error) {
             Toast.show({ type: 'error', text1: 'Failed to save waste data.', text2: error.message || 'Please try again.' });
@@ -346,9 +360,12 @@ export default function ScanScreen() {
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Text style={{ marginBottom: 10 }}>Camera permission not granted</Text>
                 <Button
-                    title="Open Settings"
+                    mode="contained"
                     onPress={() => Linking.openSettings()}
-                />
+                    style={{ backgroundColor: '#000' }}
+                >
+                    Open Settings
+                </Button>
             </View>
         );
     }
@@ -414,12 +431,7 @@ export default function ScanScreen() {
                                                 strokeWidth="2"
                                                 fill="none"
                                             />
-                                            <SvgText
-                                                x={boxX}
-                                                y={boxY - 5}
-                                                fontSize="14"
-                                                fill="red"
-                                            >
+                                            <SvgText x={boxX} y={boxY - 5} fontSize="14" fill="red">
                                                 {obj.name} ({(obj.score * 100).toFixed(1)}%)
                                             </SvgText>
                                         </Fragment>
@@ -517,17 +529,6 @@ export default function ScanScreen() {
                                         <Text style={{ fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', paddingVertical: 3, backgroundColor: palette.primary.light }}>{obj.name}</Text>
 
                                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
-                                            {/* <Image
-                                            source={obj.photoURL ? { uri: obj.photoURL } : require("../../assets/sortify-logo.png")}
-                                            style={{
-                                                width: '25%',
-                                                aspectRatio: 1,
-                                                resizeMode: 'cover',
-                                                borderTopLeftRadius: 20,
-                                                borderBottomLeftRadius: 20,
-                                            }}
-                                        /> */}
-
                                             <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                                                     <View style={{ marginBottom: 15 }}>
@@ -544,51 +545,8 @@ export default function ScanScreen() {
                                                         ))}
                                                     </View>
                                                 </View>
-
-                                                {/* <View
-                                            style={{
-                                                backgroundColor: '#e5e5e5',
-                                                paddingVertical: 3,
-                                                paddingHorizontal: 5,
-                                                borderRadius: 20,
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                width: 58,
-                                                marginTop: 5,
-                                            }}
-                                        >
-                                            <Iconify icon="twemoji:coin" color={palette.primary.main} size={12} />
-                                            <Text style={{ fontWeight: 700, fontSize: 11, marginLeft: 6 }}>{obj.point}</Text>
-                                        </View> */}
                                             </View>
                                         </View>
-
-
-
-
-                                        {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                                        <View
-                                            style={{
-                                                backgroundColor: obj?.isRecyclable ? 'green' : 'red',
-                                                width: 8,
-                                                height: 8,
-                                                borderRadius: 50,
-                                            }}
-                                        />
-                                        <Text
-                                            style={{
-                                                color: obj?.isRecyclable ? 'green' : 'red',
-                                                fontWeight: '700',
-                                            }}
-                                        >
-                                            {obj?.isRecyclable === true
-                                                ? 'Recyclable'
-                                                : obj?.isRecyclable === false
-                                                    ? 'Not Recyclable'
-                                                    : 'No description available'}
-                                        </Text>
-                                    </View> */}
                                     </View>
                                 ))
                             ) : (
@@ -636,7 +594,15 @@ export default function ScanScreen() {
                                 </Button>
                             )}
 
-                            <TouchableOpacity onPress={() => { navigation.navigate('Feedback') }} style={{ width: '10%', alignItems: 'center' }}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    navigation.navigate('ContactUs', {
+                                        imageUri: imageUri,
+                                        detectedObjects: detectedObjects
+                                    });
+                                }}
+                                style={{ width: '10%', alignItems: 'center' }}
+                            >
                                 <Iconify icon="material-symbols:flag" size={25} />
                             </TouchableOpacity>
                         </View>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { RadioButton, Text, Button } from 'react-native-paper';
 // @react-navigation
-import { useNavigation, Link } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 // firebase
 import { auth, firestore } from '../../utils/firebase';
 import { deleteUser } from 'firebase/auth';
@@ -10,7 +10,6 @@ import { doc, updateDoc } from 'firebase/firestore';
 // components
 import Toast from 'react-native-toast-message';
 import palette from '../../theme/palette';
-import { Iconify } from 'react-native-iconify';
 import { ReturnButton } from '../../components/GoBackButton/GoBackButton';
 
 // ----------------------------------------------------------------------
@@ -96,9 +95,12 @@ export default function DeleteAccount() {
                 <Text style={{ fontSize: 20, fontWeight: 900, marginBottom: 15 }}>DELETE SORTIFY ACCOUNT?</Text>
 
                 <Text style={{ color: palette.disabled.secondary, marginBottom: 20, textAlign: 'justify', lineHeight: 25 }}>
-                    This action will be permanently erase all of your information and you will not be able to recover it.
-                    If you have any issues, please <Link screen="ContactUs" style={{ color: '#000', fontWeight: 700, textDecorationLine: 'underline', textDecorationColor: '#000' }}>CONTACT US</Link>.
+                    This action will be permanently erase all of your information and you will not be able to recover it. If you
+                    have any issues, please <TouchableOpacity onPress={() => navigation.navigate("ContactUs")}>
+                        <Text style={{ color: '#000', textDecorationLine: 'underline', textDecorationColor: '#000', marginBottom: -8 }}>CONTACT US</Text>
+                    </TouchableOpacity>.
                 </Text>
+
 
                 <View style={{ marginBottom: 15 }}>
                     <Text style={{ marginBottom: 10 }}>Please select a reason:</Text>

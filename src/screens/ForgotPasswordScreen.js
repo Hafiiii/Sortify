@@ -54,18 +54,11 @@ export default function ForgotPasswordScreen() {
             resizeMode="cover"
             imageStyle={{ opacity: 0.6 }}
         >
-            <View
-                style={{
-                    flex: 1,
-                    width: width,
-                    height: height,
-                    padding: 40,
-                }}
-            >
+            <View style={{ flex: 1, width: width, height: height, padding: 40 }}>
                 <ReturnButton />
 
                 <Text style={{ fontSize: 22, fontWeight: 700 }}>Forgot Password?</Text>
-                <Text style={{ marginTop: 10, marginBottom: 25, fontSize: 12 }}>Please enter the email associated with your account.</Text>
+                <Text style={{ marginTop: 10, marginBottom: 20, fontSize: 12 }}>Please enter the email associated with your account.</Text>
 
                 <Controller
                     name="email"

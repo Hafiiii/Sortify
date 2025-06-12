@@ -10,11 +10,8 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import palette from '../../theme/palette';
+import { MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } from '../../utils/helper';
 
-// ----------------------------------------------------------------------
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
 
 // ----------------------------------------------------------------------
 

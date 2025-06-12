@@ -1,4 +1,8 @@
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const config = getDefaultConfig(__dirname);
+config.resolver.sourceExts.push('cjs');
+config.resolver.unstable_enablePackageExports = false;
+module.exports = config;
 
 /**
  * Metro configuration
@@ -6,8 +10,8 @@ const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
  *
  * @type {import('@react-native/metro-config').MetroConfig}
  */
-const config = {
-    resetCache: true
-};
+// const config = {
+//     resetCache: true
+// };
 
-module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+// module.exports = mergeConfig(getDefaultConfig(__dirname), config);

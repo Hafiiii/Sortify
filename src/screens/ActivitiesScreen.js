@@ -1,4 +1,4 @@
-import { View, Image, ScrollView, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
@@ -46,7 +46,7 @@ export default function ActivitiesScreen() {
     const { userData } = getUsers();
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
             <ScrollView contentContainerStyle={{ padding: 30 }} showsVerticalScrollIndicator={false}>
                 <Header title="Activities" style={{ fontWeight: 700 }} />
 
@@ -94,7 +94,7 @@ export default function ActivitiesScreen() {
                     );
                 })}
             </ScrollView>
-        </SafeAreaView >
+        </View >
     );
 }
 

@@ -29,6 +29,26 @@ export default function HomeScreen() {
   const { categories } = getCategories();
   const navigation = useNavigation();
 
+  const getDaysSinceJoined = (dateJoined) => {
+    if (!dateJoined?.seconds) return 0;
+
+    const joinedDate = new Date(dateJoined.seconds * 1000);
+    if (isNaN(joinedDate)) return 0;
+
+    const today = new Date();
+
+    // Zero out time components
+    joinedDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = today - joinedDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
+  };
+
+
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: '#fff' }}>
       <View
@@ -38,7 +58,7 @@ export default function HomeScreen() {
           backgroundColor: palette.primary.main,
           padding: user ? 30 : 0,
           paddingTop: user ? 20 : 0,
-          height: height * 0.50,
+          height: user ? height * 0.50 : height * 0.45,
           marginBottom: 44,
         }}
       >
@@ -64,8 +84,8 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
 
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: 700 }}>Hello {userData?.firstName}!</Text>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: 700 }}>Ready to Sort?</Text>
+            <Text style={{ color: '#fff', fontSize: 26, fontWeight: 700 }}>Hello {userData?.firstName}!</Text>
+            <Text style={{ color: '#fff', fontSize: 26, fontWeight: 700 }}>Ready to Sort?</Text>
 
             <View
               style={{
@@ -88,16 +108,19 @@ export default function HomeScreen() {
               <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                <Iconify icon="tdesign:cloud-filled" size={28} color="#000" />
-                <Text style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{userData?.savedCO || 0}g</Text>
-                <Text style={{ fontSize: 10 }}>SAVED CO2</Text>
+                <Iconify icon="uis:calendar" size={28} color="#000" />
+                <Text style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>
+                  {getDaysSinceJoined(userData?.dateJoined)}
+                </Text>
+                <Text style={{ fontSize: 10 }}>DAYS JOINED</Text>
               </View>
+
 
               <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Iconify icon="mingcute:wastebasket-fill" size={28} color="#000" />
-                <Text style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{userData?.totalWaste || 0}</Text>
+                <Text style={{ fontSize: 16, fontWeight: 700, marginTop: 3 }}>{userData?.totalPoints || 0}</Text>
                 <Text style={{ fontSize: 10 }}>SORTED</Text>
               </View>
             </View>
@@ -120,16 +143,12 @@ export default function HomeScreen() {
                 <Iconify icon="ph:scan-bold" size={28} color="#fff" />
               </TouchableOpacity>
 
-              <Image
-                source={require('../../assets/bin.png')}
-                style={{ width: 190, height: 190 }}
-              />
-
+              <Image source={require('../../assets/bin.png')} style={{ width: 190, height: 190 }} />
             </View>
           </>
         ) : (
           <>
-            <Text style={{ color: '#fff', fontSize: 36, fontWeight: 700, paddingHorizontal: user ? 0 : 30, }}>Hello! Ready to Sort?</Text>
+            <Text style={{ color: '#fff', fontSize: 34, fontWeight: 700, paddingHorizontal: 30, }}>Hello! Ready to Sort?</Text>
 
             <WasteCategoryCarousel />
 
@@ -151,11 +170,7 @@ export default function HomeScreen() {
                 <Iconify icon="ph:scan-bold" size={28} color="#fff" />
               </TouchableOpacity>
 
-              <Image
-                source={require('../../assets/bin.png')}
-                style={{ width: 190, height: 190 }}
-              />
-
+              <Image source={require('../../assets/bin.png')} style={{ width: 190, height: 190 }} />
             </View>
           </>
         )}

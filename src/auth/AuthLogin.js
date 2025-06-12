@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { View, Image } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 // @react-navigation
-import { useNavigation, Link } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 // form
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -54,10 +54,6 @@ export default function AuthLoginForm() {
         const userData = userSnap.data();
         const userId = userData.userId;
 
-        if (!user.emailVerified) {
-          Toast.show({ type: 'error', text1: 'Please verify your email before logging in.', text2: error.message || 'Check your inbox for the verification email.' });
-        }
-
         Toast.show({ type: 'success', text1: 'Login Successful' });
         handleLogin();
 
@@ -71,11 +67,7 @@ export default function AuthLoginForm() {
       }
 
     } catch (err) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error during login.',
-      });
-
+      Toast.show({ type: 'error', text1: 'Error during login.', text2: err.message || 'Please try again later.' });
       setError(err.message);
       setFieldError("afterSubmit", { message: "Incorrect email or password" });
     } finally {
@@ -134,12 +126,12 @@ export default function AuthLoginForm() {
       />
 
       <View style={{ alignItems: 'flex-end', marginBottom: 12 }}>
-        <Link screen="ForgotPassword" style={{ fontSize: 13, color: palette.disabled.main }}>
-          Forgot Password?
-        </Link>
+        <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+          <Text style={{ fontSize: 12, color: palette.disabled.main }}>Forgot Password?</Text>
+        </TouchableOpacity>
       </View>
 
-      {error && <Text style={{ color: palette.error.main, fontSize: 10, textAlign: 'center' }}>{error}</Text>}
+      {/* {error && <Text style={{ color: palette.error.main, fontSize: 10, textAlign: 'center' }}>{error}</Text>} */}
 
       <Button
         mode="contained"

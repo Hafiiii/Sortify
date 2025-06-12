@@ -1,7 +1,7 @@
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 // @react-navigation
-import { useNavigation, Link } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 // components
 import palette from '../theme/palette';
 import { GoBackButton } from '../components/GoBackButton/GoBackButton';
@@ -46,7 +46,14 @@ export default function SettingsScreen() {
                 Delete Account
             </Button>
 
-            <Text style={{ textAlign: 'center', marginTop: 20, color: palette.disabled.secondary }}>Need Help? <Link screen="ContactUs" style={{ color: palette.disabled.secondary, fontWeight: 700, textDecorationLine: 'underline', textDecorationColor: '#000' }}>CONTACT US</Link></Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
+                <Text style={{ textAlign: 'center', color: palette.disabled.secondary }}>Need Help? </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('ContactUs')} >
+                    <Text style={{ color: palette.disabled.secondary, textDecorationLine: 'underline', textDecorationColor: '#000' }}>
+                        CONTACT US
+                    </Text>
+                </TouchableOpacity>
+            </View>
         </ScrollView>
     );
 };

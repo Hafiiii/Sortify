@@ -1,15 +1,9 @@
-import { View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import { Text } from 'react-native-paper';
 // @react-navigation
-import { Link, useNavigation } from '@react-navigation/native';
-// components
+import { useNavigation } from '@react-navigation/native';
+// sections
+import AccountSkeleton from '../sections/Account/AccountSkeleton';
 import AuthLogin from '../auth/AuthLogin';
-import AuthSocial from '../auth/AuthSocial';
-import palette from '../theme/palette';
-
-// ----------------------------------------------------------------------
-
-const { width, height } = Dimensions.get('window');
 
 // ----------------------------------------------------------------------
 
@@ -17,110 +11,19 @@ export default function LoginScreen() {
   const navigation = useNavigation();
 
   return (
-    <View
-      style={{
-        flex: 1,
-        width: width,
-        height: height,
-        justifyContent: 'space-between',
-      }}
+    <AccountSkeleton
+      title="Welcome"
+      footerLinkText="Don't have an account?"
+      footerLinkAction={() => navigation.navigate("Register")}
+      footerLinkLabel="Register"
+      bottomText1="Any issues?"
+      bottomTextLink1="CONTACT US"
     >
-      <TouchableOpacity onPress={() => navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } })}>
-        <View style={{ alignItems: 'center', marginVertical: 30 }}>
-          <Text
-            style={{
-              color: palette.primary.main,
-              fontSize: 22,
-              fontWeight: 700,
-              letterSpacing: 2.5
-            }}
-          >
-            SORTIFY
-          </Text>
-          <Image
-            source={require("../../assets/sortify-logo.png")}
-            style={{ width: 75, height: 102 }}
-          />
-        </View>
-      </TouchableOpacity>
+      <Text style={{ fontSize: 16, fontWeight: 700, textAlign: 'center', marginBottom: 15 }}>
+        Enter your email to continue
+      </Text>
 
-      <View
-        style={{
-          backgroundColor: palette.primary.main,
-          borderTopLeftRadius: 60,
-          borderTopRightRadius: 60,
-        }}
-      >
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 27,
-            fontWeight: 700,
-            textAlign: 'center',
-            marginVertical: 15,
-          }}
-        >
-          Welcome
-        </Text>
-
-        <View
-          style={{
-            backgroundColor: '#fff',
-            borderRadius: 23,
-            borderWidth: 1,
-            borderColor: '#000',
-            marginHorizontal: 30,
-            marginBottom: 20,
-            paddingHorizontal: 25,
-            paddingVertical: 30,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: 700,
-              textAlign: 'center',
-              marginBottom: 20,
-            }}
-          >
-            Enter your email to continue
-          </Text>
-
-          <AuthLogin />
-
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginTop: 10,
-            }}
-          >
-            <Text>Don't have an account? </Text>
-            <Link
-              screen="Register"
-              style={{ fontWeight: 700, color: '#000', marginTop: -5 }}>
-              Register
-            </Link>
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginVertical: 10,
-            }}
-          >
-            <View style={{ height: 1, backgroundColor: palette.disabled.main, width: width * 0.3 }} />
-            <Text style={{ marginHorizontal: 10, color: palette.disabled.main }}>OR</Text>
-            <View style={{ height: 1, backgroundColor: palette.disabled.main, width: width * 0.3 }} />
-          </View>
-
-          <AuthSocial />
-
-        </View>
-      </View>
-    </View >
+      <AuthLogin />
+    </AccountSkeleton>
   );
 }

@@ -12,6 +12,7 @@ import Share from 'react-native-share';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 import { HeaderTriple } from '../components/Header/Header';
+import Toast from 'react-native-toast-message';
 
 // ----------------------------------------------------------------------
 
@@ -107,7 +108,7 @@ export default function StatisticsScreen() {
             const uri = await chartRef.current.capture();
             await Share.open({ url: uri, message: 'Check out my waste statistics!' });
         } catch (error) {
-            console.log('Error sharing:', error);
+            Toast.show({ type: 'error', text1: 'A problem occured', text2: error.message || 'Please contact support.' });
         }
     };
 
@@ -118,16 +119,21 @@ export default function StatisticsScreen() {
         });
     };
 
-    const wasteTypes = Array.from(
-        wasteData.reduce((map, item) => {
-            const type = item.wasteType;
-            if (!map.has(type)) {
-                map.set(type, { type, total: 0 });
+    const wasteTypesMap = new Map();
+
+    wasteData.forEach((item) => {
+        const types = Array.isArray(item.wasteType) ? item.wasteType : [item.wasteType];
+        const amount = item.amount || 1;
+
+        types.forEach((type) => {
+            if (!wasteTypesMap.has(type)) {
+                wasteTypesMap.set(type, { type, total: 0 });
             }
-            map.get(type).total += item.amount || 1;
-            return map;
-        }, new Map()).values()
-    );
+            wasteTypesMap.get(type).total += amount;
+        });
+    });
+
+    const wasteTypes = Array.from(wasteTypesMap.values());
 
     const pieData = wasteTypes.map((entry, i) => ({
         name: entry.type,
@@ -136,7 +142,7 @@ export default function StatisticsScreen() {
     }));
 
     return (
-        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1, backgroundColor: '#fff' }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ backgroundColor: '#fff', paddingBottom: 185 }}>
             <View
                 style={{
                     backgroundColor: palette.primary.main,
@@ -195,14 +201,11 @@ export default function StatisticsScreen() {
 
                         <View style={{ flexDirection: 'row', gap: 3 }}>
                             {weekDates.map((date, index) => (
-                                <TouchableOpacity key={index} onPress={() => setSelectedDate(moment(date))} style={{ alignItems: 'center', justifyContent: 'center' }}>
+                                <View key={index} style={{ alignItems: 'center', justifyContent: 'center' }}>
                                     <Text
                                         style={{
                                             borderRadius: 100,
                                             paddingHorizontal: 5,
-                                            backgroundColor: selectedDate.format('YYYY-MM-DD') === date ? palette.secondary.main : 'transparent',
-                                            fontWeight: selectedDate.format('YYYY-MM-DD') === date ? 700 : 400,
-                                            marginBottom: selectedDate.format('YYYY-MM-DD') === date ? 3 : 0,
                                         }}
                                     >
                                         {moment(date).format('D')}
@@ -211,13 +214,11 @@ export default function StatisticsScreen() {
                                         style={{
                                             paddingHorizontal: 5,
                                             fontSize: 11,
-                                            marginTop: selectedDate.format('YYYY-MM-DD') === date ? 2 : 0,
-                                            color: selectedDate.format('YYYY-MM-DD') === date ? palette.secondary.main : '#000'
                                         }}
                                     >
                                         {moment(date).format('MMM')}
                                     </Text>
-                                </TouchableOpacity>
+                                </View>
                             ))}
                         </View>
 
@@ -228,13 +229,13 @@ export default function StatisticsScreen() {
                 )}
             </View>
 
-            <View style={{ alignItems: 'center', marginBottom: 150 }}>
-                <View style={{ position: 'relative', width: width, height: 220 }}>
+            <View style={{ alignItems: 'center' }}>
+                <View style={{ position: 'relative', width: width, height: 200 }}>
                     <ViewShot ref={chartRef} options={{ format: 'jpg', quality: 0.9 }}>
                         <PieChart
                             data={pieData}
                             width={width - 40}
-                            height={220}
+                            height={200}
                             chartConfig={{
                                 color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
                                 backgroundGradientFrom: '#fff',

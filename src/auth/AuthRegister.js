@@ -9,9 +9,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 // firebase
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { auth } from '../utils/firebase';
-import { firestore } from '../utils/firebase';
-import { runTransaction, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { auth, firestore } from '../utils/firebase';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 // auth
 import { useAuth } from '../context/AuthContext';
 // components
@@ -54,20 +53,17 @@ export default function AuthRegisterForm() {
 
             const counterRef = doc(firestore, "counters", "usersCounter");
 
-            const userId = await runTransaction(firestore, async (transaction) => {
-                const counterDoc = await transaction.get(counterRef);
-                let newId = 1;
+            const counterDocSnap = await getDoc(counterRef);
+            let newId = 1;
 
-                if (counterDoc.exists()) {
-                    newId = counterDoc.data().count + 1;
-                } else {
-                    transaction.set(counterRef, { count: newId });
-                }
+            if (counterDocSnap.exists()) {
+                newId = counterDocSnap.data().count + 1;
+                await updateDoc(counterRef, { count: newId });
+            } else {
+                await setDoc(counterRef, { count: newId });
+            }
 
-                transaction.update(counterRef, { count: newId });
-
-                return newId;
-            });
+            const userId = newId;
 
             await setDoc(doc(firestore, "users", user.uid), {
                 uid: user.uid,
@@ -81,16 +77,17 @@ export default function AuthRegisterForm() {
                 gender: "",
                 birthday: "",
                 totalPoints: "",
-                savedCO: "",
-                totalWaste: "",
+                // savedCO: "",
+                // totalWaste: "",
             });
 
-            await sendEmailVerification(user);
+            // await sendEmailVerification(user);
 
-            Toast.show({ type: 'success', text1: 'Registration Successful. Please check your email to verify your account.' });
+            navigation.navigate("Login");
+            Toast.show({ type: 'success', text1: 'Registration Successful.', text2: 'Login to your account now.' });
             handleRegister();
-            navigation.navigate('EmailVerification', { email });
         } catch (err) {
+            Toast.show({ type: 'error', text1: 'Error during registration.', text2: err.message || 'Please try again later.' });
             setError(err.message);
         } finally {
             setLoading(false);
@@ -213,7 +210,7 @@ export default function AuthRegisterForm() {
                 )}
             />
 
-            {error && <Text style={{ color: palette.error.main, fontSize: 10, textAlign: 'center' }}>{error}</Text>}
+            {/* {error && <Text style={{ color: palette.error.main, fontSize: 10, textAlign: 'center' }}>{error}</Text>} */}
 
             <Button
                 mode="contained"

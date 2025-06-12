@@ -1,4 +1,4 @@
-import { View, Linking, Image } from 'react-native';
+import { View, Linking, Image, TouchableOpacity } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 // @react-navigation
 import { Link } from '@react-navigation/native';
@@ -44,9 +44,9 @@ export default function VerificationSkeleton({ content, screen }) {
                 Open Email App
             </Button>
 
-            <Link screen={screen} style={{ fontSize: 13, color: palette.disabled.secondary, marginTop: 15 }}>
-                Go to {screen}
-            </Link>
+            <TouchableOpacity onPress={() => navigation.navigate(screen)}>
+                <Text style={{ fontSize: 13, color: palette.disabled.secondary, marginTop: 15 }}>Go to {screen}</Text>
+            </TouchableOpacity>
         </View>
     );
 }

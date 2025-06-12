@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 // firebase
 import { firestore, storage } from '../../utils/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 // auth
 import { useAuth } from '../../context/AuthContext';
 // datepicker
@@ -23,14 +23,11 @@ import Toast from 'react-native-toast-message';
 import palette from '../../theme/palette';
 import { Iconify } from 'react-native-iconify';
 import { ReturnButton } from '../../components/GoBackButton/GoBackButton';
-import { phoneRegExp } from '../../utils/helper';
+import { phoneRegExp, MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } from '../../utils/helper';
 
 // ----------------------------------------------------------------------
 
 const { width, height } = Dimensions.get('window');
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png'];
 
 const ProfileSchema = Yup.object().shape({
     firstName: Yup.string().required('First Name is required').max(50, 'First Name cannot exceed 50 characters'),
@@ -114,7 +111,7 @@ export default function EditProfile() {
             const fileType = blob.type;
 
             if (fileSize > MAX_IMAGE_SIZE) {
-                reject("Image size exceeds the 5MB limit.");
+                reject("Image size exceeds the 100MB limit.");
             } else if (!ALLOWED_IMAGE_TYPES.includes(fileType)) {
                 reject("Invalid image type. Only JPEG and PNG are allowed.");
             } else {
@@ -125,16 +122,25 @@ export default function EditProfile() {
 
     const uploadImage = async (uri) => {
         try {
-            console.log('uri:', uri);
             setUploading(true);
 
             const blob = await validateImage(uri);
+            const newFileName = `profile_images/${Date.now()}.jpg`;
+            const storageRef = ref(storage, newFileName);
 
-            const storageRef = ref(storage, `profile_images/${Date.now()}.jpg`);
+            if (photoURL && !photoURL.includes('profile.jpeg')) {
+                try {
+                    const oldImagePath = decodeURIComponent(photoURL.split('/o/')[1].split('?')[0]);
+                    const oldImageRef = ref(storage, oldImagePath);
+                    await deleteObject(oldImageRef);
+                    console.log('Old image deleted.');
+                } catch (deleteError) {
+                    console.warn('Failed to delete old image:', deleteError.message);
+                }
+            }
+
             await uploadBytes(storageRef, blob);
-
             const downloadURL = await getDownloadURL(storageRef);
-            console.log('Uploaded Image URL:', downloadURL);
 
             if (user?.uid) {
                 await updateDoc(doc(firestore, "users", user.uid), {
@@ -144,11 +150,10 @@ export default function EditProfile() {
 
             setPhotoURL(downloadURL);
             setUploading(false);
-
             Toast.show({ type: 'success', text1: 'Profile photo updated successfully!' });
+
         } catch (error) {
             setUploading(false);
-
             Toast.show({ type: 'error', text1: 'Failed to upload image', text2: error.message || 'Please try again later.' });
         }
     };
@@ -170,7 +175,6 @@ export default function EditProfile() {
             Toast.show({ type: 'success', text1: 'Profile Updated Successfully' });
             navigation.navigate("Main", { screen: "ProfileStack", params: { screen: "Profile" } });
         } catch (error) {
-
             Toast.show({ type: 'error', text1: 'Failed to update profile', text2: error.message || 'Please try again later.' });
         } finally {
             setLoading(false);
@@ -189,12 +193,12 @@ export default function EditProfile() {
                     flex: 1,
                     width: width,
                     height: height,
-                    padding: 40,
+                    padding: 30,
                 }}
             >
                 <ReturnButton />
 
-                <Text style={{ fontSize: 22, fontWeight: 700 }}>Edit Profile Details</Text>
+                <Text style={{ fontSize: 18, fontWeight: 700 }}>Edit Profile Details</Text>
 
                 <View style={{ alignItems: 'center', marginVertical: 20 }}>
                     <TouchableOpacity onPress={pickImage}>
@@ -206,7 +210,10 @@ export default function EditProfile() {
                             <View
                                 style={{
                                     position: 'absolute',
-                                    top: 0, left: 0, right: 0, bottom: 0,
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     backgroundColor: 'rgba(0,0,0,0.3)',
@@ -220,7 +227,10 @@ export default function EditProfile() {
                             <View
                                 style={{
                                     position: 'absolute',
-                                    top: 0, left: 0, right: 0, bottom: 0,
+                                    top: 0,
+                                    left: 0,
+                                    right: 0,
+                                    bottom: 0,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     backgroundColor: 'rgba(0,0,0,0.3)',
@@ -238,7 +248,7 @@ export default function EditProfile() {
                         borderRadius: 23,
                         borderWidth: 1,
                         borderColor: '#000',
-                        padding: 25,
+                        padding: 15,
                     }}
                 >
                     <Controller
@@ -248,6 +258,7 @@ export default function EditProfile() {
                             <View style={{ marginBottom: 15 }}>
                                 <TextInput
                                     placeholder="First Name"
+                                    placeholderTextColor={palette.disabled.main}
                                     onBlur={onBlur}
                                     onChangeText={onChange}
                                     value={value}
@@ -267,6 +278,7 @@ export default function EditProfile() {
                             <View style={{ marginBottom: 15 }}>
                                 <TextInput
                                     placeholder="Last Name"
+                                    placeholderTextColor={palette.disabled.main}
                                     onBlur={onBlur}
                                     onChangeText={onChange}
                                     value={value}
@@ -284,7 +296,7 @@ export default function EditProfile() {
                         name="gender"
                         render={({ field: { onChange, value } }) => (
                             <View style={{ marginBottom: 15, borderWidth: 1, borderColor: "#000", borderRadius: 8, height: 45 }}>
-                                <Picker selectedValue={value} onValueChange={onChange} style={{ marginTop: -4, marginLeft: 6 }}>
+                                <Picker selectedValue={value} onValueChange={onChange} style={{ marginTop: -4, marginLeft: 7, color: value === "" ? palette.disabled.main : "#000", }}>
                                     <Picker.Item label="Select Gender" value="" />
                                     <Picker.Item label="Male" value="male" />
                                     <Picker.Item label="Female" value="female" />
@@ -320,6 +332,7 @@ export default function EditProfile() {
                             <View style={{ marginBottom: 15 }}>
                                 <TextInput
                                     placeholder="Phone Number"
+                                    placeholderTextColor={palette.disabled.main}
                                     onBlur={onBlur}
                                     onChangeText={onChange}
                                     value={value}
@@ -346,6 +359,7 @@ export default function EditProfile() {
                                     >
                                         <TextInput
                                             placeholder="Date of Birth"
+                                            placeholderTextColor={palette.disabled.main}
                                             value={value ? dayjs(value).format("DD-MM-YYYY") : ""}
                                             editable={false}
                                             underlineStyle={{ backgroundColor: 'transparent' }}

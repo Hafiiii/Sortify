@@ -1,9 +1,13 @@
-// context/AuthContext.js
 import { createContext, useContext, useState, useEffect } from 'react';
+// firebase
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../utils/firebase';
 
+// ----------------------------------------------------------------------
+
 const AuthContext = createContext();
+
+// ----------------------------------------------------------------------
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -25,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = (user) => {
     setUser(user || auth.currentUser);
   };
-  
+
 
   return (
     <AuthContext.Provider value={{ user, initializing, handleRegister, handleLogin }}>

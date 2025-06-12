@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { Provider as PaperProvider, DefaultTheme, ActivityIndicator } from 'react-native-paper';
 // context
-import { AuthProvider } from './src/context/AuthContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 // hooks
 import { getUsers } from './src/hooks/getUsers';
 // @react-navigation
@@ -33,8 +33,8 @@ import Leaderboard from './src/sections/Leaderboard/Leaderboard';
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfile from './src/sections/Profile/EditProfile';
 
-import FeedbackScreen from './src/screens/FeedbackScreen';
-import ContactUs from './src/sections/ContactUs/ContactUs';
+import Feedback from './src/sections/Support/Feedback';
+import ContactUs from './src/sections/Support/ContactUs';
 import TermsOfService from './src/sections/TermsOfService/TermsOfService';
 import PrivacyPolicy from './src/sections/PrivacyPolicy/PrivacyPolicy';
 
@@ -42,8 +42,6 @@ import UserCMS from './src/sections/Admin/UserCMS';
 import WasteCMS from './src/sections/Admin/WasteCMS';
 import CategoryCMS from './src/sections/Admin/CategoryCMS';
 import ObjectCMS from './src/sections/Admin/ObjectCMS';
-// auth
-import { useAuth } from './src/context/AuthContext';
 // components
 import Toast from 'react-native-toast-message';
 import { ThemeProvider } from './src/theme';
@@ -101,7 +99,7 @@ const ActivitiesStackNavigator = () => (
 
 const BottomTabNavigator = () => {
   const { user } = useAuth();
-
+  
   return (
     <Tab.Navigator
       initialRouteName="HomeStack" // Edit/Change
@@ -205,7 +203,7 @@ const AppNavigator = () => {
   }
 
   return (
-    <Stack.Navigator initialRouteName={isAdmin ? 'ObjectCMS' : 'Main'} screenOptions={{ headerShown: false }}>
+    <Stack.Navigator initialRouteName={isAdmin ? 'UserCMS' : 'Main'} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="EmailVerification" component={EmailVerification} />
@@ -220,7 +218,7 @@ const AppNavigator = () => {
       <Stack.Screen name="DeleteAccount" component={DeleteAccount} />
 
       <Stack.Screen name="ContactUs" component={ContactUs} />
-      <Stack.Screen name="Feedback" component={FeedbackScreen} />
+      <Stack.Screen name="Feedback" component={Feedback} />
       <Stack.Screen name="TermsOfService" component={TermsOfService} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} />
 

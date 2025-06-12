@@ -25,7 +25,7 @@ module.exports = {
           'ri:arrow-down-wide-fill', // wide vector down
           'flat-color-icons:google', // google signin
           'pepicons-pencil:coins-circle-filled', // coin for total points (home screen)
-          'tdesign:cloud-filled', // CO2 (home screen)
+          'uis:calendar', // calendar icon (home screen)
           'mingcute:wastebasket-fill', // waste sorted (home screen)
           'ph:scan-bold', // scan (home screen)
           'twemoji:coin', // coin for points

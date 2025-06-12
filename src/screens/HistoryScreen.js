@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react';
-import { View, Alert, ScrollView, SafeAreaView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
+import { View, Alert, ScrollView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
 import { Text, Chip, Button, Searchbar, Divider, ActivityIndicator } from 'react-native-paper';
 // hooks
 import { getWastes } from '../hooks/getWastes';
 // firebase
-import { firestore } from '../utils/firebase';
+import { firestore, storage } from '../utils/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
+import { deleteObject, ref } from 'firebase/storage';
 // components
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
@@ -117,10 +118,25 @@ export default function HistoryScreen() {
                     text: 'Delete',
                     onPress: async () => {
                         try {
-                            const wasteDocRef = doc(firestore, 'wastes', id);
-                            await deleteDoc(wasteDocRef);
-                            setWasteData(prevWastes => prevWastes.filter(waste => waste.id !== id));
-                            Toast.show({ type: 'success', text1: 'Waste item deleted successfully' });
+                            const dataDocRef = doc(firestore, 'wastes', id);
+                            const docSnap = await getDoc(dataDocRef);
+
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+
+                                if (data.photoURL) {
+                                    const imageRef = ref(storage, data.photoURL);
+                                    await deleteObject(imageRef);
+                                }
+
+                                await deleteDoc(dataDocRef);
+
+                                setWasteData(prevWastes => prevWastes.filter(waste => waste.id !== id));
+
+                                Toast.show({ type: 'success', text1: 'Waste item deleted successfully' });
+                            } else {
+                                throw new Error('Document not found');
+                            }
                         } catch (error) {
                             Toast.show({ type: 'error', text1: 'Error deleting waste item', text2: error.message || 'Please try again later.' });
                         }
@@ -147,7 +163,7 @@ export default function HistoryScreen() {
             resizeMode="cover"
             imageStyle={{ opacity: 0.4 }}
         >
-            <SafeAreaView style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
                 <ScrollView
                     contentContainerStyle={{ paddingHorizontal: 30, paddingVertical: 10, paddingBottom: 80 }}
                     showsVerticalScrollIndicator={false}
@@ -208,7 +224,7 @@ export default function HistoryScreen() {
                         ))
                     )}
                 </ScrollView>
-            </SafeAreaView >
+            </View >
 
             <Animated.View
                 style={{

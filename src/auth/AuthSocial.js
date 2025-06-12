@@ -4,15 +4,17 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
 // firebase
-import auth from '@react-native-firebase/auth';
-import { firestore } from '../utils/firebase';
-import { doc, setDoc, getDoc, runTransaction } from 'firebase/firestore';
+import { auth, firestore, storage } from '../utils/firebase';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 // auth
 import { useAuth } from '../context/AuthContext';
 // components
 import { WEB_CLIENT_ID } from '@env';
 import { Iconify } from 'react-native-iconify';
 import Toast from 'react-native-toast-message';
+import RNFS from 'react-native-fs';
 
 // ----------------------------------------------------------------------
 
@@ -27,11 +29,52 @@ export default function AuthSocial() {
     const navigation = useNavigation();
     const { handleLogin } = useAuth();
 
+    async function uploadProfileImage(photoURL, uid) {
+        try {
+            // Local path to save the image temporarily
+            const localFilePath = `${RNFS.CachesDirectoryPath}/${uid}.jpg`;
+
+            // Download the file to local storage
+            const downloadResult = await RNFS.downloadFile({
+                fromUrl: photoURL,
+                toFile: localFilePath,
+            }).promise;
+
+            if (downloadResult.statusCode !== 200) {
+                throw new Error('Failed to download image');
+            }
+
+            // Fetch the local file as a blob
+            const response = await fetch('file://' + localFilePath);
+            const blob = await response.blob();
+
+            // Create a Firebase Storage ref
+            const storageRef = ref(storage, `profile_images/${uid}.jpg`);
+
+            // Upload the blob
+            await uploadBytes(storageRef, blob);
+
+            // Get the download URL after upload
+            const downloadURL = await getDownloadURL(storageRef);
+            console.log('Uploaded profile image URL:', downloadURL);
+
+            // Delete temp file after upload
+            await RNFS.unlink(localFilePath);
+
+            return downloadURL;
+        } catch (error) {
+            console.error('uploadProfileImage error:', error);
+            return null;
+        }
+    }
+
+
     async function onGoogleButtonPress() {
         try {
             await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
             await GoogleSignin.signOut();
             const signInResult = await GoogleSignin.signIn();
+            console.log("Google Sign-In Result:", signInResult);
 
             idToken = signInResult.data?.idToken;
             if (!idToken) {
@@ -41,8 +84,8 @@ export default function AuthSocial() {
                 throw new Error('No ID token found');
             }
 
-            const googleCredential = auth.GoogleAuthProvider.credential(signInResult.data.idToken);
-            const userCredential = await auth().signInWithCredential(googleCredential);
+            const googleCredential = GoogleAuthProvider.credential(idToken);
+            const userCredential = await signInWithCredential(auth, googleCredential);
             const user = userCredential.user;
 
             const fullName = user.displayName || "";
@@ -53,27 +96,30 @@ export default function AuthSocial() {
             const userRef = doc(firestore, "users", user.uid);
             const userDoc = await getDoc(userRef);
 
-            let userId;
-
-            if (userDoc.exists()) {
-                userId = userDoc.data().userId;
-            } else {
+            if (!userDoc.exists()) {
                 const counterRef = doc(firestore, "counters", "usersCounter");
 
-                const userId = await runTransaction(firestore, async (transaction) => {
-                    const counterDoc = await transaction.get(counterRef);
-                    let newId = 1;
+                const counterDocSnap = await getDoc(counterRef);
+                let newId = 1;
 
-                    if (counterDoc.exists()) {
-                        newId = counterDoc.data().count + 1;
-                    } else {
-                        transaction.set(counterRef, { count: newId });
+                if (counterDocSnap.exists()) {
+                    newId = counterDocSnap.data().count + 1;
+                    await updateDoc(counterRef, { count: newId });
+                } else {
+                    await setDoc(counterRef, { count: newId });
+                }
+
+                const userId = newId;
+
+                let finalPhotoURL = user.photoURL;
+
+                if (user.photoURL) {
+                    const uploadedPhotoURL = await uploadProfileImage(user.photoURL, user.uid);
+                    if (uploadedPhotoURL) {
+                        finalPhotoURL = uploadedPhotoURL;
                     }
+                }
 
-                    transaction.update(counterRef, { count: newId });
-
-                    return newId;
-                });
 
                 await setDoc(userRef, {
                     uid: user.uid,
@@ -81,19 +127,18 @@ export default function AuthSocial() {
                     firstName,
                     lastName,
                     email: user.email,
-                    photoURL: user.photoURL,
+                    photoURL: finalPhotoURL,
                     dateJoined: new Date(),
                     phoneNumber: "",
                     gender: "",
                     birthday: "",
                     totalPoints: "",
-                    savedCO: "",
-                    totalWaste: "",
+                    // savedCO: "",
+                    // totalWaste: "",
                 });
             }
 
             Toast.show({ type: 'success', text1: 'Google Signin Successful' });
-
             await new Promise(resolve => setTimeout(resolve, 1000));
             handleLogin(user);
             navigation.navigate("Main", { screen: "HomeStack", params: { screen: "Home" } });
