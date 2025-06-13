@@ -93,3 +93,6 @@ package-lock.json
 !.yarn/versions
 google-services.json
 google-services.json
+
+# Ignore test folder
+/src/test/

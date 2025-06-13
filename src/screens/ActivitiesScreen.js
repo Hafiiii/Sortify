@@ -19,7 +19,7 @@ const activities = [
         desc: 'This feature estimates how much money users can earn by recycling based on the type and quantity of recyclable items.',
         iconName: 'Gold',
         requiredPoints: GOLD_POINT,
-        route: 'Leaderboard',
+        route: 'RecyclingValue',
     },
     {
         title: 'Carbon Footprint Tracker',

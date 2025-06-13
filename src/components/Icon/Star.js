@@ -2,7 +2,7 @@ import Iconify from "react-native-iconify";
 
 // ----------------------------------------------------------------------
 
-export default function Star({ style = {}, ...props }) {
+export function Star1({ style = {}, ...props }) {
     return (
         <>
             <SingleStar style={{ top: 95, right: 130 }} />
@@ -16,6 +16,19 @@ export default function Star({ style = {}, ...props }) {
     );
 }
 
+export function Star2({ style = {}, ...props }) {
+    return (
+        <>
+            <SingleStar style={{ top: 0, right: 100 }} />
+            <SingleStar style={{ top: 60, right: 40 }} />
+            <SingleStar style={{ top: 135, right: 80 }} />
+            <SingleStar style={{ top: 0, left: 65 }} />
+            <SingleStar style={{ top: 70, left: 85 }} />
+            <SingleStar style={{ top: 120, left: 45 }} />
+            <SingleStar style={{ top: 150, left: 115 }} />
+        </>
+    );
+}
 
 function SingleStar({ style = {}, ...props }) {
     return (
@@ -26,7 +39,7 @@ function SingleStar({ style = {}, ...props }) {
             {...props}
             style={{
                 position: 'absolute',
-                zIndex: 1,
+                zIndex: 0,
                 top: 30,
                 ...style,
             }}

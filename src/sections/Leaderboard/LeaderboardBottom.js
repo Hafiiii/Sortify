@@ -13,10 +13,11 @@ export default function LeaderboardBottom({ leaderboardData }) {
                 borderTopLeftRadius: 50,
                 borderTopRightRadius: 50,
                 flex: 1,
-                padding: 20,
+                paddingHorizontal: 20,
+                paddingTop: 20
             }}
         >
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={{ paddingBottom: 80, }} showsVerticalScrollIndicator={false}>
                 {leaderboardData.slice(3, 30).map((user) => (
                     <View
                         key={user.id}

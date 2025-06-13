@@ -10,7 +10,7 @@ import { getCategories } from '../hooks/getCategories';
 // sections
 import WasteType from '../sections/Home/WasteType';
 import EcoTips from '../sections/Home/EcoTips';
-import WasteCategoryCarousel from '../components/Animation/WasteCategoryCarousel';
+import WasteCategoryCarousel from '../components/Animated/WasteCategoryCarousel';
 // components
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';

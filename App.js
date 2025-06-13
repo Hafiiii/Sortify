@@ -29,6 +29,7 @@ import StatisticsScreen from './src/screens/StatisticsScreen';
 
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
 import Leaderboard from './src/sections/Leaderboard/Leaderboard';
+import RecyclingValue from './src/sections/RecyclingValue/RecyclingValue';
 
 import ProfileScreen from './src/screens/ProfileScreen';
 import EditProfile from './src/sections/Profile/EditProfile';
@@ -48,8 +49,8 @@ import { ThemeProvider } from './src/theme';
 import { Iconify } from 'react-native-iconify';
 import palette from './src/theme/palette';
 
-import Upload from './src/screens/Upload';
-import ScanTest from './src/screens/ScanTest';
+import Upload from './src/test/Upload';
+import ScanTest from './src/test/ScanTest';
 
 // ----------------------------------------------------------------------
 
@@ -94,6 +95,7 @@ const ActivitiesStackNavigator = () => (
   <HomeStack.Navigator initialRouteName="Activities" screenOptions={{ headerShown: false }}>
     <HomeStack.Screen name="Activities" component={ActivitiesScreen} />
     <HomeStack.Screen name="Leaderboard" component={Leaderboard} />
+    <HomeStack.Screen name="RecyclingValue" component={RecyclingValue} />
   </HomeStack.Navigator>
 );
 

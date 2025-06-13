@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Dimensions, Image, Alert, ImageBackground, Keyboard } from 'react-native';
 import { Button, Text, TextInput, ActivityIndicator } from 'react-native-paper';
+import { Picker } from "@react-native-picker/picker";
 // @react-navigation
 import { useNavigation } from '@react-navigation/native';
 // form
@@ -15,7 +16,6 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { useAuth } from '../../context/AuthContext';
 // datepicker
 import dayjs from "dayjs";
-import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 // components
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';

@@ -1,14 +1,14 @@
 import { View, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 // components
-import Star from '../../components/Icon/Star';
+import { Star1 } from '../../components/Icon/Star';
 import ModalPoints from '../../components/Points/ModalPoints';
 
 // ----------------------------------------------------------------------
 
 export default function LeaderboardTop({ leaderboardData, width }) {
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', padding: 20, paddingBottom: 80 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', padding: 20, paddingBottom: 60 }}>
             <Image
                 source={require("../../../assets/leaderboard-podium.png")}
                 style={{
@@ -20,7 +20,7 @@ export default function LeaderboardTop({ leaderboardData, width }) {
                 }}
             />
 
-            <Star />
+            <Star1 />
 
             {leaderboardData.length > 0 && (
                 <View style={{ position: 'relative', width: 320, height: 200, zIndex: 2 }}>
