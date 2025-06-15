@@ -1,11 +1,11 @@
 import { useState, useRef } from 'react';
 import { View, Alert, ScrollView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
-import { Text, Chip, Button, Searchbar, Divider, ActivityIndicator } from 'react-native-paper';
+import { Text, Chip, Button, Searchbar, Divider } from 'react-native-paper';
 // hooks
 import { getWastes } from '../hooks/getWastes';
 // firebase
 import { firestore, storage } from '../utils/firebase';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, getDoc, collection, getDocs, where, query } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
 // components
 import { Header } from '../components/Header/Header';
@@ -14,6 +14,7 @@ import palette from '../theme/palette';
 import moment from 'moment';
 import Toast from 'react-native-toast-message';
 import HistoryList from '../sections/History/HistoryList';
+import LoadingIndicator from '../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -121,22 +122,25 @@ export default function HistoryScreen() {
                             const dataDocRef = doc(firestore, 'wastes', id);
                             const docSnap = await getDoc(dataDocRef);
 
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
+                            if (!docSnap.exists()) throw new Error('Document not found');
 
-                                if (data.photoURL) {
-                                    const imageRef = ref(storage, data.photoURL);
-                                    await deleteObject(imageRef);
-                                }
+                            const data = docSnap.data();
+                            const photoURL = data.photoURL;
 
-                                await deleteDoc(dataDocRef);
+                            await deleteDoc(dataDocRef);
 
-                                setWasteData(prevWastes => prevWastes.filter(waste => waste.id !== id));
+                            setWasteData(prevWastes => prevWastes.filter(waste => waste.id !== id));
 
-                                Toast.show({ type: 'success', text1: 'Waste item deleted successfully' });
-                            } else {
-                                throw new Error('Document not found');
+                            const wastesRef = collection(firestore, 'wastes');
+                            const q = query(wastesRef, where('photoURL', '==', photoURL));
+                            const snapshot = await getDocs(q);
+
+                            if (snapshot.empty && photoURL) {
+                                const imageRef = ref(storage, photoURL);
+                                await deleteObject(imageRef);
                             }
+
+                            Toast.show({ type: 'success', text1: 'Waste item deleted successfully' });
                         } catch (error) {
                             Toast.show({ type: 'error', text1: 'Error deleting waste item', text2: error.message || 'Please try again later.' });
                         }
@@ -148,13 +152,7 @@ export default function HistoryScreen() {
         );
     };
 
-    if (loading || !wasteData) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
+    if (loading || !wasteData) return <LoadingIndicator />
 
     return (
         <ImageBackground

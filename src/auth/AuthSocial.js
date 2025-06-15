@@ -121,6 +121,7 @@ export default function AuthSocial() {
                     gender: "",
                     birthday: "",
                     totalPoints: 0,
+                    totalScore: 0,
                 });
             }
 

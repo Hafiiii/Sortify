@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
-import { Text, Searchbar, ActivityIndicator } from 'react-native-paper';
+import { Text, Searchbar } from 'react-native-paper';
 // @react-navigation
 import { useRoute, useNavigation } from '@react-navigation/native';
 // hooks
@@ -9,6 +9,7 @@ import { getObjects } from '../../hooks/getObjects';
 import { Iconify } from 'react-native-iconify';
 import palette from '../../theme/palette';
 import { HeaderTriple } from '../../components/Header/Header';
+import LoadingIndicator from '../../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -26,13 +27,7 @@ export default function CategoryObjects() {
       `${obj.objName}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  if (loading) return <LoadingIndicator />
 
   return (
     <View style={{ paddingHorizontal: 30, paddingTop: 10, paddingBottom: 0, backgroundColor: '#fff', flex: 1 }}>

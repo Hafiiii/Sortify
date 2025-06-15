@@ -1,5 +1,5 @@
 import { View, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
-import { Text, ActivityIndicator } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 // @rect-navigation
 import { useNavigation } from '@react-navigation/native';
 

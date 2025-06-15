@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { View, Dimensions } from 'react-native';
-import { ActivityIndicator } from 'react-native-paper';
 // hooks
 import { getAllUsers } from '../../hooks/getAllUsers';
 // sections
@@ -10,6 +9,7 @@ import LeaderboardTop from './LeaderboardTop';
 import palette from '../../theme/palette';
 import { HeaderTriple } from '../../components/Header/Header';
 import Toast from 'react-native-toast-message';
+import LoadingIndicator from '../../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -49,13 +49,7 @@ export default function Leaderboard() {
         }
     }, [users]);
 
-    if (loading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
+    if (loading) return <LoadingIndicator />
 
     return (
         <View style={{ flex: 1, width: width, height: height, backgroundColor: palette.secondary.main }}>

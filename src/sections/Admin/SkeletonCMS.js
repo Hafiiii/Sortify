@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { View, Alert, ScrollView, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback, ImageBackground } from 'react-native';
-import { Text, Chip, Button, Searchbar, Divider, ActivityIndicator } from 'react-native-paper';
+import { Text, Chip, Button, Searchbar, Divider } from 'react-native-paper';
 // firebase
 import { firestore, storage } from '../../utils/firebase';
 import { doc, deleteDoc, collection, addDoc, updateDoc, getDoc } from 'firebase/firestore';
@@ -12,7 +12,7 @@ import palette from '../../theme/palette';
 import moment from 'moment';
 import Toast from 'react-native-toast-message';
 import AdminList from '../../sections/Admin/AdminList';
-import AddItemModal from './AddItemModal';
+import LoadingIndicator from '../../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -246,13 +246,7 @@ export default function SkeletonCMS({
         setIsAddModalVisible(true);
     };
 
-    if (loading || !data) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
+    if (loading || !data) return <LoadingIndicator />
 
     return (
         <ImageBackground

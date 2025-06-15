@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
-import { Provider as PaperProvider, DefaultTheme, ActivityIndicator } from 'react-native-paper';
+import { TouchableOpacity } from 'react-native';
+import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 // context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 // hooks
 import { getUsers } from './src/hooks/getUsers';
 // @react-navigation
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // screens
@@ -29,6 +29,8 @@ import StatisticsScreen from './src/screens/StatisticsScreen';
 
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
 import Leaderboard from './src/sections/Leaderboard/Leaderboard';
+import Gamification from './src/sections/Gamification/Gamification';
+import Game from './src/sections/Gamification/Game';
 import RecyclingValue from './src/sections/RecyclingValue/RecyclingValue';
 
 import ProfileScreen from './src/screens/ProfileScreen';
@@ -48,6 +50,7 @@ import Toast from 'react-native-toast-message';
 import { ThemeProvider } from './src/theme';
 import { Iconify } from 'react-native-iconify';
 import palette from './src/theme/palette';
+import LoadingIndicator from './src/components/Animated/LoadingIndicator';
 
 import Upload from './src/test/Upload';
 import ScanTest from './src/test/ScanTest';
@@ -95,39 +98,43 @@ const ActivitiesStackNavigator = () => (
   <HomeStack.Navigator initialRouteName="Activities" screenOptions={{ headerShown: false }}>
     <HomeStack.Screen name="Activities" component={ActivitiesScreen} />
     <HomeStack.Screen name="Leaderboard" component={Leaderboard} />
+    <HomeStack.Screen name="Gamification" component={Gamification} />
+    <HomeStack.Screen name="Game" component={Game} />
     <HomeStack.Screen name="RecyclingValue" component={RecyclingValue} />
   </HomeStack.Navigator>
 );
 
 const BottomTabNavigator = () => {
   const { user } = useAuth();
-  
+
   return (
     <Tab.Navigator
       initialRouteName="HomeStack" // Edit/Change
-      screenOptions={({ route }) => ({
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 16,
-          left: 0,
-          right: 0,
-          borderRadius: 14,
-          height: 60,
-          backgroundColor: '#000',
-          marginHorizontal: 15,
-          paddingTop: 10,
-          boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
-          display: ['Scan'].includes(route.name) ? 'none' : 'flex',
-        },
-        tabBarShowLabel: false,
-        headerShown: false,
-        tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: palette.primary.main,
-        tabBarInactiveTintColor: '#fff',
-        tabBarButton: (props) => (
-          <TouchableOpacity {...props} />
-        ),
-      })}
+      screenOptions={({ route }) => {
+        const routeName = getFocusedRouteNameFromRoute(route) ?? route.name;
+
+        return {
+          tabBarStyle: {
+            position: 'absolute',
+            bottom: 16,
+            left: 0,
+            right: 0,
+            borderRadius: 14,
+            height: 60,
+            backgroundColor: '#000',
+            marginHorizontal: 15,
+            paddingTop: 10,
+            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.15)',
+            display: ['Scan', 'Game', 'Gamification'].includes(routeName) ? 'none' : 'flex',
+          },
+          tabBarShowLabel: false,
+          headerShown: false,
+          tabBarHideOnKeyboard: true,
+          tabBarActiveTintColor: palette.primary.main,
+          tabBarInactiveTintColor: '#fff',
+          tabBarButton: (props) => <TouchableOpacity {...props} />
+        };
+      }}
     >
       <Tab.Screen
         name="HomeStack"
@@ -188,7 +195,7 @@ const BottomTabNavigator = () => {
           },
         })}
       />
-    </Tab.Navigator>
+    </Tab.Navigator >
   );
 };
 
@@ -196,13 +203,7 @@ const AppNavigator = () => {
   const { userData, loading } = getUsers();
   const isAdmin = userData?.userId <= 5;
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  if (loading) return <LoadingIndicator />
 
   return (
     <Stack.Navigator initialRouteName={isAdmin ? 'UserCMS' : 'Main'} screenOptions={{ headerShown: false }}>

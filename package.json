@@ -32,7 +32,6 @@
     "react-hook-form": "^7.57.0",
     "react-is": "19.0.0",
     "react-native": "^0.79.2",
-    "react-native-canvas": "^0.1.40",
     "react-native-chart-kit": "^6.12.0",
     "react-native-dotenv": "^3.4.11",
     "react-native-fs": "^2.20.0",

@@ -22,12 +22,12 @@ const activities = [
         route: 'RecyclingValue',
     },
     {
-        title: 'Carbon Footprint Tracker',
-        image: require('../../assets/carbon-footprint.jpeg'),
-        desc: 'This feature helps users monitor their environmental impact by tracking their daily activities and carbon footprint.',
+        title: 'Know Your Trash',
+        image: require('../../assets/background-game.jpg'),
+        desc: 'Test your recycling knowledge by sorting waste items into the correct categories. Be careful, you only get 3 chances!',
         iconName: 'Silver',
         requiredPoints: SILVER_POINT,
-        route: 'Leaderboard',
+        route: 'Gamification',
     },
     {
         title: 'Leaderboard',
@@ -59,7 +59,7 @@ export default function ActivitiesScreen() {
                             onPress={() => !isLocked && navigation.navigate(activity.route)}
                             activeOpacity={0.7}
                             disabled={isLocked}
-                            style={{ marginVertical: 3 }}
+                            style={{ marginVertical: 5 }}
                         >
                             <View style={{ position: 'relative' }}>
                                 <ActivitiesBox

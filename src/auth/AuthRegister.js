@@ -77,6 +77,7 @@ export default function AuthRegisterForm() {
                 gender: "",
                 birthday: "",
                 totalPoints: 0,
+                totalScore: 0,
             });
 
             // await sendEmailVerification(user);

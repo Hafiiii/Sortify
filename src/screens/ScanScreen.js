@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, Fragment } from "react";
 import { View, TouchableOpacity, Image, Modal, Linking, ScrollView, Alert, Dimensions, StyleSheet } from "react-native";
-import { Text, Button, ActivityIndicator } from "react-native-paper";
+import { Text, Button } from "react-native-paper";
 import axios from "axios";
 // image
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
@@ -23,6 +23,7 @@ import { Iconify } from 'react-native-iconify';
 import Toast from 'react-native-toast-message';
 import RNFS from 'react-native-fs';
 import { MAX_IMAGE_SIZE, ALLOWED_IMAGE_TYPES } from '../utils/helper';
+import LoadingIndicator from '../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -166,9 +167,6 @@ export default function ScanScreen() {
 
             const objectAnnotations = response.data.responses[0].localizedObjectAnnotations || [];
             const labelAnnotations = response.data.responses[0].labelAnnotations || [];
-
-            console.log('Detected objects localization:', objectAnnotations);
-            console.log('Detected labels:', labelAnnotations);
 
             const objectMap = new Map();
 
@@ -360,6 +358,13 @@ export default function ScanScreen() {
                 <Text style={{ marginBottom: 10 }}>Camera permission not granted</Text>
                 <Button
                     mode="contained"
+                    onPress={checkCameraPermission}
+                    style={{ backgroundColor: '#000', marginBottom: 10 }}
+                >
+                    Try Again
+                </Button>
+                <Button
+                    mode="contained"
                     onPress={() => Linking.openSettings()}
                     style={{ backgroundColor: '#000' }}
                 >
@@ -373,13 +378,7 @@ export default function ScanScreen() {
         return <Text>No camera device available</Text>;
     }
 
-    if (analyzeLoading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
+    if (analyzeLoading) return <LoadingIndicator />
 
     return (
         <View
@@ -387,24 +386,23 @@ export default function ScanScreen() {
                 flex: 1,
                 width: width,
                 height: height,
-                padding: imageUri ? 20 : 0,
+                padding: imageUri ? 10 : 0,
             }}
         >
-            <View style={{ position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 20, paddingVertical: 10, zIndex: 9 }}>
-                <HeaderTriple title="Scan" style={{ fontWeight: 700 }} />
-            </View>
+            {!imageUri && (
+                <View style={{ position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 20, paddingVertical: 10, zIndex: 9 }}>
+                    <HeaderTriple title="Scan" style={{ fontWeight: 700 }} />
+                </View>
+            )}
 
             {imageUri && (
                 <View>
-                    <View style={{ position: "relative", width: "100%" }}
+                    <View style={{ position: "relative", width: "100%", alignItems: "center" }}
                         onLayout={(event) => {
                             const layoutWidth = event.nativeEvent.layout.width;
-                            setImageLayout({
-                                width: layoutWidth,
-                                height: layoutWidth / aspectRatio,
-                            });
+                            setImageLayout({ width: layoutWidth, height: layoutWidth });
                         }}>
-                        <Image source={{ uri: imageUri }} style={{ aspectRatio, width }} />
+                        <Image source={{ uri: imageUri }} style={{ aspectRatio, width: width * 0.9 }} />
 
                         {imageLayout.width > 0 && (
                             <Svg width={imageLayout.width}
@@ -510,7 +508,7 @@ export default function ScanScreen() {
                 transparent={true}
                 onRequestClose={() => setIsDrawerVisible(false)}
             >
-                <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
+                <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                     <View
                         style={{
                             backgroundColor: '#fff',
@@ -523,31 +521,34 @@ export default function ScanScreen() {
                     >
                         <ScrollView showsVerticalScrollIndicator={false}>
                             {detectedObjects && detectedObjects.length > 0 ? (
-                                detectedObjects.map((obj, index) => (
-                                    <View key={index} >
-                                        <Text style={{ fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', paddingVertical: 3, backgroundColor: palette.primary.light }}>{obj.name}</Text>
+                                <>
+                                    {detectedObjects.map((obj, index) => (
+                                        <View key={index} >
+                                            <Text style={{ fontWeight: 700, textTransform: 'uppercase', textAlign: 'center', paddingVertical: 3, backgroundColor: palette.primary.light }}>{obj.name}</Text>
 
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
-                                            <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
-                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                    <View style={{ marginBottom: 15 }}>
-                                                        {obj.categories.map((category, index) => (
-                                                            <View key={index} style={{ marginBottom: 5 }}>
-                                                                <Text style={{ fontWeight: 700 }}>
-                                                                    {category || 'Unknown'}
-                                                                </Text>
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 5 }}>
+                                                <View style={{ flexDirection: 'column', justifyContent: 'center' }}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <View style={{ marginBottom: 15 }}>
+                                                            {obj.categories.map((category, index) => (
+                                                                <View key={index} style={{ marginBottom: 5 }}>
+                                                                    <Text style={{ fontWeight: 700 }}>
+                                                                        {category || 'Unknown'}
+                                                                    </Text>
 
-                                                                <Text style={{ textAlign: 'justify', lineHeight: 18 }}>
-                                                                    {obj.categoryDesc[index] || 'No description available'}
-                                                                </Text>
-                                                            </View>
-                                                        ))}
+                                                                    <Text style={{ textAlign: 'justify', lineHeight: 18 }}>
+                                                                        {obj.categoryDesc[index] || 'No description available'}
+                                                                    </Text>
+                                                                </View>
+                                                            ))}
+                                                        </View>
                                                     </View>
                                                 </View>
                                             </View>
                                         </View>
-                                    </View>
-                                ))
+                                    ))}
+                                    <Text style={{ fontSize: 12, color: palette.disabled.main, textAlign: 'center', marginVertical: 5 }}>Got wrong information? Click the flag icon below.</Text>
+                                </>
                             ) : (
                                 <View style={{ gap: 5, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                                     <Image
@@ -564,7 +565,7 @@ export default function ScanScreen() {
                                     </Text>
 
                                     <Text style={{ textAlign: 'center', color: palette.disabled.main }}>
-                                        We couldn’t recognize any recyclable items in your image. Make sure it’s clear, well-lit, and shows only one item at a time for better results.
+                                        We couldn’t recognize any recyclable items in your image. Make sure it’s clear, well-lit, and shows only one item at a time for better results. You can submit this issues to us by clicking the flag icon below.
                                     </Text>
                                 </View>
                             )}

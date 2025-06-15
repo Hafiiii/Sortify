@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { View, TouchableOpacity, Keyboard, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, Keyboard } from 'react-native';
 import { Button, Modal, Portal, Switch, Text, TextInput } from 'react-native-paper';
 // firebase
 import { firestore } from '../../utils/firebase';
@@ -17,6 +17,7 @@ import RHFImagePicker from '../../components/RHFImagePicker/RHFImagePicker';
 import palette from '../../theme/palette';
 import { Iconify } from 'react-native-iconify';
 import { phoneRegExp } from '../../utils/helper';
+import LoadingIndicator from '../../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -142,13 +143,7 @@ export default function AddItemModal({
         }
     }, [isEditMode, docId]);
 
-    if (loading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    }
+    if (loading) return <LoadingIndicator />
 
     return (
         <Portal>
