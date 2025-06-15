@@ -1,22 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
-import { View, TouchableOpacity, Keyboard } from 'react-native';
+import { useMemo, useState } from 'react';
+import { View, TouchableOpacity } from 'react-native';
 import { Button, Modal, Portal, Switch, Text, TextInput } from 'react-native-paper';
-// firebase
-import { firestore } from '../../utils/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 // form
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-// datepicker
-import dayjs from "dayjs";
-import DateTimePicker from "@react-native-community/datetimepicker";
 // components
 import RHFTextInput from '../../components/RHFTextInput/RHFTextInput';
 import RHFImagePicker from '../../components/RHFImagePicker/RHFImagePicker';
 import palette from '../../theme/palette';
 import { Iconify } from 'react-native-iconify';
-import { phoneRegExp } from '../../utils/helper';
 import LoadingIndicator from '../../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
@@ -25,48 +18,37 @@ export default function AddItemModal({
     isVisible,
     onClose,
     onSubmit,
-    onEdit,
-    para,
+    addData,
     loadingButton,
-    isEditMode,
-    title,
-    docId,
     storageFileName
 }) {
-    const [showDatePicker, setShowDatePicker] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const CMSSchema = Yup.object().shape({
-        ...(para.first && { [para.first]: Yup.string().required(`${para.first} is required`) }),
-        ...(
-            para.second
-                ? (Array.isArray(para.second)
-                    ? para.second.reduce((acc, key) => {
-                        acc[key] = Yup.string().required(`${key} is required`);
-                        return acc;
-                    }, {})
-                    : { [para.second]: Yup.string().required(`${para.second} is required`) })
-                : {}
-        ),
-        ...(para.third && { [para.third]: Yup.number().required(`${para.third} is required`) }),
-        ...(para.fourth && { [para.fourth]: Yup.string().required(`${para.fourth} is required`) }),
-        ...(para.fifth && { [para.fifth]: Yup.string().required(`${para.fifth} is required`) }),
-        ...(para.seventh && { [para.seventh]: Yup.string().required(`${para.seventh} is required`).matches(phoneRegExp, 'Phone number must be a valid number (01XXXXXXXX)') }),
-        ...(para.eight && { [para.eight]: Yup.string().required(`${para.eight} is required`) }),
-        ...(para.ninth && { [para.ninth]: Yup.array().required(`${para.ninth} is required`) }),
+        ...(addData.first && { [addData.first]: Yup.string().required(`${addData.first} is required`) }),
+        ...(addData.second && { [addData.second]: Yup.string().required(`${addData.second} is required`) }),
+        ...(addData.third && { [addData.third]: Yup.string().required(`${addData.third} is required`) }),
+        ...(addData.fourth && { [addData.fourth]: Yup.string().required(`${addData.fourth} is required`) }),
+        ...(addData.fifth && { [addData.fifth]: Yup.string().required(`${addData.fifth} is required`) }),
+        ...(addData.sixth && { [addData.sixth]: Yup.string().required(`${addData.sixth} is required`) }),
+        ...(addData.seventh && {
+            [addData.seventh]: Yup.array().of(Yup.string().required('This field is required')),
+        }),
+        ...(addData.eight && {
+            [addData.eight]: Yup.array().of(Yup.string().required('This field is required')),
+        }),
     });
 
     const defaultValues = useMemo(
         () => ({
-            ...(para.first && { [para.first]: '' }),
-            ...(para.second && { [para.second]: '' }),
-            ...(para.third && { [para.third]: '' }),
-            ...(para.fourth && { [para.fourth]: '' }),
-            ...(para.fifth && { [para.fifth]: '' }),
-            ...(para.sixth && { [para.sixth]: false }),
-            ...(para.seventh && { [para.seventh]: '' }),
-            ...(para.eight && { [para.eight]: '' }),
-            ...(para.ninth && { [para.ninth]: '' }),
+            ...(addData.first && { [addData.first]: '' }),
+            ...(addData.second && { [addData.second]: '' }),
+            ...(addData.third && { [addData.third]: '' }),
+            ...(addData.fourth && { [addData.fourth]: '' }),
+            ...(addData.fifth && { [addData.fifth]: '' }),
+            ...(addData.sixth && { [addData.sixth]: false }),
+            ...(addData.seventh && { [addData.seventh]: [''] }),
+            ...(addData.eight && { [addData.eight]: [''] }),
         }),
         []
     );
@@ -87,137 +69,117 @@ export default function AddItemModal({
         formState: { isSubmitting },
     } = methods;
 
-    const imageName = watch(para.first);
+    const imageName = watch(addData.first);
 
-    useEffect(() => {
-        if (!isEditMode) {
-            reset(defaultValues);
-        }
-    }, [isEditMode]);
+    const seventhFieldArray = useFieldArray({
+        control,
+        name: addData.seventh || 'seventh',
+    });
 
-    useEffect(() => {
-        setLoading(false);
-
-        if (isEditMode === true) {
-            const fetchData = async () => {
-                try {
-                    const docSnap = await getDoc(doc(firestore, title, docId));
-                    if (docSnap.exists()) {
-                        const itemData = docSnap.data();
-                        if (para.first) {
-                            setValue(para.first, itemData[para.first] || '');
-                        }
-                        if (para.second) {
-                            setValue(para.second, itemData[para.second] || '');
-                        }
-                        if (para.third) {
-                            setValue(para.third, Number(itemData[para.third]) || 0);
-                        }
-                        if (para.fourth) {
-                            setValue(para.fourth, itemData[para.fourth] || '');
-                        }
-                        if (para.fifth) {
-                            setValue(para.fifth, itemData[para.fifth] || '');
-                        }
-                        if (para.sixth) {
-                            setValue(para.sixth, itemData[para.sixth] ?? false);
-                        }
-                        if (para.seventh) {
-                            setValue(para.seventh, itemData[para.seventh] || '');
-                        }
-                        if (para.eight) {
-                            setValue(para.eight, itemData[para.eight] || '');
-                        }
-                        if (para.ninth) {
-                            setValue(para.ninth, itemData[para.ninth] || '');
-                        }
-                    } else {
-                        console.warn('Document not found');
-                    }
-                } catch (error) {
-                    Toast.show({ type: 'error', text1: 'Error fetching data.', text2: error.message || 'Please try again later.' });
-                }
-            };
-
-            fetchData();
-        }
-    }, [isEditMode, docId]);
+    const eightFieldArray = useFieldArray({
+        control,
+        name: addData.eight || 'eight',
+    });
 
     if (loading) return <LoadingIndicator />
 
     return (
         <Portal>
             <Modal visible={isVisible} onDismiss={onClose} contentContainerStyle={{ backgroundColor: 'white', padding: 20, margin: 20, borderRadius: 10 }}>
-                {para.first && (<RHFTextInput name={para.first} label={para.first} control={control} errors={errors} />)}
+                {addData.first && (<RHFTextInput name={addData.first} label={addData.first} control={control} errors={errors} />)}
 
-                {para.second && (<RHFTextInput name={para.second} label={para.second} control={control} errors={errors} />)}
-                {para.ninth && (<RHFTextInput name={para.ninth} label={para.ninth} control={control} errors={errors} />)}
+                {addData.second && (<RHFTextInput name={addData.second} label={addData.second} control={control} errors={errors} />)}
 
-                {para.third && (<RHFTextInput name={para.third} label={para.third} control={control} errors={errors} />)}
+                {addData.third && (<RHFTextInput name={addData.third} label={addData.third} control={control} errors={errors} />)}
 
-                {para.fourth && (<RHFImagePicker name={para.fourth} control={control} errors={errors} imageName={imageName} storageFileName={storageFileName} />)}
+                {addData.fourth && (<RHFImagePicker name={addData.fourth} control={control} errors={errors} imageName={imageName} storageFileName={storageFileName} />)}
 
-                {para.fifth && (<RHFTextInput name={para.fifth} label={para.fifth} control={control} errors={errors} />)}
+                {addData.fifth && (<RHFTextInput name={addData.fifth} label={addData.fifth} control={control} errors={errors} />)}
 
-                {para.sixth && (
+                {addData.sixth && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 10, gap: 5 }}>
-                        <Text>{para.sixth}</Text>
+                        <Text>{addData.sixth}</Text>
                         <Controller
                             control={control}
-                            name={para.sixth}
+                            name={addData.sixth}
                             render={({ field: { onChange, value } }) => (
                                 <Switch value={value} onValueChange={onChange} />
                             )}
                         />
-                        {errors[para.sixth] && <Text style={{ color: palette.error.main, fontSize: 10 }}>{errors[para.sixth]?.message}</Text>}
+                        {errors[addData.sixth] && <Text style={{ color: palette.error.main, fontSize: 10 }}>{errors[addData.sixth]?.message}</Text>}
                     </View>
                 )}
 
-                {para.seventh && (<RHFTextInput name={para.seventh} label={para.seventh} control={control} errors={errors} keyboardType="phone-pad" />)}
+                {addData.seventh && (
+                    <View style={{ marginBottom: 20 }}>
+                        <Text style={{ marginBottom: 8 }}>{addData.seventh}</Text>
 
-                {para.eight && (
-                    <Controller
-                        control={control}
-                        name={para.eight}
-                        render={({ field: { onChange, value } }) => (
-                            <View style={{ marginBottom: 15 }}>
-                                <View style={{ position: 'relative' }}>
-                                    <TouchableOpacity onPress={() => {
-                                        Keyboard.dismiss();
-                                        setShowDatePicker(true);
-                                    }}
-                                    >
+                        {seventhFieldArray.fields.map((field, index) => (
+                            <View key={field.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                                <Controller
+                                    control={control}
+                                    name={`${addData.seventh}[${index}]`}
+                                    render={({ field: { onChange, value } }) => (
                                         <TextInput
-                                            placeholder="Date of Birth"
-                                            value={value ? dayjs(value).format("DD-MM-YYYY") : ""}
-                                            editable={false}
-                                            underlineStyle={{ backgroundColor: 'transparent' }}
-                                            style={{ backgroundColor: "transparent", borderWidth: 1, borderColor: "#000", borderRadius: 8, height: 45, paddingRight: 40 }}
+                                            mode="outlined"
+                                            style={{ flex: 1 }}
+                                            placeholder={`Enter ${addData.seventh} ${index + 1}`}
+                                            value={value}
+                                            onChangeText={onChange}
                                         />
-                                        <Iconify
-                                            icon={'mdi:calendar-outline'}
-                                            size={20}
-                                            style={{ position: "absolute", top: "50%", right: 10, transform: [{ translateY: -8 }] }}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                                {showDatePicker && (
-                                    <DateTimePicker
-                                        mode="date"
-                                        value={value ? new Date(value) : new Date()}
-                                        display="default"
-                                        onChange={(event, selectedDate) => {
-                                            setShowDatePicker(false);
-                                            if (selectedDate) {
-                                                onChange(dayjs(selectedDate).format("YYYY-MM-DD"));
-                                            }
-                                        }}
-                                    />
-                                )}
-                                {errors[para.eight] && <Text style={{ color: "red", fontSize: 10 }}>{errors[para.eight].message}</Text>}
+                                    )}
+                                />
+                                <TouchableOpacity onPress={() => seventhFieldArray.remove(index)} style={{ marginLeft: 8 }}>
+                                    <Iconify icon="material-symbols:close" size={20} color="red" />
+                                </TouchableOpacity>
                             </View>
-                        )}
-                    />
+                        ))}
+
+                        <Button
+                            onPress={() => seventhFieldArray.append('')}
+                            mode="outlined"
+                            icon="plus"
+                            style={{ marginTop: 10 }}
+                        >
+                            Add {addData.seventh}
+                        </Button>
+                    </View>
+                )}
+
+                {addData.eight && (
+                    <View style={{ marginBottom: 20 }}>
+                        <Text style={{ marginBottom: 8 }}>{addData.eight}</Text>
+
+                        {eightFieldArray.fields.map((field, index) => (
+                            <View key={field.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                                <Controller
+                                    control={control}
+                                    name={`${addData.eight}[${index}]`}
+                                    render={({ field: { onChange, value } }) => (
+                                        <TextInput
+                                            mode="outlined"
+                                            style={{ flex: 1 }}
+                                            placeholder={`Enter ${addData.eight} ${index + 1}`}
+                                            value={value}
+                                            onChangeText={onChange}
+                                        />
+                                    )}
+                                />
+                                <TouchableOpacity onPress={() => eightFieldArray.remove(index)} style={{ marginLeft: 8 }}>
+                                    <Iconify icon="material-symbols:close" size={20} color="red" />
+                                </TouchableOpacity>
+                            </View>
+                        ))}
+
+                        <Button
+                            onPress={() => eightFieldArray.append('')}
+                            mode="outlined"
+                            icon="plus"
+                            style={{ marginTop: 10 }}
+                        >
+                            Add {addData.eight}
+                        </Button>
+                    </View>
                 )}
 
                 <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
@@ -235,13 +197,13 @@ export default function AddItemModal({
 
                     <Button
                         mode="contained"
-                        onPress={handleSubmit(onSubmit)}
+                        onPress={handleSubmit((data) => onSubmit(data, reset))}
                         loading={isSubmitting}
                         disabled={loadingButton}
                         style={{ backgroundColor: '#000' }}
                         labelStyle={{ color: '#fff' }}
                     >
-                        {isEditMode ? 'Update' : 'Add'}
+                        Add
                     </Button>
                 </View>
             </Modal>

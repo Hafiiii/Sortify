@@ -45,6 +45,8 @@ import UserCMS from './src/sections/Admin/UserCMS';
 import WasteCMS from './src/sections/Admin/WasteCMS';
 import CategoryCMS from './src/sections/Admin/CategoryCMS';
 import ObjectCMS from './src/sections/Admin/ObjectCMS';
+import FeedbackCMS from './src/sections/Admin/FeedbackCMS';
+import IssueCMS from './src/sections/Admin/IssueCMS';
 // components
 import Toast from 'react-native-toast-message';
 import { ThemeProvider } from './src/theme';
@@ -229,6 +231,8 @@ const AppNavigator = () => {
       <Stack.Screen name="WasteCMS" component={isAdmin ? WasteCMS : HomeScreen} />
       <Stack.Screen name="CategoryCMS" component={isAdmin ? CategoryCMS : HomeScreen} />
       <Stack.Screen name="ObjectCMS" component={isAdmin ? ObjectCMS : HomeScreen} />
+      <Stack.Screen name="FeedbackCMS" component={isAdmin ? FeedbackCMS : HomeScreen} />
+      <Stack.Screen name="IssueCMS" component={isAdmin ? IssueCMS : HomeScreen} />
 
       <Stack.Screen name="Upload" component={Upload} />
       <Stack.Screen name="ScanTest" component={ScanTest} />

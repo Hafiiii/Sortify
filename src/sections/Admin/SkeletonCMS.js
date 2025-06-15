@@ -3,15 +3,18 @@ import { View, Alert, ScrollView, Animated, Dimensions, TouchableOpacity, Toucha
 import { Text, Chip, Button, Searchbar, Divider } from 'react-native-paper';
 // firebase
 import { firestore, storage } from '../../utils/firebase';
-import { doc, deleteDoc, collection, addDoc, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, deleteDoc, collection, addDoc, updateDoc, getDoc, getDocs, where, query } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
+// sections
+import AdminList from '../../sections/Admin/AdminList';
+import AddItemModal from './AddItemModal';
+import EditItemModal from './EditItemModal';
 // components
 import { HeaderAdmin } from '../../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../../theme/palette';
-import moment from 'moment';
+import dayjs from 'dayjs'
 import Toast from 'react-native-toast-message';
-import AdminList from '../../sections/Admin/AdminList';
 import LoadingIndicator from '../../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
@@ -32,7 +35,7 @@ const dateOptions = [
 
 export default function SkeletonCMS({
     hasDate,
-    hasAdd,
+    hasImage,
     isArray,
     data,
     setData,
@@ -44,7 +47,8 @@ export default function SkeletonCMS({
     listData,
     listArrayData,
     modalData,
-    para,
+    addData,
+    editData,
     storageFileName
 }) {
     const slideAnim = useRef(new Animated.Value(-width)).current;
@@ -57,7 +61,6 @@ export default function SkeletonCMS({
     const [error, setError] = useState(null);
     const [loadingButton, setLoadingButton] = useState(false);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
     const [editingItemId, setEditingItemId] = useState(null);
 
     const toggleFilter = () => {
@@ -84,12 +87,12 @@ export default function SkeletonCMS({
         setTempFilterDate('');
     };
 
-    const lastHour = hasDate ? moment().subtract(1, 'hour').toDate() : null;
-    const today = hasDate ? moment().startOf('day').toDate() : null;
-    const lastWeek = hasDate ? moment().subtract(7, 'days').startOf('day').toDate() : null;
-    const lastMonth = hasDate ? moment().subtract(1, 'month').startOf('day').toDate() : null;
-    const last3Months = hasDate ? moment().subtract(3, 'months').startOf('day').toDate() : null;
-    const lastYear = hasDate ? moment().subtract(1, 'year').startOf('day').toDate() : null;
+    const lastHour = hasDate ? dayjs().subtract(1, 'hour').toDate() : null;
+    const today = hasDate ? dayjs().startOf('day').toDate() : null;
+    const lastWeek = hasDate ? dayjs().subtract(7, 'day').startOf('day').toDate() : null;
+    const lastMonth = hasDate ? dayjs().subtract(1, 'month').startOf('day').toDate() : null;
+    const last3Months = hasDate ? dayjs().subtract(3, 'month').startOf('day').toDate() : null;
+    const lastYear = hasDate ? dayjs().subtract(1, 'year').startOf('day').toDate() : null;
 
     const filteredItems = data
         .filter(item => {
@@ -121,10 +124,7 @@ export default function SkeletonCMS({
             'Confirm Deletion',
             'Are you sure you want to delete this item?',
             [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
+                { text: 'Cancel', style: 'cancel' },
                 {
                     text: 'Delete',
                     onPress: async () => {
@@ -132,22 +132,31 @@ export default function SkeletonCMS({
                             const dataDocRef = doc(firestore, title, id);
                             const docSnap = await getDoc(dataDocRef);
 
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
+                            if (!docSnap.exists()) throw new Error('Document not found');
 
-                                if (data[para.fourth]) {
-                                    const imageRef = ref(storage, data[para.fourth]);
-                                    await deleteObject(imageRef);
+                            const data = docSnap.data();
+                            const imagePath = editData?.fourth && typeof data[editData.fourth] === 'string' ? data[editData.fourth] : null;
+
+                            if (imagePath) {
+                                try {
+                                    const collectionRef = collection(firestore, title);
+                                    const q = query(collectionRef, where(editData.fourth, '==', imagePath));
+                                    const snapshot = await getDocs(q);
+                                    const isImageUsedElsewhere = snapshot.docs.some((doc) => doc.id !== id);
+
+                                    if (!isImageUsedElsewhere) {
+                                        const imageRef = ref(storage, imagePath);
+                                        await deleteObject(imageRef);
+                                    }
+                                } catch (imgError) {
+                                    Toast.show({ type: 'error', text1: 'Error deleting image', text2: imgError.message || 'Please try again later.' });
                                 }
-
-                                await deleteDoc(dataDocRef);
-
-                                setData(prevItems => prevItems.filter(item => item.id !== id));
-
-                                Toast.show({ type: 'success', text1: 'Item deleted successfully' });
-                            } else {
-                                throw new Error('Document not found');
                             }
+
+                            await deleteDoc(dataDocRef);
+
+                            setData(prevItems => prevItems.filter(item => item.id !== id));
+                            Toast.show({ type: 'success', text1: 'Item deleted successfully' });
                         } catch (error) {
                             Toast.show({ type: 'error', text1: 'Error deleting item', text2: error.message || 'Please try again later.' });
                         }
@@ -159,32 +168,55 @@ export default function SkeletonCMS({
         );
     };
 
-    const handleAddItem = async (data) => {
+    const handleAddItem = async (data, reset) => {
         setLoadingButton(true);
         setError(null);
 
         try {
-            const docRef = await addDoc(collection(firestore, title), {
-                [para.first]: data[para.first],
-                [para.second]: data[para.second],
-                [para.third]: data[para.third],
-                [para.fourth]: data[para.fourth],
-                [para.fifth]: data[para.fifth],
-                [para.sixth]: data[para.sixth],
-            });
+            const payload = {};
+            if (addData.first) payload[addData.first] = data[addData.first];
+            if (addData.second) payload[addData.second] = data[addData.second];
+            if (addData.third) payload[addData.third] = data[addData.third];
+            if (addData.fourth) payload[addData.fourth] = data[addData.fourth];
+            if (addData.fifth) payload[addData.fifth] = data[addData.fifth];
+            if (addData.sixth) payload[addData.sixth] = data[addData.sixth];
+            if (addData.seventh) payload[addData.seventh] = data[addData.seventh];
+            if (addData.eight) payload[addData.eight] = data[addData.eight];
 
-            const addedItem = {
-                id: docRef.id,
-                [para.first]: data[para.first],
-                [para.second]: data[para.second],
-                [para.third]: data[para.third],
-                [para.fourth]: data[para.fourth],
-                [para.fifth]: data[para.fifth],
-                [para.sixth]: data[para.sixth],
-            };
+            if (addData.seventh && Array.isArray(data[addData.seventh])) {
+                const categoryIds = data[addData.seventh];
+                const categorySnap = await getDocs(collection(firestore, 'categories'));
+
+                if (!categorySnap.empty) {
+                    let categoryNames = [];
+                    let categoryRecycles = [];
+                    let categoryIcons = [];
+                    let isRecyclables = [];
+
+                    categorySnap.forEach(doc => {
+                        const cat = doc.data();
+                        if (categoryIds.includes(String(cat.categoryId))) {
+                            categoryNames.push(cat.categoryName || 'Unknown');
+                            categoryRecycles.push(cat.categoryRecycle || 'Unknown');
+                            categoryIcons.push(cat.categoryIcon || 'Unknown');
+                            isRecyclables.push(cat.isRecyclable || false);
+                        }
+                    });
+
+                    payload.categoryNames = categoryNames;
+                    payload.categoryRecycles = categoryRecycles;
+                    payload.categoryIcons = categoryIcons;
+                    payload.isRecyclables = isRecyclables;
+                } else {
+                    Toast.show({ type: 'error', text1: 'No categories found', text2: 'Please add categories before adding items.' });
+                }
+            }
+
+            const docRef = await addDoc(collection(firestore, title), payload);
+            const addedItem = { id: docRef.id, ...payload };
 
             setData(prev => [addedItem, ...prev]);
-
+            reset();
             setIsAddModalVisible(false);
             Toast.show({ type: 'success', text1: 'Item added successfully' });
         } catch (error) {
@@ -197,7 +229,6 @@ export default function SkeletonCMS({
 
     const closeModal = () => {
         setIsAddModalVisible(false);
-        setIsEditMode(false);
         setEditingItemId(null);
     };
 
@@ -207,15 +238,15 @@ export default function SkeletonCMS({
 
         try {
             await updateDoc(doc(firestore, title, editingItemId), {
-                ...(para?.first && { [para.first]: data[para.first] }),
-                ...(para?.second && { [para.second]: data[para.second] }),
-                ...(para?.third && { [para.third]: data[para.third] }),
-                ...(para?.fourth && { [para.fourth]: data[para.fourth] }),
-                ...(para?.fifth && { [para.fifth]: data[para.fifth] }),
-                ...(para?.sixth && { [para.sixth]: data[para.sixth] }),
-                ...(para?.seventh && { [para.seventh]: data[para.seventh] }),
-                ...(para?.eight && { [para.eight]: data[para.eight] }),
-                ...(para?.ninth && { [para.ninth]: data[para.ninth] }),
+                ...(editData?.first && { [editData.first]: data[editData.first] }),
+                ...(editData?.second && { [editData.second]: data[editData.second] }),
+                ...(editData?.third && { [editData.third]: data[editData.third] }),
+                ...(editData?.fourth && { [editData.fourth]: data[editData.fourth] }),
+                ...(editData?.fifth && { [editData.fifth]: data[editData.fifth] }),
+                ...(editData?.sixth && { [editData.sixth]: data[editData.sixth] }),
+                ...(editData?.seventh && { [editData.seventh]: data[editData.seventh] }),
+                ...(editData?.eight && { [editData.eight]: data[editData.eight] }),
+                ...(editData?.ninth && { [editData.ninth]: data[editData.ninth] }),
             });
 
             setData(prevData =>
@@ -236,13 +267,7 @@ export default function SkeletonCMS({
     };
 
     const handleEditItem = (item) => {
-        setIsEditMode(true);
         setEditingItemId(item.id);
-        setIsAddModalVisible(true);
-    };
-
-    const handleCancel = (item) => {
-        setIsEditMode(true);
         setIsAddModalVisible(true);
     };
 
@@ -250,14 +275,14 @@ export default function SkeletonCMS({
 
     return (
         <ImageBackground
-            source={require('../../../assets/sortify-logo-half-bg.png')}
+            source={require('../../../assets/sortify-logo-half-bg.webp')}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
             resizeMode="cover"
             imageStyle={{ opacity: 0.4 }}
         >
             <View style={{ flex: 1 }}>
                 <ScrollView
-                    contentContainerStyle={{ padding: 30 }}
+                    contentContainerStyle={{ width: width * 0.9, paddingVertical: 20 }}
                     showsVerticalScrollIndicator={false}
                     onContentSizeChange={(contentWidth, contentHeight) => {
                         setScrollHeight(contentHeight);
@@ -315,7 +340,7 @@ export default function SkeletonCMS({
                             <View />
                         )}
 
-                        {hasAdd && (
+                        {addData && (
                             <TouchableOpacity onPress={() => setIsAddModalVisible(true)} style={{ backgroundColor: palette.primary.main, paddingVertical: 7, paddingHorizontal: 15, borderRadius: 50 }}>
                                 <Text style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>+ Add Item</Text>
                             </TouchableOpacity>
@@ -431,27 +456,38 @@ export default function SkeletonCMS({
                                 key={data.id}
                                 data={isArray ? listArrayData(data) : listData(data)}
                                 modal={modalData}
+                                editData={editData}
                                 onEdit={() => handleEditItem(data)}
                                 onDelete={() => onDelete(data.id)}
                                 isArray={isArray}
+                                hasImage={hasImage}
                             />
                         ))
                     )}
 
-                    {/* <AddItemModal
-                        isVisible={isAddModalVisible}
-                        onClose={() => {
-                            setIsAddModalVisible(false);
-                            setIsEditMode(false);
-                        }}
-                        onSubmit={isEditMode ? handleUpdateItem : handleAddItem}
-                        para={para}
-                        loadingButton={loadingButton}
-                        isEditMode={isEditMode}
-                        title={title}
-                        docId={editingItemId}
-                        storageFileName={storageFileName}
-                    /> */}
+                    {editData &&
+                        <EditItemModal
+                            isVisible={isAddModalVisible}
+                            onClose={() => {setIsAddModalVisible(false);}}
+                            onSubmit={handleUpdateItem}
+                            editData={editData}
+                            loadingButton={loadingButton}
+                            title={title}
+                            docId={editingItemId}
+                            storageFileName={storageFileName}
+                        />
+                    }
+
+                    {addData &&
+                        <AddItemModal
+                            isVisible={isAddModalVisible}
+                            onClose={() => { setIsAddModalVisible(false); }}
+                            onSubmit={handleAddItem}
+                            addData={addData}
+                            loadingButton={loadingButton}
+                            storageFileName={storageFileName}
+                        />
+                    }
                 </ScrollView>
             </View >
         </ImageBackground>

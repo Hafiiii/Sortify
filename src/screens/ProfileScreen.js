@@ -10,7 +10,7 @@ import { getUsers } from '../hooks/getUsers';
 // components
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Toast from 'react-native-toast-message';
 import { BRONZE_POINT, SILVER_POINT, GOLD_POINT, censorEmail, censorPhoneNumber } from '../utils/helper';
 import ModalPoints from '../components/Points/ModalPoints';
@@ -24,7 +24,7 @@ const { width, height } = Dimensions.get('window');
 export default function ProfileScreen() {
     const navigation = useNavigation();
     const { userData, loading } = getUsers();
-    const formattedDate = moment(userData?.dateJoined.toDate()).format('DD/MM/YY');
+    const formattedDate = userData?.dateJoined ? dayjs(userData.dateJoined.toDate()).format('DD/MM/YY') : "-";
 
     const handleLogout = () => {
         Alert.alert(
@@ -104,7 +104,7 @@ export default function ProfileScreen() {
 
             <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 60, borderTopRightRadius: 60, alignItems: 'center' }}>
                 <Image
-                    source={userData?.photoURL ? { uri: userData.photoURL } : require("../../assets/profile.jpeg")}
+                    source={userData?.photoURL ? { uri: userData.photoURL } : require("../../assets/profile.webp")}
                     style={{ width: 90, height: 90, borderRadius: 50, marginTop: -50 }}
                 />
 

@@ -25,7 +25,7 @@ export default function ObjectCMS() {
     return (
         <SkeletonCMS
             hasDate={false}
-            hasAdd={false}
+            hasImage={false}
             isArray={true}
             data={objects}
             setData={setObjects}
@@ -36,19 +36,13 @@ export default function ObjectCMS() {
             title="objects"
             listArrayData={(data) => ({
                 first: data.objName,
-                second: data.categoryNames,
-                // id: data.id,
-                // image: data.categoryURL,
-                // isRecyclable: data.isRecyclable,
+                third: data.categoryNames,
             })}
-            // para={{
-            //     first: 'objName',
-            //     second: 'categoryRecycle',
-            //     third: 'categoryId', // number
-            //     fourth: 'categoryURL', // image
-            //     fifth: 'categoryIcon',
-            //     sixth: 'isRecyclable',// toggle switch
-            // }}
+            addData={{
+                first: 'objName',
+                seventh: 'categoryId',
+                eight: 'categoryDesc',
+            }}
         />
     );
 }

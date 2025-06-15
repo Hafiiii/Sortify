@@ -1,5 +1,5 @@
 // hooks
-import { getAllWastes } from '../../hooks/getAllWastes';
+import { getAllIssues } from '../../hooks/getAllIssues';
 // components
 import SkeletonCMS from './SkeletonCMS';
 
@@ -8,18 +8,18 @@ import SkeletonCMS from './SkeletonCMS';
 const sortOptions = [
     { label: 'Name (A-Z)', value: 'name-asc' },
     { label: 'Name (Z-A)', value: 'name-desc' },
-    { label: 'Date Added ⬆', value: 'date-new' },
-    { label: 'Date Added ⬇', value: 'date-old' },
+    { label: 'Date Joined ⬆', value: 'date-new' },
+    { label: 'Date Joined ⬇', value: 'date-old' },
 ];
 
 // ----------------------------------------------------------------------
 
-export default function WasteCMS() {
-    const { wastes, setWastes, loading } = getAllWastes();
+export default function IssueCMS() {
+    const { issues, setIssues, loading } = getAllIssues();
 
     const getSortFunction = (sortOption) => (a, b) => {
-        if (sortOption === 'name-asc') return a.wasteName.localeCompare(b.wasteName);
-        if (sortOption === 'name-desc') return b.wasteName.localeCompare(a.wasteName);
+        if (sortOption === 'name-asc') return a.name.localeCompare(b.name);
+        if (sortOption === 'name-desc') return b.name.localeCompare(a.name);
         if (sortOption === 'date-new') return b.dateAdded.toDate() - a.dateAdded.toDate();
         if (sortOption === 'date-old') return a.dateAdded.toDate() - b.dateAdded.toDate();
 
@@ -29,30 +29,30 @@ export default function WasteCMS() {
     return (
         <SkeletonCMS
             hasDate={true}
-            data={wastes}
-            setData={setWastes}
+            hasImage={true}
+            isArray={false}
+            data={issues}
+            setData={setIssues}
             loading={loading}
-            searchData={(item) => `${item.wasteName} ${item.wasteType}`}
+            searchData={(item) => `${item.name} ${item.email} ${item.issueId}`}
             sortOptions={sortOptions}
             getSortFunction={getSortFunction}
-            title="wastes"
-            storageFileName="wastes_images"
+            title="issues"
+            storageFileName="issue_images"
             listData={(data) => ({
-                first: data.wasteName,
-                third: data.wasteType,
-                fifth: data.score,
+                first: data.name,
+                third: data.email,
+                fifth: data.issueMessage,
                 id: data.id,
-                image: data.photoURL,
+                image: data.imageURL,
                 date: data.dateAdded,
-                sixth: data.uid,
             })}
             modalData={{
                 first: 'Name',
-                second: 'Category',
-                fourth: 'Waste ID',
+                second: 'Email',
+                fourth: 'Issue ID',
                 fifth: 'Date Added',
-                eight: 'Score',
-                ninth: 'User ID',
+                eight: 'Message',
             }}
         />
     );

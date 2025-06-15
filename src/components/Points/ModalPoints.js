@@ -7,7 +7,7 @@ import palette from '../../theme/palette';
 
 // ----------------------------------------------------------------------
 
-export default function ModalPoints({ data, style = {} }) {
+export default function ModalPoints({ data, style = {}, textStyle = {} }) {
     const [modalVisible, setModalVisible] = useState(false);
     const openModal = () => { setModalVisible(true) };
     const closeModal = () => { setModalVisible(false) };
@@ -28,7 +28,7 @@ export default function ModalPoints({ data, style = {} }) {
             >
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 4 }}>
                     <Iconify icon="twemoji:coin" color={palette.primary.main} size={8} />
-                    <Text style={{ fontWeight: 700, fontSize: 10 }} numberOfLines={1} ellipsizeMode="tail">{data}</Text>
+                    <Text style={{ fontWeight: 700, fontSize: 10, ...textStyle }} numberOfLines={1} ellipsizeMode="tail">{data}</Text>
                 </View>
             </TouchableOpacity>
 

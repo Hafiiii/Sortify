@@ -27,7 +27,6 @@
     "dayjs": "^1.11.13",
     "firebase": "^11.8.1",
     "iconify": "^1.4.0",
-    "moment": "^2.30.1",
     "react": "19.0.0",
     "react-hook-form": "^7.57.0",
     "react-is": "19.0.0",

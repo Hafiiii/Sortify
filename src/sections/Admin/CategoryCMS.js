@@ -8,8 +8,6 @@ import SkeletonCMS from './SkeletonCMS';
 const sortOptions = [
     { label: 'Name (A-Z)', value: 'name-asc' },
     { label: 'Name (Z-A)', value: 'name-desc' },
-    // { label: 'Total Points ⬆', value: 'point-asc' },
-    // { label: 'Total Points ⬇', value: 'point-desc' },
 ];
 
 // ----------------------------------------------------------------------
@@ -20,8 +18,6 @@ export default function CategoryCMS() {
     const getSortFunction = (sortOption) => (a, b) => {
         if (sortOption === 'name-asc') return a.categoryName.localeCompare(b.categoryName);
         if (sortOption === 'name-desc') return b.categoryName.localeCompare(a.categoryName);
-        // if (sortOption === 'point-asc') return (a.totalPoints || 0) - (b.totalPoints || 0);
-        // if (sortOption === 'point-desc') return (b.totalPoints || 0) - (a.totalPoints || 0);
 
         return 0;
     };
@@ -29,7 +25,6 @@ export default function CategoryCMS() {
     return (
         <SkeletonCMS
             hasDate={false}
-            hasAdd={true}
             isArray={false}
             data={categories}
             setData={setCategories}
@@ -45,12 +40,30 @@ export default function CategoryCMS() {
                 id: data.id,
                 image: data.categoryURL,
                 isRecyclable: data.isRecyclable,
+                fifth: data.categoryIcon,
+                sixth: data.categoryId,
             })}
-            para={{
+            modalData={{
+                first: 'Name',
+                second: 'How to Dispose',
+                fourth: 'Category ID',
+                eight: 'Icon',
+                ninth: 'Category No',
+                tenth: 'Recyclable',
+            }}
+            editData={{
                 first: 'categoryName',
                 second: 'categoryRecycle',
-                third: 'categoryId', // number
-                fourth: 'categoryURL', // image
+                third: 'categoryId',
+                fourth: 'categoryURL',
+                fifth: 'categoryIcon',
+                sixth: 'isRecyclable',// toggle switch
+            }}
+            addData={{
+                first: 'categoryName',
+                second: 'categoryRecycle',
+                third: 'categoryId',
+                fourth: 'categoryURL',
                 fifth: 'categoryIcon',
                 sixth: 'isRecyclable',// toggle switch
             }}

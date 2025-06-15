@@ -33,12 +33,11 @@ export default function UserCMS() {
     return (
         <SkeletonCMS
             hasDate={true}
-            hasAdd={false}
             isArray={false}
             data={users}
             setData={setUsers}
             loading={loading}
-            searchData={(item) => `${item.firstName} ${item.lastName} ${item.email} ${item.phoneNumber}`}
+            searchData={(item) => `${item.firstName} ${item.lastName} ${item.uid} ${item.email} ${item.phoneNumber}`}
             sortOptions={sortOptions}
             getSortFunction={getSortFunction}
             title="users"
@@ -51,10 +50,10 @@ export default function UserCMS() {
                 id: data.id,
                 image: data.photoURL,
                 points: data.totalPoints,
+                score: data.totalScore,
                 date: data.dateJoined,
                 fifth: data.gender,
                 sixth: data.birthday,
-                // seventh: data.totalWaste,
             })}
             modalData={{
                 first: 'Name',
@@ -63,14 +62,14 @@ export default function UserCMS() {
                 fourth: 'User ID',
                 fifth: 'Date Joined',
                 sixth: 'Total Points',
-                // seventh: 'Total Wastes',
+                seventh: 'Total Score',
                 eight: 'Gender',
                 ninth: 'Birthday',
             }}
-            para={{
+            editData={{
                 first: 'firstName',
                 second: 'lastName',
-                fourth: 'photoURL', // image
+                fourth: 'photoURL',
                 seventh: 'phoneNumber',
                 eight: 'birthday'
             }}

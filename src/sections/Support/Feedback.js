@@ -18,10 +18,8 @@ import SupportSkeleton from './SupportSkeleton';
 // ----------------------------------------------------------------------
 
 const FeedbackSchema = Yup.object().shape({
-    name: Yup.string().when('isAnonymous', { is: false, then: Yup.string().required('Name is required'), }),
-    email: Yup.string().when('isAnonymous', { is: false, then: Yup.string().required('Email is required').email('Invalid email format'), }),
     feedback: Yup.string().required('Feedback is required').min(10, 'Feedback must be at least 10 characters'),
-    rating: Yup.number().required('Rating is required').min(1, 'Rating must be at least 1').max(5, 'Rating must be at most 5'),
+    // rating: Yup.number().required('Rating is required').min(1, 'Rating must be at least 1').max(5, 'Rating must be at most 5'),
 });
 
 // ----------------------------------------------------------------------
@@ -50,6 +48,7 @@ export default function Feedback() {
     }, [userData, setValue]);
 
     const handleFeedbackSubmit = async () => {
+        console.log('✅ SUBMITTING FEEDBACK');
         setLoading(true);
         const { feedback, name, email } = getValues();
 
@@ -66,7 +65,7 @@ export default function Feedback() {
             name: isAnonymous ? 'Anonymous' : name || '',
             email: isAnonymous ? '' : email || '',
             rating,
-            timestamp: new Date(),
+            dateAdded: new Date(),
         };
 
         try {
@@ -78,7 +77,6 @@ export default function Feedback() {
             setRating(0);
             setIsAnonymous(false);
             reset();
-            fetchUserData();
         } catch (error) {
             Toast.show({ type: 'error', text1: 'Submission Failed', text2: error.message || 'Please try again later.' });
         } finally {
@@ -122,6 +120,5 @@ export default function Feedback() {
                 )}
             />
         </SupportSkeleton>
-
     );
 }

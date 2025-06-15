@@ -11,7 +11,7 @@ import { deleteObject, ref } from 'firebase/storage';
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Toast from 'react-native-toast-message';
 import HistoryList from '../sections/History/HistoryList';
 import LoadingIndicator from '../components/Animated/LoadingIndicator';
@@ -73,12 +73,12 @@ export default function HistoryScreen() {
         setTempFilterDate('');
     };
 
-    const lastHour = moment().subtract(1, 'hour').toDate();
-    const today = moment().startOf('day').toDate();
-    const lastWeek = moment().subtract(7, 'days').startOf('day').toDate();
-    const lastMonth = moment().subtract(1, 'month').startOf('day').toDate();
-    const last3Months = moment().subtract(3, 'months').startOf('day').toDate();
-    const lastYear = moment().subtract(1, 'year').startOf('day').toDate();
+    const lastHour = dayjs().subtract(1, 'hour').toDate();
+    const today = dayjs().startOf('day').toDate();
+    const lastWeek = dayjs().subtract(7, 'day').startOf('day').toDate();
+    const lastMonth = dayjs().subtract(1, 'month').startOf('day').toDate();
+    const last3Months = dayjs().subtract(3, 'month').startOf('day').toDate();
+    const lastYear = dayjs().subtract(1, 'year').startOf('day').toDate();
 
     const filteredWastes = wasteData
         .filter(waste =>
@@ -156,7 +156,7 @@ export default function HistoryScreen() {
 
     return (
         <ImageBackground
-            source={require('../../assets/sortify-logo-half-bg.png')}
+            source={require('../../assets/sortify-logo-half-bg.webp')}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
             resizeMode="cover"
             imageStyle={{ opacity: 0.4 }}

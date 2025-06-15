@@ -5,7 +5,11 @@ import { Text, Chip } from 'react-native-paper';
 import { getWastes } from '../hooks/getWastes';
 // chart
 import { PieChart, LineChart } from 'react-native-chart-kit';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import ViewShot from 'react-native-view-shot';
 // components
 import Share from 'react-native-share';
@@ -18,16 +22,23 @@ import Toast from 'react-native-toast-message';
 
 const { width, height } = Dimensions.get('window');
 
+dayjs.extend(weekOfYear);
+dayjs.extend(advancedFormat);
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 // ----------------------------------------------------------------------
 
 export default function StatisticsScreen() {
     const { wasteData } = getWastes();
     const chartRef = useRef(null);
     const [selectedFilter, setSelectedFilter] = useState('Weekly');
-    const [selectedDate, setSelectedDate] = useState(moment());
+    const [selectedDate, setSelectedDate] = useState(dayjs());
 
     const getWeekDates = (date) =>
-        Array.from({ length: 7 }, (_, i) => moment(date).startOf('week').add(i, 'days').format('YYYY-MM-DD'));
+        Array.from({ length: 7 }, (_, i) =>
+            dayjs(date).startOf('week').add(i, 'day').format('YYYY-MM-DD')
+        );
 
     const [weekDates, setWeekDates] = useState(getWeekDates(selectedDate));
 
@@ -36,7 +47,14 @@ export default function StatisticsScreen() {
     }, [selectedDate]);
 
     const changeDate = (direction) => {
-        setSelectedDate(moment(selectedDate).add(direction, selectedFilter === 'Weekly' ? 'weeks' : selectedFilter === 'Monthly' ? 'months' : 'years'));
+        const newDate =
+            selectedFilter === 'Weekly'
+                ? dayjs(selectedDate).add(direction, 'week')
+                : selectedFilter === 'Monthly'
+                    ? dayjs(selectedDate).add(direction, 'month')
+                    : dayjs(selectedDate).add(direction, 'year');
+
+        setSelectedDate(newDate);
     };
 
     const generateData = () => {
@@ -48,13 +66,13 @@ export default function StatisticsScreen() {
         } else if (selectedFilter === 'Monthly') {
             dateRange = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         } else if (selectedFilter === 'Yearly') {
-            const currentYear = moment().year();
-            dateRange = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2]; // Example: 5 years range
+            const currentYear = dayjs().year();
+            dateRange = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1, currentYear + 2];
         }
 
         const labels = dateRange.map((dateLabel) => {
             if (selectedFilter === 'Weekly') {
-                return moment(dateLabel).format('D MMM');
+                return dayjs(dateLabel).format('D');
             } else {
                 return dateLabel;
             }
@@ -65,14 +83,18 @@ export default function StatisticsScreen() {
 
             wasteData.forEach((item) => {
                 const itemTimestamp = item.dateAdded.seconds * 1000 + item.dateAdded.nanoseconds / 1000000;
-                const itemDate = moment(itemTimestamp);
+                const itemDate = dayjs(itemTimestamp);
 
-                const formattedDate =
-                    selectedFilter === 'Weekly'
-                        ? moment(dateLabel).format('YYYY-MM-DD')
-                        : selectedFilter === 'Monthly'
-                            ? moment().month(dateLabel).format('YYYY-MM')
-                            : moment(dateLabel).format('YYYY');
+                let formattedDate = '';
+
+                if (selectedFilter === 'Weekly') {
+                    formattedDate = dayjs(dateLabel).format('YYYY-MM-DD');
+                } else if (selectedFilter === 'Monthly') {
+                    const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(dateLabel);
+                    formattedDate = itemDate.format('YYYY-MM') === dayjs().month(monthIndex).format('YYYY-MM') ? dayjs().month(monthIndex).format('YYYY-MM') : '';
+                } else {
+                    formattedDate = String(dateLabel);
+                }
 
                 if (selectedFilter === 'Yearly') {
                     if (itemDate.year() === parseInt(dateLabel)) {
@@ -202,21 +224,11 @@ export default function StatisticsScreen() {
                         <View style={{ flexDirection: 'row', gap: 3 }}>
                             {weekDates.map((date, index) => (
                                 <View key={index} style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                    <Text
-                                        style={{
-                                            borderRadius: 100,
-                                            paddingHorizontal: 5,
-                                        }}
-                                    >
-                                        {moment(date).format('D')}
+                                    <Text style={{ borderRadius: 100, paddingHorizontal: 5 }}>
+                                        {dayjs(date).format('D')}
                                     </Text>
-                                    <Text
-                                        style={{
-                                            paddingHorizontal: 5,
-                                            fontSize: 11,
-                                        }}
-                                    >
-                                        {moment(date).format('MMM')}
+                                    <Text style={{ paddingHorizontal: 5, fontSize: 11 }}>
+                                        {dayjs(date).format('MMM')}
                                     </Text>
                                 </View>
                             ))}

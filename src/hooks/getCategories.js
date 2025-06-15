@@ -42,7 +42,7 @@ export const getCategories = () => {
       fetchCategoryData();
 
       return () => { };
-    })
+    }, [])
   );
 
   return { categories, loading, setCategories };

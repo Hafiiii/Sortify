@@ -102,7 +102,8 @@ export function HeaderAdmin({ title, style, boxStyle }) {
                 <Menu.Item onPress={() => navigation.navigate('WasteCMS')} title="Waste" />
                 <Menu.Item onPress={() => navigation.navigate('CategoryCMS')} title="Category" />
                 <Menu.Item onPress={() => navigation.navigate('ObjectCMS')} title="Object" />
-                <Menu.Item onPress={() => navigation.navigate('SuggestionCMS')} title="Other" />
+                <Menu.Item onPress={() => navigation.navigate('FeedbackCMS')} title="Feedback" />
+                <Menu.Item onPress={() => navigation.navigate('IssueCMS')} title="Issue" />
             </Menu>
 
             <Text style={[{ fontSize: 16, textTransform: 'capitalize' }, style]}>{title}</Text>

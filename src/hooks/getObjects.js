@@ -43,7 +43,7 @@ export const getObjects = () => {
       fetchObject();
 
       return () => { };
-    })
+    }, [])
   );
 
   return { objects, loading, setObjects };
