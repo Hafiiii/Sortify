@@ -8,7 +8,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 // firebase
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, firestore } from '../utils/firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 // auth
@@ -79,8 +79,6 @@ export default function AuthRegisterForm() {
                 totalPoints: 0,
                 totalScore: 0,
             });
-
-            // await sendEmailVerification(user);
 
             navigation.navigate("Login");
             Toast.show({ type: 'success', text1: 'Registration Successful.', text2: 'Login to your account now.' });

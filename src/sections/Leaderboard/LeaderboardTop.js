@@ -10,7 +10,7 @@ export default function LeaderboardTop({ leaderboardData, width }) {
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', padding: 20, paddingBottom: 60 }}>
             <Image
-                source={require("../../../assets/leaderboard-podium.png")}
+                source={require("../../../assets/leaderboard-podium.webp")}
                 style={{
                     position: 'absolute',
                     width: width * 0.85,
@@ -67,7 +67,7 @@ function RankPodium({ leaderboardData, width, index, style = {} }) {
             }}
         >
             <Image
-                source={leaderboardData[index]?.photoURL ? { uri: leaderboardData[index]?.photoURL } : require("../../../assets/profile.jpeg")}
+                source={leaderboardData[index]?.photoURL ? { uri: leaderboardData[index]?.photoURL } : require("../../../assets/profile.webp")}
                 style={{
                     width: 75,
                     height: 75,

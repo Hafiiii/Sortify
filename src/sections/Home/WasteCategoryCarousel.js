@@ -17,42 +17,42 @@ const TWO_PI = 2 * Math.PI;
 const categories = [
   {
     id: '1',
-    categoryImageURL: require('../../../assets/soda-can.png'),
+    categoryImageURL: require('../../../assets/soda-can.webp'),
     facts: 'Recycling one aluminum can saves enough energy to power a TV for 3 hours!',
   },
   {
     id: '2',
-    categoryImageURL: require('../../../assets/glass-bottle.png'),
+    categoryImageURL: require('../../../assets/glass-bottle.webp'),
     facts: 'Glass can be recycled endlessly without losing quality.',
   },
   {
     id: '3',
-    categoryImageURL: require('../../../assets/plastic.png'),
+    categoryImageURL: require('../../../assets/plastic.webp'),
     facts: 'Only 9% of plastic ever made has been recycled.',
   },
   {
     id: '4',
-    categoryImageURL: require('../../../assets/banana-peel.png'),
+    categoryImageURL: require('../../../assets/banana-peel.webp'),
     facts: 'Banana peels and food scraps belong in the compost—not the trash!',
   },
   {
     id: '5',
-    categoryImageURL: require('../../../assets/headphones.png'),
+    categoryImageURL: require('../../../assets/headphones.webp'),
     facts: 'E-waste makes up just 2% of trash but 70% of toxic waste.',
   },
   {
     id: '6',
-    categoryImageURL: require('../../../assets/newspaper.png'),
+    categoryImageURL: require('../../../assets/newspaper.webp'),
     facts: 'Paper can be recycled up to 7 times before the fibers become too short.',
   },
   {
     id: '7',
-    categoryImageURL: require('../../../assets/plastic-pile.png'),
+    categoryImageURL: require('../../../assets/plastic-pile.webp'),
     facts: 'Recycling 1 ton of plastic saves 7.4 cubic yards of landfill space.',
   },
   {
     id: '8',
-    categoryImageURL: require('../../../assets/waste-bin.png'),
+    categoryImageURL: require('../../../assets/waste-bin.webp'),
     facts: 'Sorting waste properly reduces greenhouse gas emissions.',
   },
 ];

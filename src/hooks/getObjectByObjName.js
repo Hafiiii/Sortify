@@ -4,26 +4,18 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 // firebase
 import { firestore } from '../utils/firebase';
-// auth
-import { useAuth } from '../context/AuthContext';
 // components
 import Toast from 'react-native-toast-message';
 
 // ----------------------------------------------------------------------
 
 export const getObjectByObjName = (objName) => {
-  const { user } = useAuth();
   const [object, setObject] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
       const fetchObject = async () => {
-        if (!user?.uid || !objName) {
-          setLoading(false);
-          return;
-        }
-
         try {
           const objectsCollectionRef = collection(firestore, 'objects');
           const q = query(objectsCollectionRef, where('objName', '==', objName));
@@ -47,7 +39,7 @@ export const getObjectByObjName = (objName) => {
       };
 
       fetchObject();
-    }, [user?.uid, objName])
+    }, [objName])
   );
 
   return { object, loading, setObject };

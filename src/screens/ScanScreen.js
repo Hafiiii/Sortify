@@ -552,7 +552,7 @@ export default function ScanScreen() {
                             ) : (
                                 <View style={{ gap: 5, flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                                     <Image
-                                        source={require('../../assets/sortify-search.png')}
+                                        source={require('../../assets/sortify-search.webp')}
                                         style={{
                                             width: 75,
                                             height: 75,

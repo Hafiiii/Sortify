@@ -4,25 +4,18 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 // firebase
 import { firestore } from '../utils/firebase';
-// auth
-import { useAuth } from '../context/AuthContext';
 // components
 import Toast from 'react-native-toast-message';
 
 // ----------------------------------------------------------------------
 
 export const getCategoryByCategoryId = (categoryId) => {
-    const { user } = useAuth();
     const [category, setCategory] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useFocusEffect(
         useCallback(() => {
             const fetchCategory = async () => {
-                if (!user?.uid || !categoryId) {
-                    setLoading(false);
-                    return;
-                }
 
                 try {
                     const categoriesCollectionRef = collection(firestore, 'categories');
@@ -47,7 +40,7 @@ export const getCategoryByCategoryId = (categoryId) => {
             };
 
             fetchCategory();
-        }, [user?.uid, categoryId])
+        }, [categoryId])
     );
 
     return { category, loading, setCategory };

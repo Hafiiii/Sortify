@@ -26,7 +26,6 @@
     "buffer": "^6.0.3",
     "dayjs": "^1.11.13",
     "firebase": "^11.8.1",
-    "iconify": "^1.4.0",
     "react": "19.0.0",
     "react-hook-form": "^7.57.0",
     "react-is": "19.0.0",
@@ -49,7 +48,6 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-view-shot": "^4.0.3",
     "react-native-vision-camera": "^4.6.4",
-    "rimraf": "^6.0.1",
     "yup": "^1.6.1"
   },
   "devDependencies": {

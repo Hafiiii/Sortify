@@ -250,7 +250,7 @@ export default function Game() {
 
     return (
         <ImageBackground
-            source={require('../../../assets/background-game.jpg')}
+            source={require('../../../assets/background-game.webp')}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
             resizeMode="cover"
         >

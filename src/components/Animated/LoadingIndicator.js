@@ -10,7 +10,7 @@ export default function LoadingIndicator() {
             <View style={{ position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size={110} color={palette.primary.main} style={{ position: 'absolute' }} />
                 <Image
-                    source={require('../../../assets/sortify-logo.png')}
+                    source={require('../../../assets/sortify-logo.webp')}
                     style={{ width: 50, height: 50, resizeMode: 'contain' }}
                 />
             </View>

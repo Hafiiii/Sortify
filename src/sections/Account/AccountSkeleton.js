@@ -33,7 +33,7 @@ export default function AccountSkeleton({
                     <Text style={{ color: palette.primary.main, fontSize: 22, fontWeight: 700, letterSpacing: 2.5 }}>
                         SORTIFY
                     </Text>
-                    <Image source={require("../../../assets/sortify-logo.png")} style={{ width: 75, height: 102 }} />
+                    <Image source={require("../../../assets/sortify-logo.webp")} style={{ width: 75, height: 102 }} />
                 </View>
             </TouchableOpacity>
 

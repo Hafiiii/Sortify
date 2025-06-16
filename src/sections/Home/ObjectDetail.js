@@ -9,6 +9,7 @@ import { getCategoryByCategoryId } from '../../hooks/getCategoryByCategoryId';
 import palette from '../../theme/palette';
 import { HeaderTriple } from '../../components/Header/Header';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import LoadingIndicator from '../../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -20,8 +21,10 @@ export default function ObjectDetailScreen() {
     const route = useRoute();
     const { objName, categoryId } = route.params;
     const { category } = getCategoryByCategoryId(categoryId);
-    const { object } = getObjectByObjName(objName);
+    const { object, loading } = getObjectByObjName(objName);
     const currentObject = object?.[0];
+
+    if (loading) return <LoadingIndicator />;
 
     return (
         <View
@@ -52,6 +55,8 @@ export default function ObjectDetailScreen() {
                     {currentObject?.categoryId?.map((id, index) => {
                         const matchedCategory = category?.find(cat => String(cat.categoryId) === String(id));
                         const desc = currentObject.categoryDesc?.[index];
+
+                          console.log(categoryId);
 
                         if (!matchedCategory) return null;
 

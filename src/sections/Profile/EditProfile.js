@@ -127,7 +127,7 @@ export default function EditProfile() {
             const newFileName = `profile_images/${Date.now()}.jpg`;
             const storageRef = ref(storage, newFileName);
 
-            if (photoURL && !photoURL.includes('profile.jpeg')) {
+            if (photoURL && !photoURL.includes('profile.webp')) {
                 try {
                     const oldImagePath = decodeURIComponent(photoURL.split('/o/')[1].split('?')[0]);
                     const oldImageRef = ref(storage, oldImagePath);
@@ -181,7 +181,7 @@ export default function EditProfile() {
 
     return (
         <ImageBackground
-            source={require('../../../assets/sortify-logo.png')}
+            source={require('../../../assets/sortify-logo.webp')}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
             resizeMode="cover"
             imageStyle={{ opacity: 0.4 }}
@@ -201,7 +201,7 @@ export default function EditProfile() {
                 <View style={{ alignItems: 'center', marginVertical: 20 }}>
                     <TouchableOpacity onPress={pickImage}>
                         <Image
-                            source={photoURL ? { uri: photoURL } : require('../../../assets/profile.jpeg')}
+                            source={photoURL ? { uri: photoURL } : require('../../../assets/profile.webp')}
                             style={{ width: 100, height: 100, borderRadius: 65 }}
                         />
                         {uploading && (

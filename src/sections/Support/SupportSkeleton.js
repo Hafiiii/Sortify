@@ -33,7 +33,7 @@ export default function SupportSkeleton({
             <ReturnButton />
 
             <View style={{ alignItems: 'center', marginBottom: 15 }}>
-                <Image source={require('../../../assets/sortify-logo.png')} style={{ width: 60, height: 75, marginBottom: 20 }} resizeMode="contain" />
+                <Image source={require('../../../assets/sortify-logo.webp')} style={{ width: 60, height: 75, marginBottom: 20 }} resizeMode="contain" />
                 <Text style={{ fontSize: 20, fontWeight: '900', marginBottom: 10 }}>{title}</Text>
                 <Text style={{ color: palette.disabled.secondary, marginBottom: 10, textAlign: 'justify', lineHeight: 22 }}>{description}</Text>
             </View>

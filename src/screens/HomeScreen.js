@@ -10,7 +10,7 @@ import { getCategories } from '../hooks/getCategories';
 // sections
 import WasteType from '../sections/Home/WasteType';
 import EcoTips from '../sections/Home/EcoTips';
-import WasteCategoryCarousel from '../components/Animated/WasteCategoryCarousel';
+import WasteCategoryCarousel from '../sections/Home/WasteCategoryCarousel';
 // components
 import { Header } from '../components/Header/Header';
 import { Iconify } from 'react-native-iconify';
@@ -143,7 +143,7 @@ export default function HomeScreen() {
                 <Iconify icon="ph:scan-bold" size={28} color="#fff" />
               </TouchableOpacity>
 
-              <Image source={require('../../assets/bin.png')} style={{ width: 190, height: 190 }} />
+              <Image source={require('../../assets/bin.webp')} style={{ width: 190, height: 190 }} />
             </View>
           </>
         ) : (
@@ -170,7 +170,7 @@ export default function HomeScreen() {
                 <Iconify icon="ph:scan-bold" size={28} color="#fff" />
               </TouchableOpacity>
 
-              <Image source={require('../../assets/bin.png')} style={{ width: 190, height: 190 }} />
+              <Image source={require('../../assets/bin.webp')} style={{ width: 190, height: 190 }} />
             </View>
           </>
         )}

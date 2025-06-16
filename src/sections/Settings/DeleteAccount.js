@@ -83,7 +83,7 @@ export default function DeleteAccount() {
 
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Image
-                    source={require('../../../assets/sortify-logo-delete.png')}
+                    source={require('../../../assets/sortify-logo-delete.webp')}
                     style={{
                         width: 60,
                         height: 75,

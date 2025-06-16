@@ -99,7 +99,7 @@ export default function ContactUsScreen() {
         setLoading(true);
         const { issueMessage, name, email } = getValues();
 
-        const issuesId = new Date().getTime().toString();
+        const issueId = new Date().getTime().toString();
 
         try {
             let imageUrl = null;
@@ -109,7 +109,7 @@ export default function ContactUsScreen() {
 
             const issuesData = {
                 uid: userData?.uid,
-                issuesId,
+                issueId,
                 issueMessage: issueMessage || '',
                 name,
                 email,
@@ -117,7 +117,7 @@ export default function ContactUsScreen() {
                 dateAdded: new Date(),
             };
 
-            const issuesDocRef = doc(firestore, 'issues', issuesId);
+            const issuesDocRef = doc(firestore, 'issues', issueId);
             await setDoc(issuesDocRef, issuesData);
 
             Toast.show({ type: 'success', text1: 'Your Concern is Submitted', text2: 'Thank you for reaching out to us. We will get back to you soon!' });

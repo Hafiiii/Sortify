@@ -49,7 +49,7 @@ export default function ForgotPasswordScreen() {
 
     return (
         <ImageBackground
-            source={require('../../assets/sortify-logo-half-bg.png')}
+            source={require('../../assets/sortify-logo-half-bg.webp')}
             style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
             resizeMode="cover"
             imageStyle={{ opacity: 0.6 }}

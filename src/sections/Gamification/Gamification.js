@@ -12,25 +12,25 @@ const { width, height } = Dimensions.get('window');
 const instructions = [
     {
         text: "Match the correct waste type to the item displayed above.",
-        image: require('../../../assets/instruction-1.jpg'),
+        image: require('../../../assets/instruction-1.webp'),
     },
     {
         text: "Watch the green timer ring — it shows how much time you have.",
-        image: require('../../../assets/instruction-2.jpg'),
+        image: require('../../../assets/instruction-2.webp'),
     },
     {
         text: "Tap the item before the green ring disappears!",
     },
     {
         text: "Earn points for every correct match.",
-        image: require('../../../assets/instruction-3.jpg'),
+        image: require('../../../assets/instruction-3.webp'),
     },
     {
         text: "The game speeds up as your score increases.",
     },
     {
         text: "You can only make 3 mistakes — be careful!",
-        image: require('../../../assets/instruction-4.jpg'),
+        image: require('../../../assets/instruction-4.webp'),
     },
     {
         text: "If time runs out without the correct tap, it counts as a mistake.",
@@ -44,7 +44,7 @@ export default function Gamification() {
 
     return (
         <ImageBackground
-            source={require('../../../assets/game-instruction-bg.jpg')}
+            source={require('../../../assets/game-instruction-bg.webp')}
             style={{ flex: 1, padding: 10 }}
             resizeMode="cover"
         >

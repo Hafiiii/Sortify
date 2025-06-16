@@ -15,7 +15,7 @@ import { BRONZE_POINT, SILVER_POINT, GOLD_POINT } from '../utils/helper';
 const activities = [
     {
         title: 'Recycling Value Calculator',
-        image: require('../../assets/recycling-value.png'),
+        image: require('../../assets/recycling-value.webp'),
         desc: 'This feature estimates how much money users can earn by recycling based on the type and quantity of recyclable items.',
         iconName: 'Gold',
         requiredPoints: GOLD_POINT,
@@ -23,7 +23,7 @@ const activities = [
     },
     {
         title: 'Know Your Trash',
-        image: require('../../assets/background-game.jpg'),
+        image: require('../../assets/background-game.webp'),
         desc: 'Test your recycling knowledge by sorting waste items into the correct categories. Be careful, you only get 3 chances!',
         iconName: 'Silver',
         requiredPoints: SILVER_POINT,
@@ -31,7 +31,7 @@ const activities = [
     },
     {
         title: 'Leaderboard',
-        image: require('../../assets/leaderboard.png'),
+        image: require('../../assets/leaderboard.webp'),
         desc: 'The leaderboard promotes a sense of community and friendly competition by showcasing top recyclers and tracking their rank.',
         iconName: 'Bronze',
         requiredPoints: BRONZE_POINT,
@@ -72,7 +72,7 @@ export default function ActivitiesScreen() {
                                 {isLocked && (
                                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 20, overflow: 'hidden' }}>
                                         <Image
-                                            source={require('../../assets/activities-box-gradient.png')}
+                                            source={require('../../assets/activities-box-gradient.webp')}
                                             style={{ position: 'absolute', width: '100%', height: '100%', resizeMode: 'cover', opacity: 0.8 }}
                                         />
                                         <Iconify icon="mingcute:lock-fill" width={30} style={{ color: '#efefef', marginBottom: 10 }} />

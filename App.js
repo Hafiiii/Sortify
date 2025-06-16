@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 // context
@@ -11,51 +11,54 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 // screens
 import RegisterScreen from './src/screens/RegisterScreen';
-import EmailVerification from './src/sections/Confirmation/EmailVerification';
 import LoginScreen from './src/screens/LoginScreen';
-import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
-import PasswordReset from './src/sections/Confirmation/PasswordReset';
+const ForgotPasswordScreen = lazy(() => import('./src/screens/ForgotPasswordScreen'));
+const PasswordReset = lazy(() => import('./src/sections/Confirmation/PasswordReset'));
 
-import SettingsScreen from './src/screens/SettingsScreen';
-import DeleteAccount from './src/sections/Settings/DeleteAccount';
+const SettingsScreen = lazy(() => import('./src/screens/SettingsScreen'));
+const DeleteAccount = lazy(() => import('./src/sections/Settings/DeleteAccount'));
 
 import HomeScreen from './src/screens/HomeScreen';
-import CategoryObjects from './src/sections/Home/CategoryObjects';
-import ObjectDetail from './src/sections/Home/ObjectDetail';
+const CategoryObjects = lazy(() => import('./src/sections/Home/CategoryObjects'));
+const ObjectDetail = lazy(() => import('./src/sections/Home/ObjectDetail'));
 
 import ScanScreen from './src/screens/ScanScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
-import StatisticsScreen from './src/screens/StatisticsScreen';
+const StatisticsScreen = lazy(() => import('./src/screens/StatisticsScreen'));
 
 import ActivitiesScreen from './src/screens/ActivitiesScreen';
-import Leaderboard from './src/sections/Leaderboard/Leaderboard';
-import Gamification from './src/sections/Gamification/Gamification';
-import Game from './src/sections/Gamification/Game';
-import RecyclingValue from './src/sections/RecyclingValue/RecyclingValue';
+const Leaderboard = lazy(() => import('./src/sections/Leaderboard/Leaderboard'));
+const Gamification = lazy(() => import('./src/sections/Gamification/Gamification'));
+const Game = lazy(() => import('./src/sections/Gamification/Game'));
+const RecyclingValue = lazy(() => import('./src/sections/RecyclingValue/RecyclingValue'));
 
 import ProfileScreen from './src/screens/ProfileScreen';
-import EditProfile from './src/sections/Profile/EditProfile';
+const EditProfile = lazy(() => import('./src/sections/Profile/EditProfile'));
 
-import Feedback from './src/sections/Support/Feedback';
-import ContactUs from './src/sections/Support/ContactUs';
-import TermsOfService from './src/sections/TermsOfService/TermsOfService';
-import PrivacyPolicy from './src/sections/PrivacyPolicy/PrivacyPolicy';
+const Feedback = lazy(() => import('./src/sections/Support/Feedback'));
+const ContactUs = lazy(() => import('./src/sections/Support/ContactUs'));
+const TermsOfService = lazy(() => import('./src/sections/TermsOfService/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./src/sections/PrivacyPolicy/PrivacyPolicy'));
 
 import UserCMS from './src/sections/Admin/UserCMS';
-import WasteCMS from './src/sections/Admin/WasteCMS';
-import CategoryCMS from './src/sections/Admin/CategoryCMS';
-import ObjectCMS from './src/sections/Admin/ObjectCMS';
-import FeedbackCMS from './src/sections/Admin/FeedbackCMS';
-import IssueCMS from './src/sections/Admin/IssueCMS';
+const WasteCMS = lazy(() => import('./src/sections/Admin/WasteCMS'));
+const CategoryCMS = lazy(() => import('./src/sections/Admin/CategoryCMS'));
+const ObjectCMS = lazy(() => import('./src/sections/Admin/ObjectCMS'));
+const FeedbackCMS = lazy(() => import('./src/sections/Admin/FeedbackCMS'));
+const IssueCMS = lazy(() => import('./src/sections/Admin/IssueCMS'));
+
 // components
 import Toast from 'react-native-toast-message';
 import { ThemeProvider } from './src/theme';
 import { Iconify } from 'react-native-iconify';
 import palette from './src/theme/palette';
 import LoadingIndicator from './src/components/Animated/LoadingIndicator';
-
-import Upload from './src/test/Upload';
-import ScanTest from './src/test/ScanTest';
+// test
+let Upload, ScanTest;
+if (__DEV__) {
+  Upload = require('./src/test/Upload').default;
+  ScanTest = require('./src/test/ScanTest').default;
+}
 
 // ----------------------------------------------------------------------
 
@@ -211,7 +214,6 @@ const AppNavigator = () => {
     <Stack.Navigator initialRouteName={isAdmin ? 'UserCMS' : 'Main'} screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="EmailVerification" component={EmailVerification} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="PasswordReset" component={PasswordReset} />
 
@@ -234,8 +236,12 @@ const AppNavigator = () => {
       <Stack.Screen name="FeedbackCMS" component={isAdmin ? FeedbackCMS : HomeScreen} />
       <Stack.Screen name="IssueCMS" component={isAdmin ? IssueCMS : HomeScreen} />
 
-      <Stack.Screen name="Upload" component={Upload} />
-      <Stack.Screen name="ScanTest" component={ScanTest} />
+      {__DEV__ && (
+        <>
+          <Stack.Screen name="Upload" component={Upload} />
+          <Stack.Screen name="ScanTest" component={ScanTest} />
+        </>
+      )}
     </Stack.Navigator>
   );
 }
@@ -248,7 +254,9 @@ export default function App() {
       <AuthProvider>
         <ThemeProvider>
           <NavigationContainer>
-            <AppNavigator />
+            <Suspense fallback={<LoadingIndicator />}>
+              <AppNavigator />
+            </Suspense>
           </NavigationContainer>
           <Toast />
         </ThemeProvider>
