@@ -36,7 +36,7 @@ export const getWastes = () => {
             }));
             setWasteData(wastesList);
           } else {
-            Toast.show({ type: 'error', text1: "Oops! No waste found.", text2: 'Please scan some waste items to see them here.' });
+            Toast.show({ type: 'info', text1: "Oops! No waste found.", text2: 'Please scan some waste items to see them here.' });
             setWasteData([]);
           }
         } catch (error) {

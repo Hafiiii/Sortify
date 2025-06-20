@@ -8,8 +8,8 @@ import SkeletonCMS from './SkeletonCMS';
 const sortOptions = [
     { label: 'Name (A-Z)', value: 'name-asc' },
     { label: 'Name (Z-A)', value: 'name-desc' },
-    { label: 'Total Points ⬆', value: 'point-asc' },
-    { label: 'Total Points ⬇', value: 'point-desc' },
+    { label: 'Points ⬆', value: 'point-asc' },
+    { label: 'Points ⬇', value: 'point-desc' },
     { label: 'Date Joined ⬆', value: 'date-new' },
     { label: 'Date Joined ⬇', value: 'date-old' },
 ];
@@ -41,6 +41,7 @@ export default function UserCMS() {
             sortOptions={sortOptions}
             getSortFunction={getSortFunction}
             title="users"
+            imageName="photoURL"
             storageFileName="profile_images"
             listData={(data) => ({
                 first: data.firstName,

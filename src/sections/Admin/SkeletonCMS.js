@@ -49,6 +49,7 @@ export default function SkeletonCMS({
     modalData,
     addData,
     editData,
+    imageName,
     storageFileName
 }) {
     const slideAnim = useRef(new Animated.Value(-width)).current;
@@ -61,6 +62,7 @@ export default function SkeletonCMS({
     const [error, setError] = useState(null);
     const [loadingButton, setLoadingButton] = useState(false);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editingItemId, setEditingItemId] = useState(null);
 
     const toggleFilter = () => {
@@ -135,12 +137,12 @@ export default function SkeletonCMS({
                             if (!docSnap.exists()) throw new Error('Document not found');
 
                             const data = docSnap.data();
-                            const imagePath = editData?.fourth && typeof data[editData.fourth] === 'string' ? data[editData.fourth] : null;
+                            const imagePath = imageName && typeof data[imageName] === 'string' ? data[imageName] : null;
 
                             if (imagePath) {
                                 try {
                                     const collectionRef = collection(firestore, title);
-                                    const q = query(collectionRef, where(editData.fourth, '==', imagePath));
+                                    const q = query(collectionRef, where(imageName, '==', imagePath));
                                     const snapshot = await getDocs(q);
                                     const isImageUsedElsewhere = snapshot.docs.some((doc) => doc.id !== id);
 
@@ -229,6 +231,7 @@ export default function SkeletonCMS({
 
     const closeModal = () => {
         setIsAddModalVisible(false);
+        setIsEditModalVisible(false);
         setEditingItemId(null);
     };
 
@@ -268,7 +271,7 @@ export default function SkeletonCMS({
 
     const handleEditItem = (item) => {
         setEditingItemId(item.id);
-        setIsAddModalVisible(true);
+        setIsEditModalVisible(true);
     };
 
     if (loading || !data) return <LoadingIndicator />
@@ -467,8 +470,8 @@ export default function SkeletonCMS({
 
                     {editData &&
                         <EditItemModal
-                            isVisible={isAddModalVisible}
-                            onClose={() => {setIsAddModalVisible(false);}}
+                            isVisible={isEditModalVisible}
+                            onClose={closeModal}
                             onSubmit={handleUpdateItem}
                             editData={editData}
                             loadingButton={loadingButton}
@@ -481,7 +484,7 @@ export default function SkeletonCMS({
                     {addData &&
                         <AddItemModal
                             isVisible={isAddModalVisible}
-                            onClose={() => { setIsAddModalVisible(false); }}
+                            onClose={closeModal}
                             onSubmit={handleAddItem}
                             addData={addData}
                             loadingButton={loadingButton}

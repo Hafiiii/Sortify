@@ -9,6 +9,7 @@ import { getUsers } from '../hooks/getUsers';
 import { getCategories } from '../hooks/getCategories';
 // sections
 import WasteType from '../sections/Home/WasteType';
+import PlasticInfo from '../sections/Home/PlasticInfo';
 import EcoTips from '../sections/Home/EcoTips';
 import WasteCategoryCarousel from '../sections/Home/WasteCategoryCarousel';
 // components
@@ -105,7 +106,7 @@ export default function HomeScreen() {
                 <Text style={{ fontSize: 10 }}>POINTS</Text>
               </View>
 
-              <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
+              <View style={{ backgroundColor: '#000', width: 2, height: 70 }} />
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Iconify icon="uis:calendar" size={28} color="#000" />
@@ -115,8 +116,7 @@ export default function HomeScreen() {
                 <Text style={{ fontSize: 10 }}>DAYS JOINED</Text>
               </View>
 
-
-              <View style={{ backgroundColor: '#000', width: 2, height: 70 }}></View>
+              <View style={{ backgroundColor: '#000', width: 2, height: 70 }} />
 
               <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                 <Iconify icon="mingcute:wastebasket-fill" size={28} color="#000" />
@@ -177,6 +177,8 @@ export default function HomeScreen() {
       </View>
 
       <WasteType categories={categories} />
+
+      <PlasticInfo />
 
       <EcoTips />
     </ScrollView >

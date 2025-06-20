@@ -30,7 +30,7 @@ const IssuesSchema = Yup.object().shape({
 // ----------------------------------------------------------------------
 
 export default function ContactUsScreen() {
-    const { userData } = getUsers();
+    const { userData, refetch } = getUsers();
     const route = useRoute();
     const [loading, setLoading] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -102,9 +102,9 @@ export default function ContactUsScreen() {
         const issueId = new Date().getTime().toString();
 
         try {
-            let imageUrl = null;
+            let imageURL = null;
             if (selectedImage) {
-                imageUrl = await uploadImageToFirebase(selectedImage);
+                imageURL = await uploadImageToFirebase(selectedImage);
             }
 
             const issuesData = {
@@ -113,15 +113,18 @@ export default function ContactUsScreen() {
                 issueMessage: issueMessage || '',
                 name,
                 email,
-                imageUrl: imageUrl || '',
+                imageURL: imageURL || '',
                 dateAdded: new Date(),
             };
 
             const issuesDocRef = doc(firestore, 'issues', issueId);
             await setDoc(issuesDocRef, issuesData);
 
-            Toast.show({ type: 'success', text1: 'Your Concern is Submitted', text2: 'Thank you for reaching out to us. We will get back to you soon!' });
+            if (userData?.uid) {
+                await refetch(userData.uid);
+            }
 
+            Toast.show({ type: 'success', text1: 'Your Concern is Submitted', text2: 'Thank you for reaching out to us. We will get back to you soon!' });
             reset();
             setSelectedImage(null);
         } catch (error) {

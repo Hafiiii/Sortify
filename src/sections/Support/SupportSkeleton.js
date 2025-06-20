@@ -29,7 +29,7 @@ export default function SupportSkeleton({
     children,
 }) {
     return (
-        <ScrollView contentContainerStyle={{ padding: 30 }} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ flex: 1, backgroundColor: '#fff', padding: 30 }} showsVerticalScrollIndicator={false}>
             <ReturnButton />
 
             <View style={{ alignItems: 'center', marginBottom: 15 }}>

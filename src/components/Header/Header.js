@@ -30,13 +30,13 @@ export function Header({ title, style }) {
     );
 }
 
-export function HeaderTriple({ title, style, boxStyle }) {
+export function HeaderTriple({ title, style, boxStyle, iconColor}) {
     const navigation = useNavigation();
     const { userData } = getUsers();
 
     return (
         <View style={[{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: 10 }, boxStyle]}>
-            <GoBackButton />
+            <GoBackButton iconColor={iconColor} />
 
             <Text style={[{ fontSize: 16 }, style]}>{title}</Text>
 

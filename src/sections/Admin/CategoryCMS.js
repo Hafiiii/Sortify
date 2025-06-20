@@ -33,6 +33,7 @@ export default function CategoryCMS() {
             sortOptions={sortOptions}
             getSortFunction={getSortFunction}
             title="categories"
+            imageName="categoryURL"
             storageFileName="category_images"
             listData={(data) => ({
                 first: data.categoryName,

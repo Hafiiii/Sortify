@@ -10,8 +10,8 @@ const sortOptions = [
     { label: 'Name (Z-A)', value: 'name-desc' },
     { label: 'Rating ⬆', value: 'rating-asc' },
     { label: 'Rating ⬇', value: 'rating-desc' },
-    { label: 'Date Joined ⬆', value: 'date-new' },
-    { label: 'Date Joined ⬇', value: 'date-old' },
+    { label: 'Date Added ⬆', value: 'date-new' },
+    { label: 'Date Added ⬇', value: 'date-old' },
 ];
 
 // ----------------------------------------------------------------------
@@ -44,8 +44,8 @@ export default function FeedbackCMS() {
             title="feedbacks"
             listData={(data) => ({
                 first: data.name,
-                third: data.email,
                 fourth: data.feedback,
+                fifth: data.email,
                 id: data.id,
                 points: data.rating,
                 date: data.dateAdded,

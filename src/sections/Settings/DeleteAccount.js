@@ -78,19 +78,17 @@ export default function DeleteAccount() {
     };
 
     return (
-        <ScrollView contentContainerStyle={{ flex: 1, padding: 30 }} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ flex: 1, backgroundColor: '#fff', padding: 30 }} showsVerticalScrollIndicator={false}>
             <ReturnButton />
 
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Image
-                    source={require('../../../assets/sortify-logo-delete.webp')}
-                    style={{
-                        width: 60,
-                        height: 75,
-                        marginBottom: 20,
-                    }}
-                    resizeMode="contain"
-                />
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+                <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                    <Image
+                        source={require('../../../assets/sortify-logo-delete.webp')}
+                        style={{ width: 60, height: 75 }}
+                        resizeMode="contain"
+                    />
+                </View>
 
                 <Text style={{ fontSize: 20, fontWeight: 900, marginBottom: 15 }}>DELETE SORTIFY ACCOUNT?</Text>
 
@@ -101,20 +99,17 @@ export default function DeleteAccount() {
                     </TouchableOpacity>.
                 </Text>
 
-
-                <View style={{ marginBottom: 15 }}>
-                    <Text style={{ marginBottom: 10 }}>Please select a reason:</Text>
-                    {reasons.map((reason) => (
-                        <View key={reason.value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
-                            <RadioButton
-                                value={reason.value}
-                                status={selectedReason === reason.value ? 'checked' : 'unchecked'}
-                                onPress={() => setSelectedReason(reason.value)}
-                            />
-                            <Text>{reason.label}</Text>
-                        </View>
-                    ))}
-                </View>
+                <Text style={{ marginBottom: 10 }}>Please select a reason:</Text>
+                {reasons.map((reason) => (
+                    <View key={reason.value} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 7 }}>
+                        <RadioButton
+                            value={reason.value}
+                            status={selectedReason === reason.value ? 'checked' : 'unchecked'}
+                            onPress={() => setSelectedReason(reason.value)}
+                        />
+                        <Text>{reason.label}</Text>
+                    </View>
+                ))}
 
                 <Button
                     mode="contained"

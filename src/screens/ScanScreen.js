@@ -50,23 +50,29 @@ export default function ScanScreen() {
     const aspectRatio = 1;
 
     const checkCameraPermission = async () => {
-        const status = Camera.getCameraPermissionStatus();
-        if (status === 'granted') {
+        const status = await Camera.getCameraPermissionStatus();
+
+        if (status === 'authorized' || status === 'granted') {
             setCameraPermission(true);
             return true;
-        } else if (status === 'notDetermined') {
-            const permission = await Camera.requestCameraPermission();
-            setCameraPermission(permission === 'authorized');
-            return permission === 'authorized';
-        } else {
-            setCameraPermission(false);
-            return false;
         }
+
+        const permission = await Camera.requestCameraPermission();
+
+        if (permission === 'authorized' || permission === 'granted') {
+            setCameraPermission(true);
+            return true;
+        }
+
+        setCameraPermission(false);
+        return false;
     };
+
 
     useEffect(() => {
         checkCameraPermission();
     }, []);
+
 
     useFocusEffect(
         useCallback(() => {
@@ -86,6 +92,12 @@ export default function ScanScreen() {
 
     const takePhoto = async () => {
         try {
+            const hasPermission = await checkCameraPermission();
+            if (!hasPermission) {
+                Toast.show({ type: 'error', text1: 'Camera access denied', text2: 'Please allow camera permission to take photos.' });
+                return;
+            }
+
             if (!camera.current) {
                 Toast.show({ type: 'error', text1: 'Camera reference not available.', text2: error.message || 'Please ensure the camera is functioning properly.' });
                 return;
@@ -114,6 +126,9 @@ export default function ScanScreen() {
                 Toast.show({ type: 'error', text1: 'Photo captured is undefined or empty.', text2: error.message || 'Please try again.' });
             }
         } catch (error) {
+            if (error.message.includes('permission')) {
+                return;
+            }
             Toast.show({ type: 'error', text1: 'Error capturing photo.', text2: error.message || 'Please ensure the camera is functioning properly.' });
         }
     };
@@ -265,10 +280,6 @@ export default function ScanScreen() {
     };
 
     const addWasteToFirestore = async (detectedObjects, photoURL) => {
-        const blob = await validateImage(photoURL);
-        const storageRef = ref(storage, `wastes_images/${Date.now()}.jpg`);
-        await uploadBytes(storageRef, blob);
-        const downloadURL = await getDownloadURL(storageRef);
         setLoading(true);
 
         try {
@@ -276,6 +287,11 @@ export default function ScanScreen() {
                 Alert.alert("Error", "User not authenticated.");
                 return;
             }
+
+            const blob = await validateImage(photoURL);
+            const storageRef = ref(storage, `wastes_images/${Date.now()}.jpg`);
+            await uploadBytes(storageRef, blob);
+            const downloadURL = await getDownloadURL(storageRef);
 
             for (const obj of detectedObjects) {
                 const q = query(
@@ -286,13 +302,9 @@ export default function ScanScreen() {
                 );
 
                 const querySnapshot = await getDocs(q);
-
-                if (!querySnapshot.empty) {
-                    continue;
-                }
+                if (!querySnapshot.empty) continue;
 
                 const wasteDocRef = doc(collection(firestore, 'wastes'));
-
                 const wasteData = {
                     wasteId: wasteDocRef.id,
                     wasteName: obj.name,
@@ -300,7 +312,7 @@ export default function ScanScreen() {
                     score: obj.score,
                     dateAdded: new Date(),
                     uid: user?.uid,
-                    photoURL: downloadURL || "",
+                    photoURL: downloadURL,
                 };
 
                 await setDoc(wasteDocRef, wasteData);
@@ -350,30 +362,6 @@ export default function ScanScreen() {
         setIsDrawerVisible(false);
     };
 
-    if (cameraPermission === null) {
-        return <Text>Checking camera permission...</Text>;
-    } else if (!cameraPermission) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text style={{ marginBottom: 10 }}>Camera permission not granted</Text>
-                <Button
-                    mode="contained"
-                    onPress={checkCameraPermission}
-                    style={{ backgroundColor: '#000', marginBottom: 10 }}
-                >
-                    Try Again
-                </Button>
-                <Button
-                    mode="contained"
-                    onPress={() => Linking.openSettings()}
-                    style={{ backgroundColor: '#000' }}
-                >
-                    Open Settings
-                </Button>
-            </View>
-        );
-    }
-
     if (!device) {
         return <Text>No camera device available</Text>;
     }
@@ -384,6 +372,7 @@ export default function ScanScreen() {
         <View
             style={{
                 flex: 1,
+                backgroundColor: '#fff',
                 width: width,
                 height: height,
                 padding: imageUri ? 10 : 0,
@@ -391,7 +380,7 @@ export default function ScanScreen() {
         >
             {!imageUri && (
                 <View style={{ position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 20, paddingVertical: 10, zIndex: 9 }}>
-                    <HeaderTriple title="Scan" style={{ fontWeight: 700 }} />
+                    <HeaderTriple title="Scan" style={{ fontWeight: 700, color: '#fff' }} iconColor="#fff" />
                 </View>
             )}
 

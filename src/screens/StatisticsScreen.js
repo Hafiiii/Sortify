@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
-import { Text, Chip } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 // hooks
 import { getWastes } from '../hooks/getWastes';
 // chart
@@ -17,6 +17,7 @@ import { Iconify } from 'react-native-iconify';
 import palette from '../theme/palette';
 import { HeaderTriple } from '../components/Header/Header';
 import Toast from 'react-native-toast-message';
+import LoadingIndicator from '../components/Animated/LoadingIndicator';
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +31,7 @@ dayjs.extend(isSameOrBefore);
 // ----------------------------------------------------------------------
 
 export default function StatisticsScreen() {
-    const { wasteData } = getWastes();
+    const { wasteData, loading } = getWastes();
     const chartRef = useRef(null);
     const [selectedFilter, setSelectedFilter] = useState('Weekly');
     const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -126,12 +127,8 @@ export default function StatisticsScreen() {
 
     const shareChart = async () => {
         if (!chartRef.current) return;
-        try {
-            const uri = await chartRef.current.capture();
-            await Share.open({ url: uri, message: 'Check out my waste statistics!' });
-        } catch (error) {
-            Toast.show({ type: 'error', text1: 'A problem occured', text2: error.message || 'Please contact support.' });
-        }
+        const uri = await chartRef.current.capture();
+        await Share.open({ url: uri, message: 'Check out my waste statistics!' });
     };
 
     const generateRainbowPastelColors = (count) => {
@@ -163,138 +160,134 @@ export default function StatisticsScreen() {
         color: generateRainbowPastelColors(wasteTypes.length)[i],
     }));
 
+    if (loading) return <LoadingIndicator />
+
     return (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ backgroundColor: '#fff', paddingBottom: 185 }}>
-            <View
-                style={{
-                    backgroundColor: palette.primary.main,
-                    height: selectedFilter === 'Weekly' ? height * 0.55 : height * 0.5,
-                    padding: 30,
-                    paddingTop: 15,
-                    borderBottomLeftRadius: 60,
-                    borderBottomRightRadius: 60,
-                }}
-            >
-                <HeaderTriple title="Statistics" style={{ fontWeight: 'bold' }} />
-
-                <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 10 }}>
-                    {['Weekly', 'Monthly', 'Yearly'].map((item) => (
-                        <Chip
-                            key={item}
-                            mode="flat"
-                            onPress={() => setSelectedFilter(item)}
-                            selected={selectedFilter === item}
-                            showSelectedCheck={false}
-                            style={{
-                                borderRadius: 20,
-                                marginHorizontal: 5,
-                                backgroundColor: selectedFilter === item ? palette.secondary.main : '#fff',
-                            }}
-                            textStyle={{ color: '#000', fontSize: 12 }}
-                        >
-                            {item}
-                        </Chip>
-                    ))}
-                </View>
-
-                <View style={{ alignItems: 'center', marginVertical: 10, }}>
-                    <LineChart
-                        data={lineData}
-                        width={width - 40}
-                        height={220}
-                        withShadow={false}
-                        chartConfig={{
-                            backgroundGradientFrom: '#fff',
-                            backgroundGradientTo: '#fff',
-                            decimalPlaces: 0,
-                            color: (opacity = 1) => palette.secondary.main + Math.round(opacity * 255).toString(16).padStart(2, '0'),
-                            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                            propsForDots: { r: '3' },
-                        }}
-                        style={{ borderRadius: 10, borderColor: '#000', borderWidth: 1, backgroundColor: '#fff', paddingVertical: 10 }}
-                    />
-                </View>
-
-                {selectedFilter === 'Weekly' && (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginVertical: 10 }}>
-                        <TouchableOpacity onPress={() => changeDate(-1)} style={{ padding: 10 }}>
-                            <Iconify icon="ri:arrow-left-s-line" size={24} />
-                        </TouchableOpacity>
-
-                        <View style={{ flexDirection: 'row', gap: 3 }}>
-                            {weekDates.map((date, index) => (
-                                <View key={index} style={{ alignItems: 'center', justifyContent: 'center' }}>
-                                    <Text style={{ borderRadius: 100, paddingHorizontal: 5 }}>
-                                        {dayjs(date).format('D')}
-                                    </Text>
-                                    <Text style={{ paddingHorizontal: 5, fontSize: 11 }}>
-                                        {dayjs(date).format('MMM')}
-                                    </Text>
-                                </View>
-                            ))}
-                        </View>
-
-                        <TouchableOpacity onPress={() => changeDate(1)} style={{ padding: 10 }}>
-                            <Iconify icon="ri:arrow-right-s-line" size={24} />
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </View>
-
-            <View style={{ alignItems: 'center' }}>
-                <View style={{ position: 'relative', width: width, height: 200 }}>
-                    <ViewShot ref={chartRef} options={{ format: 'jpg', quality: 0.9 }}>
-                        <PieChart
-                            data={pieData}
-                            width={width - 40}
-                            height={200}
-                            chartConfig={{
-                                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                                backgroundGradientFrom: '#fff',
-                                backgroundGradientTo: '#fff',
-                            }}
-                            accessor={'population'}
-                            backgroundColor={'transparent'}
-                            hasLegend={false}
-                            center={[110, 0]}
-                        />
-
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 15, alignItems: 'center', justifyContent: 'center', marginVertical: 10 }}>
-                            {pieData.map((entry, index) => (
-                                <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                                    <View
-                                        style={{
-                                            width: 12,
-                                            height: 12,
-                                            backgroundColor: entry.color,
-                                            borderTopRightRadius: '100%',
-                                        }}
-                                    />
-                                    <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 12, fontWeight: 700, color: palette.disabled.secondary }}>
-                                            {entry.population}
-                                        </Text>
-                                        <Text style={{ fontSize: 12, fontWeight: 700, color: palette.disabled.secondary }}>
-                                            {entry.name}
-                                        </Text>
-                                    </View>
-                                </View>
-                            ))}
-                        </View>
-                    </ViewShot>
-
-                    <TouchableOpacity
-                        onPress={shareChart}
+        <>
+            {wasteData.length > 0 ? (
+                <View style={{ flex: 1, backgroundColor: '#fff' }}>
+                    <View
                         style={{
-                            position: 'absolute',
-                            bottom: '10%',
-                            right: '30%',
+                            backgroundColor: palette.primary.main,
+                            padding: 10,
+                            borderBottomLeftRadius: 30,
+                            borderBottomRightRadius: 30,
                         }}
                     >
-                        <Iconify icon="rivet-icons:share" size={18} color="#000" />
-                    </TouchableOpacity>
+                        <HeaderTriple title="Statistics" style={{ fontWeight: 'bold' }} />
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 5 }}>
+                            {['Weekly', 'Monthly', 'Yearly'].map((item) => (
+                                <TouchableOpacity
+                                    key={item}
+                                    onPress={() => setSelectedFilter(item)}
+                                    style={{
+                                        paddingVertical: 7,
+                                        paddingHorizontal: 14,
+                                        borderRadius: 20,
+                                        marginHorizontal: 5,
+                                        backgroundColor: selectedFilter === item ? palette.secondary.main : '#fff',
+                                    }}
+                                >
+                                    <Text style={{ fontSize: 12, fontWeight: 700 }}>{item}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <View style={{ alignItems: 'center', marginVertical: 10 }}>
+                            <LineChart
+                                data={lineData}
+                                width={width * 0.9}
+                                height={height * 0.25}
+                                withShadow={false}
+                                chartConfig={{
+                                    backgroundGradientFrom: '#fff',
+                                    backgroundGradientTo: '#fff',
+                                    decimalPlaces: 0,
+                                    color: (opacity = 1) => palette.secondary.main + Math.round(opacity * 255).toString(16).padStart(2, '0'),
+                                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                                    propsForDots: { r: '2' },
+                                    propsForHorizontalLabels: { fontSize: 8 },
+                                    propsForVerticalLabels: { fontSize: 7 },
+                                }}
+                                style={{ fontSize: 10, borderRadius: 10, borderColor: '#000', borderWidth: 0.5, backgroundColor: '#fff', paddingVertical: 10 }}
+                            />
+                        </View>
+
+                        {selectedFilter === 'Weekly' && (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                                <TouchableOpacity onPress={() => changeDate(-1)} style={{ paddingHorizontal: 10 }}>
+                                    <Iconify icon="ri:arrow-left-s-line" size={24} />
+                                </TouchableOpacity>
+
+                                <View style={{ flexDirection: 'row', gap: 5 }}>
+                                    {weekDates.map((date, index) => (
+                                        <View key={index} style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }}>
+                                            <Text style={{ fontSize: 12 }}>{dayjs(date).format('D')}</Text>
+                                            <Text style={{ fontSize: 10 }}>{dayjs(date).format('MMM')}</Text>
+                                        </View>
+                                    ))}
+                                </View>
+
+                                <TouchableOpacity onPress={() => changeDate(1)} style={{ paddingHorizontal: 10 }}>
+                                    <Iconify icon="ri:arrow-right-s-line" size={24} />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </View>
+
+                    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+                        <ViewShot ref={chartRef} options={{ format: 'jpg', quality: 0.9 }}>
+                            <View style={{ backgroundColor: '#fff' }}>
+                                <View style={{ position: 'relative', width: width, height: 180 }}>
+                                    <PieChart
+                                        data={pieData}
+                                        width={width}
+                                        height={180}
+                                        chartConfig={{
+                                            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                                            backgroundGradientFrom: '#fff',
+                                            backgroundGradientTo: '#fff',
+                                        }}
+                                        accessor={'population'}
+                                        backgroundColor={'transparent'}
+                                        hasLegend={false}
+                                        center={[width * 0.25, 0]}
+                                    />
+
+                                    <TouchableOpacity onPress={shareChart} style={{ position: 'absolute', bottom: 20, right: width * 0.28 }}>
+                                        <Iconify icon="rivet-icons:share" size={18} />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', marginVertical: 5, paddingHorizontal: 15 }}>
+                                    {pieData.map((entry, index) => (
+                                        <View key={index} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginHorizontal: 5, marginVertical: 3 }}>
+                                            <View
+                                                style={{
+                                                    width: 8,
+                                                    height: 8,
+                                                    backgroundColor: entry.color,
+                                                    borderTopLeftRadius: '100%',
+                                                }}
+                                            />
+                                            <Text style={{ fontSize: 11, marginTop: 2 }}>
+                                                {entry.name}: {entry.population}
+                                            </Text>
+                                        </View>
+                                    ))}
+                                </View>
+                            </View>
+                        </ViewShot>
+                    </ScrollView >
+                </View >
+            ) : (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                    <Text style={{ fontSize: 16, color: palette.disabled.secondary }}>No waste data available.</Text>
+                    <Text style={{ color: palette.disabled.main, textAlign: 'center' }}>Please scan some waste items to see them here.</Text>
                 </View>
-            </View>
-        </ScrollView >
+            )
+            }
+        </>
     );
 }

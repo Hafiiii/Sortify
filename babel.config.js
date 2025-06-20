@@ -22,6 +22,7 @@ module.exports = {
           'ri:arrow-left-s-line', // vector left
           'ri:arrow-right-s-line', // vector right
           'ri:arrow-down-s-line', // vector down
+          'ri:arrow-up-s-line', // vector up
           'ri:arrow-down-wide-fill', // wide vector down
           'flat-color-icons:google', // google signin
           'pepicons-pencil:coins-circle-filled', // coin for total points (home screen)

@@ -170,7 +170,7 @@ function RecyclingCalculator({ title, data, onValueChange }) {
                 <Picker
                     selectedValue={rate}
                     onValueChange={(value) => setRate(value)}
-                    style={{ height: 53 }}
+                    style={{ height: 53, color: '#000' }}
                 >
                     {data.map((item) => (
                         <Picker.Item key={item.id} label={item.label} value={item.rate} />
@@ -187,10 +187,12 @@ function RecyclingCalculator({ title, data, onValueChange }) {
                     marginBottom: 10,
                     height: 53,
                 }}
+                
                 keyboardType="numeric"
                 value={quantity}
                 onChangeText={setQuantity}
                 placeholder={`e.g: 5`}
+                placeholderTextColor={palette.disabled.main}
                 maxLength={6}
             />
 

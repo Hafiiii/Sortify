@@ -36,6 +36,7 @@ export default function WasteCMS() {
             sortOptions={sortOptions}
             getSortFunction={getSortFunction}
             title="wastes"
+            imageName="photoURL"
             storageFileName="wastes_images"
             listData={(data) => ({
                 first: data.wasteName,

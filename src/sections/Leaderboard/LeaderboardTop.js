@@ -8,46 +8,44 @@ import ModalPoints from '../../components/Points/ModalPoints';
 
 export default function LeaderboardTop({ leaderboardData, width }) {
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-end', padding: 20, paddingBottom: 60 }}>
+        <View style={{ alignItems: 'center', paddingBottom: 30 }}>
             <Image
                 source={require("../../../assets/leaderboard-podium.webp")}
                 style={{
                     position: 'absolute',
-                    width: width * 0.85,
+                    width: 400,
                     height: 200,
-                    top: 70,
-                    zIndex: 0,
+                    top: 40,
+                    zIndex: 1,
                 }}
+                resizeMode="contain"
             />
 
             <Star1 />
 
             {leaderboardData.length > 0 && (
-                <View style={{ position: 'relative', width: 320, height: 200, zIndex: 2 }}>
-                    {leaderboardData.length > 1 &&
+                <View style={{ position: 'relative', width: 400, height: 230, zIndex: 2 }}>
+                    {leaderboardData[1] && (
                         <RankPodium
                             leaderboardData={leaderboardData}
-                            width={width}
                             index={1}
-                            style={{ top: 50, left: -115 }}
+                            style={{ position: 'absolute', left: 400 * 0.10, bottom: 50 }}
                         />
-                    }
+                    )}
 
                     <RankPodium
                         leaderboardData={leaderboardData}
-                        width={width}
                         index={0}
-                        style={{ top: 0 }}
+                        style={{ position: 'absolute', left: 400 * 0.37, bottom: 95 }}
                     />
 
-                    {leaderboardData.length > 2 &&
+                    {leaderboardData[2] && (
                         <RankPodium
                             leaderboardData={leaderboardData}
-                            width={width}
                             index={2}
-                            style={{ top: 90, right: -110 }}
+                            style={{ position: 'absolute', left: 400 * 0.64, bottom: 10 }}
                         />
-                    }
+                    )}
                 </View>
             )}
         </View>
@@ -56,35 +54,21 @@ export default function LeaderboardTop({ leaderboardData, width }) {
 
 function RankPodium({ leaderboardData, width, index, style = {} }) {
     return (
-        <View
-            style={{
-                alignItems: 'center',
-                marginHorizontal: 5,
-                position: 'absolute',
-                width: width * 0.75,
-                height: 200,
-                ...style,
-            }}
-        >
+        <View style={{ alignItems: 'center', width: 100, position: 'relative', ...style }}>
             <Image
                 source={leaderboardData[index]?.photoURL ? { uri: leaderboardData[index]?.photoURL } : require("../../../assets/profile.webp")}
-                style={{
-                    width: 75,
-                    height: 75,
-                    borderRadius: 40,
-                    marginBottom: 20,
-                }}
+                style={{ width: 75, height: 75, borderRadius: 40, marginBottom: 18 }}
             />
 
             <Text
                 style={{
                     fontSize: 12,
                     fontWeight: 700,
-                    marginBottom: 3,
+                    marginBottom: 2,
                     maxWidth: 100,
                     textAlign: 'center',
                 }}
-                numberOfLines={2}
+                numberOfLines={1}
                 ellipsizeMode="tail"
             >
                 {leaderboardData[index]?.firstName} {leaderboardData[index]?.lastName}

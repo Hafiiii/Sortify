@@ -23,7 +23,8 @@ export default function AdminList({ data, onDelete, onEdit, modal, editData, isA
     };
 
     const formattedDate = data.date ? dayjs(data.date.toDate()).format('DD-MM-YYYY hh.mmA') : null;
-    const isRecyclable = data.isRecyclable ? data.isRecyclable === true || data.isRecyclable === 'true' : null;
+    const isRecyclable = data.isRecyclable === true || data.isRecyclable === 'true';
+    const hasRecyclableFlag = data.isRecyclable === true || data.isRecyclable === false || data.isRecyclable === 'true' || data.isRecyclable === 'false';
 
     const detailItems = [];
 
@@ -58,7 +59,7 @@ export default function AdminList({ data, onDelete, onEdit, modal, editData, isA
             detailItems.push([modal.ninth, data.sixth]);
         }
 
-        if (isRecyclable !== null) {
+        if (hasRecyclableFlag) {
             detailItems.push([modal.tenth, isRecyclable ? 'Recyclable' : 'Not Recyclable']);
         }
     }
@@ -68,7 +69,7 @@ export default function AdminList({ data, onDelete, onEdit, modal, editData, isA
             {hasImage === false ? (
                 <View
                     style={{
-                        height: 46,
+                        height: 56,
                         borderRadius: 10,
                         marginVertical: 2,
                         paddingHorizontal: 10,
@@ -80,16 +81,21 @@ export default function AdminList({ data, onDelete, onEdit, modal, editData, isA
                         boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
                     }}
                 >
-                    <View style={{ width: '85%', flexDirection: 'column' }}>
-                        <Text style={{ fontSize: 11 }}>{data.first}</Text>
+                    <View style={{ width: '90%', flexDirection: 'column' }}>
+                        <Text style={{ fontSize: 10 }}>{data.first} {data.points ? `${data.points}/5` : null}</Text>
                         {Array.isArray(data.third) ? (
                             <Text style={{ fontSize: 11, fontWeight: '700' }}>
                                 {data.third.join(', ')}
                             </Text>
                         ) : (
-                            <Text style={{ fontSize: 11, fontWeight: '700' }}>
-                                {data.third}
-                            </Text>
+                            <>
+                                <Text style={{ fontSize: 10 }} numberOfLines={1} ellipsizeMode="tail">
+                                    {data.fourth}
+                                </Text>
+                                <Text style={{ fontSize: 8, color: palette.disabled.main }}>
+                                    {formattedDate}
+                                </Text>
+                            </>
                         )}
                     </View>
 
@@ -158,7 +164,7 @@ export default function AdminList({ data, onDelete, onEdit, modal, editData, isA
                             <View style={{ flexDirection: 'column', gap: 1 }}>
                                 <Text style={{ fontSize: 10 }} numberOfLines={1} ellipsizeMode="tail">{data.first} {data.second}</Text>
                                 {Array.isArray(data.third) ? (
-                                    <Text style={{ fontSize: 10, fontWeight: 700 }} numberOfLines={2} ellipsizeMode="tail">
+                                    <Text style={{ fontSize: 10, fontWeight: 700 }} numberOfLines={1} ellipsizeMode="tail">
                                         {data.third.join(', ')}
                                     </Text>
                                 ) : (
@@ -167,7 +173,7 @@ export default function AdminList({ data, onDelete, onEdit, modal, editData, isA
                                 {data.fourth && <Text style={{ fontSize: 9, color: palette.disabled.tertiery }}>{data.fourth}</Text>}
                             </View>
 
-                            {data.isRecyclable &&
+                            {typeof data.isRecyclable === 'boolean' &&
                                 <Text style={{ fontSize: 10, color: isRecyclable ? 'green' : 'red' }}>
                                     {isRecyclable ? 'Recyclable' : 'Not Recyclable'}
                                 </Text>

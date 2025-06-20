@@ -12,7 +12,7 @@ export default function SettingsScreen() {
     const navigation = useNavigation();
 
     return (
-        <ScrollView contentContainerStyle={{ padding: 30, backgroundColor: '#fff' }} showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ flex: 1, backgroundColor: '#fff', padding: 30 }} showsVerticalScrollIndicator={false}>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 15 }}>
                 <GoBackButton />
 

@@ -15,7 +15,7 @@ export default function ScoreDisplay({ score, wrongCount }) {
     ));
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', padding: 10, marginBottom: 10 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 10, marginBottom: 5 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View
                     style={{

@@ -97,7 +97,7 @@ export default function AuthRegisterForm() {
                 control={control}
                 name="firstName"
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={{ marginBottom: 5 }}>
                         <TextInput
                             label="First Name"
                             onBlur={onBlur}
@@ -116,7 +116,7 @@ export default function AuthRegisterForm() {
                 control={control}
                 name="lastName"
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={{ marginBottom: 5 }}>
                         <TextInput
                             label="Last Name"
                             onBlur={onBlur}
@@ -135,7 +135,7 @@ export default function AuthRegisterForm() {
                 control={control}
                 name="email"
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={{ marginBottom: 5 }}>
                         <TextInput
                             label="Email"
                             onBlur={onBlur}
@@ -155,7 +155,7 @@ export default function AuthRegisterForm() {
                 control={control}
                 name="password"
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={{ marginBottom: 5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <TextInput
                                 label="Password"
@@ -183,7 +183,7 @@ export default function AuthRegisterForm() {
                 control={control}
                 name="confirmPassword"
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={{ marginBottom: 10 }}>
+                    <View style={{ marginBottom: 5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <TextInput
                                 label="Confirm Password"
@@ -214,7 +214,7 @@ export default function AuthRegisterForm() {
                 onPress={handleSubmit(handleRegisterAttempt)}
                 loading={loading}
                 disabled={loading}
-                style={{ backgroundColor: '#000' }}
+                style={{ backgroundColor: '#000', marginTop: 5 }}
                 labelStyle={{ color: '#fff' }}
             >
                 Register

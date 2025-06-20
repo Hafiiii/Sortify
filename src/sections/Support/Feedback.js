@@ -25,7 +25,7 @@ const FeedbackSchema = Yup.object().shape({
 // ----------------------------------------------------------------------
 
 export default function Feedback() {
-    const { userData } = getUsers();
+    const { userData, refetch } = getUsers();
     const [loading, setLoading] = useState(false);
     const [rating, setRating] = useState(0);
     const [isAnonymous, setIsAnonymous] = useState(false);
@@ -48,7 +48,6 @@ export default function Feedback() {
     }, [userData, setValue]);
 
     const handleFeedbackSubmit = async () => {
-        console.log('✅ SUBMITTING FEEDBACK');
         setLoading(true);
         const { feedback, name, email } = getValues();
 
@@ -72,8 +71,11 @@ export default function Feedback() {
             const feedbackDocRef = doc(firestore, 'feedbacks', feedbackId);
             await setDoc(feedbackDocRef, feedbackData);
 
-            Toast.show({ type: 'success', text1: 'Feedback Submitted', text2: 'Thank you for your feedback!' });
+            if (userData?.uid) {
+                await refetch(userData.uid);
+            }
 
+            Toast.show({ type: 'success', text1: 'Feedback Submitted', text2: 'Thank you for your feedback!' });
             setRating(0);
             setIsAnonymous(false);
             reset();

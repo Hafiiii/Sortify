@@ -5,13 +5,13 @@ import Iconify from "react-native-iconify";
 export function Star1({ style = {}, ...props }) {
     return (
         <>
-            <SingleStar style={{ top: 95, right: 130 }} />
-            <SingleStar style={{ top: 0, left: 160 }} />
-            <SingleStar style={{ top: 90, left: 30 }} />
-            <SingleStar style={{ top: 60, left: 135 }} />
-            <SingleStar style={{ top: 130, right: 35 }} />
+            <SingleStar style={{ top: 15, right: 110 }} />
+            <SingleStar style={{ top: -15, left: 130 }} />
+            <SingleStar style={{ top: 45, left: 20 }} />
+            <SingleStar style={{ top: 30, left: 105 }} />
+            <SingleStar style={{ top: 75, right: 95 }} />
             <SingleStar style={{ top: 20, right: 155 }} />
-            <SingleStar style={{ top: 130, right: 35 }} />
+            <SingleStar style={{ top: 110, right: 15 }} />
         </>
     );
 }

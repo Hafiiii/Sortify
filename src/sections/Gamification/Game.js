@@ -59,7 +59,8 @@ const WASTE_DATA = [
     { item: 'Broken Thermometer (Mercury)', type: 'Hazardous' }
 ];
 
-const ALL_TYPES = ['Plastic', 'Paper', 'Organic', 'Metal', 'Glass', 'Hazardous', 'Chemical', 'General'];
+const ALL_TYPES_FULL = ['Plastic', 'Paper', 'Organic', 'Metal', 'Glass', 'Hazardous', 'Chemical', 'General'];
+const EASY_TYPES = ['Organic', 'Plastic', 'Paper', 'Metal', 'Glass'];
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -89,6 +90,8 @@ export default function Game() {
     const intervalsRef = useRef([]);
     const currentWasteRef = useRef([]);
 
+    const ALL_TYPES = currentWasteIndex < 5 ? EASY_TYPES : ALL_TYPES_FULL;
+
     useEffect(() => {
         currentWasteRef.current = shuffledWasteData[currentWasteIndex % shuffledWasteData.length] || {};
     }, [currentWasteIndex, shuffledWasteData]);
@@ -103,7 +106,25 @@ export default function Game() {
     };
 
     useEffect(() => {
-        setShuffledWasteData(shuffleArray(WASTE_DATA));
+        const firstFive = [
+            { item: 'Banana Peel', type: 'Organic' },
+            { item: 'Plastic Bottle', type: 'Plastic' },
+            { item: 'Newspaper', type: 'Paper' },
+            { item: 'Aluminum Can', type: 'Metal' },
+            { item: 'Glass Jar', type: 'Glass' },
+        ];
+
+        const remaining = WASTE_DATA.filter(
+            item =>
+                !firstFive.some(
+                    first =>
+                        first.item === item.item && first.type === item.type
+                )
+        );
+
+        const shuffledRemaining = shuffleArray(remaining);
+
+        setShuffledWasteData([...firstFive, ...shuffledRemaining]);
     }, []);
 
     const getVisibleDuration = (score) => {
@@ -255,7 +276,28 @@ export default function Game() {
             resizeMode="cover"
         >
             {!showResult ? (
-                <View style={{ flex: 1, alignItems: 'center' }}>
+                <View style={{ flex: 1, alignItems: 'center', width: SCREEN_WIDTH }}>
+                    <View style={{ width: '100%', alignItems: 'flex-end', padding: 10 }}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                timeoutsRef.current.forEach(clearTimeout);
+                                intervalsRef.current.forEach(clearInterval);
+                                timeoutsRef.current = [];
+                                intervalsRef.current = [];
+                                setShowResult(true);
+                                saveHighestScore(score);
+                            }}
+                            style={{
+                                backgroundColor: '#ff4d4d',
+                                paddingVertical: 5,
+                                paddingHorizontal: 14,
+                                borderRadius: 20,
+                            }}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Quit</Text>
+                        </TouchableOpacity>
+                    </View>
+
                     <ScoreDisplay score={score} wrongCount={wrongCount} />
 
                     <View
@@ -279,8 +321,8 @@ export default function Game() {
                                 style={[
                                     {
                                         position: 'absolute',
-                                        width: 110,
-                                        height: 110,
+                                        width: 90,
+                                        height: 90,
                                         borderRadius: 55,
                                         alignItems: 'center',
                                         justifyContent: 'center',
@@ -291,12 +333,12 @@ export default function Game() {
                                 ]}
                             >
                                 <ProgressCircle
-                                    size={110}
+                                    size={90}
                                     progress={(timer[item.type] || 0) / getVisibleDuration(score)}
                                     color={palette.primary.main}
                                     unfilledColor="#e0e0e0"
                                     borderWidth={0}
-                                    thickness={6}
+                                    thickness={5}
                                     style={{
                                         position: 'absolute',
                                         top: 0,
@@ -304,7 +346,7 @@ export default function Game() {
                                     }}
                                 />
 
-                                <Text style={{ fontSize: 16, zIndex: 1 }}>{item.type}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: 700, zIndex: 1 }}>{item.type}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>

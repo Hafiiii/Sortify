@@ -8,8 +8,8 @@ import SkeletonCMS from './SkeletonCMS';
 const sortOptions = [
     { label: 'Name (A-Z)', value: 'name-asc' },
     { label: 'Name (Z-A)', value: 'name-desc' },
-    { label: 'Date Joined ⬆', value: 'date-new' },
-    { label: 'Date Joined ⬇', value: 'date-old' },
+    { label: 'Date Added ⬆', value: 'date-new' },
+    { label: 'Date Added ⬇', value: 'date-old' },
 ];
 
 // ----------------------------------------------------------------------
@@ -38,21 +38,22 @@ export default function IssueCMS() {
             sortOptions={sortOptions}
             getSortFunction={getSortFunction}
             title="issues"
+            imageName="imageURL"
             storageFileName="issue_images"
             listData={(data) => ({
                 first: data.name,
-                third: data.email,
-                fifth: data.issueMessage,
+                third: data.issueMessage,
+                fifth: data.email,
                 id: data.id,
                 image: data.imageURL,
                 date: data.dateAdded,
             })}
             modalData={{
                 first: 'Name',
-                second: 'Email',
+                second: 'Message',
                 fourth: 'Issue ID',
                 fifth: 'Date Added',
-                eight: 'Message',
+                eight: 'Email',
             }}
         />
     );

@@ -56,8 +56,6 @@ export default function ObjectDetailScreen() {
                         const matchedCategory = category?.find(cat => String(cat.categoryId) === String(id));
                         const desc = currentObject.categoryDesc?.[index];
 
-                          console.log(categoryId);
-
                         if (!matchedCategory) return null;
 
                         return (

@@ -133,7 +133,7 @@ export default function EditProfile() {
                     const oldImageRef = ref(storage, oldImagePath);
                     await deleteObject(oldImageRef);
                 } catch (deleteError) {
-                    console.warn('Failed to delete old image:', deleteError.message);
+                    Toast.show({ type: 'error', text1: 'Failed to delete old image.', text2: deleteError.message || 'Please try again later.' });
                 }
             }
 
@@ -149,7 +149,6 @@ export default function EditProfile() {
             setPhotoURL(downloadURL);
             setUploading(false);
             Toast.show({ type: 'success', text1: 'Profile photo updated successfully!' });
-
         } catch (error) {
             setUploading(false);
             Toast.show({ type: 'error', text1: 'Failed to upload image', text2: error.message || 'Please try again later.' });

@@ -46,55 +46,53 @@ export default function ActivitiesScreen() {
     const { userData } = getUsers();
 
     return (
-        <View style={{ flex: 1 }}>
-            <ScrollView contentContainerStyle={{ padding: 30 }} showsVerticalScrollIndicator={false}>
-                <Header title="Activities" style={{ fontWeight: 700 }} />
+        <ScrollView contentContainerStyle={{ flex: 1, backgroundColor: '#fff', padding: 30 }} showsVerticalScrollIndicator={false}>
+            <Header title="Activities" style={{ fontWeight: 700 }} />
 
-                {activities.map((activity, index) => {
-                    const isLocked = userData?.totalPoints < activity.requiredPoints;
+            {activities.map((activity, index) => {
+                const isLocked = userData?.totalPoints < activity.requiredPoints;
 
-                    return (
-                        <TouchableOpacity
-                            key={index}
-                            onPress={() => !isLocked && navigation.navigate(activity.route)}
-                            activeOpacity={0.7}
-                            disabled={isLocked}
-                            style={{ marginVertical: 5 }}
-                        >
-                            <View style={{ position: 'relative' }}>
-                                <ActivitiesBox
-                                    image={activity.image}
-                                    title={activity.title}
-                                    iconName={activity.iconName}
-                                    desc={activity.desc}
-                                />
+                return (
+                    <TouchableOpacity
+                        key={index}
+                        onPress={() => !isLocked && navigation.navigate(activity.route)}
+                        activeOpacity={0.7}
+                        disabled={isLocked}
+                        style={{ marginVertical: 5 }}
+                    >
+                        <View style={{ position: 'relative' }}>
+                            <ActivitiesBox
+                                image={activity.image}
+                                title={activity.title}
+                                iconName={activity.iconName}
+                                desc={activity.desc}
+                            />
 
-                                {isLocked && (
-                                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 20, overflow: 'hidden' }}>
-                                        <Image
-                                            source={require('../../assets/activities-box-gradient.webp')}
-                                            style={{ position: 'absolute', width: '100%', height: '100%', resizeMode: 'cover', opacity: 0.8 }}
-                                        />
-                                        <Iconify icon="mingcute:lock-fill" width={30} style={{ color: '#efefef', marginBottom: 10 }} />
-                                        <Text
-                                            style={{
-                                                color: '#efefef',
-                                                fontWeight: 'bold',
-                                                fontSize: 16,
-                                                textAlign: 'center',
-                                                paddingHorizontal: 10,
-                                            }}
-                                        >
-                                            Reach {activity.iconName} to unlock
-                                        </Text>
-                                    </View>
-                                )}
-                            </View>
-                        </TouchableOpacity>
-                    );
-                })}
-            </ScrollView>
-        </View >
+                            {isLocked && (
+                                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, justifyContent: 'center', alignItems: 'center', borderRadius: 20, overflow: 'hidden' }}>
+                                    <Image
+                                        source={require('../../assets/activities-box-gradient.webp')}
+                                        style={{ position: 'absolute', width: '100%', height: '100%', resizeMode: 'cover', opacity: 0.8 }}
+                                    />
+                                    <Iconify icon="mingcute:lock-fill" width={30} style={{ color: '#efefef', marginBottom: 10 }} />
+                                    <Text
+                                        style={{
+                                            color: '#efefef',
+                                            fontWeight: 'bold',
+                                            fontSize: 16,
+                                            textAlign: 'center',
+                                            paddingHorizontal: 10,
+                                        }}
+                                    >
+                                        Reach {activity.iconName} to unlock
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
+                    </TouchableOpacity>
+                );
+            })}
+        </ScrollView>
     );
 }
 

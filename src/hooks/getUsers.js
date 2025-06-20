@@ -53,5 +53,5 @@ export function getUsers() {
         }, [fetchUserData])
     );
 
-    return { userData, loading };
+    return { userData, loading, refetch: fetchUserData };
 }

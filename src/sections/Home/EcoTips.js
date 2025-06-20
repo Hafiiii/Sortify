@@ -74,7 +74,7 @@ export default function EcoTips() {
                         flexDirection: 'row',
                         alignItems: 'center',
                         gap: 15,
-                        marginBottom: 7,
+                        marginBottom: 5,
                         paddingHorizontal: 15,
                         paddingVertical: 8,
                         backgroundColor: palette.primary.light,

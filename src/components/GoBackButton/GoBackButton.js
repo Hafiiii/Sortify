@@ -33,7 +33,7 @@ export function ReturnButton({ size = 20 }) {
     );
 };
 
-export function GoBackButton({ size = 26 }) {
+export function GoBackButton({ size = 26, iconColor = '#000' }) {
     const navigation = useNavigation();
 
     return (
@@ -41,7 +41,7 @@ export function GoBackButton({ size = 26 }) {
             <Iconify
                 icon={'ri:arrow-left-s-line'}
                 size={size}
-                style={{ marginRight: 2, color: '#000' }}
+                style={{ marginRight: 2, color: iconColor }}
             />
         </TouchableOpacity>
     );

@@ -16,6 +16,13 @@ const { width, height } = Dimensions.get('window');
 
 export default function RecyclingValue() {
     const [circularValue, setCircularValue] = useState(0);
+    const [blink, setBlink] = useState(false);
+
+    const handleValueChange = (val) => {
+        setCircularValue(val);
+        setBlink(true);
+        setTimeout(() => setBlink(false), 800);
+    };
 
     return (
         <View style={{ flex: 1, width: width, height: height, backgroundColor: palette.secondary.main }}>
@@ -25,11 +32,11 @@ export default function RecyclingValue() {
 
             <View style={{ flexDirection: 'column', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40, paddingBottom: 15 }}>
                 <Star2 />
-                <CircularProgress value={parseFloat(circularValue).toFixed(2)} />
+                <CircularProgress value={parseFloat(circularValue).toFixed(2)} blink={blink} />
                 <Text style={{ marginTop: 10, textAlign: 'center' }}>You can earn money by recycling at your nearest recycling center.</Text>
             </View>
 
-            <RecyclingValueBottom setCircularValue={setCircularValue} />
+            <RecyclingValueBottom setCircularValue={handleValueChange} />
         </View>
     );
 }
