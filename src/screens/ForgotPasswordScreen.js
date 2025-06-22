@@ -9,7 +9,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 // firebase
 import { auth } from '../utils/firebase';
-import { sendPasswordResetEmail } from "firebase/auth";
+import { fetchSignInMethodsForEmail, sendPasswordResetEmail } from "firebase/auth";
 // components
 import Toast from 'react-native-toast-message';
 import palette from '../theme/palette';
@@ -36,6 +36,18 @@ export default function ForgotPasswordScreen() {
     const handleResetPassword = async (data) => {
         setLoading(true);
         try {
+            const methods = await fetchSignInMethodsForEmail(auth, data.email);
+
+            if (methods.length === 0) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Email Not Found',
+                    text2: 'No account is associated with this email.'
+                });
+                setLoading(false);
+                return;
+            }
+
             await sendPasswordResetEmail(auth, data.email);
 
             Toast.show({ type: 'success', text1: 'Reset Email Sent', text2: 'Check your inbox to reset your password.' });

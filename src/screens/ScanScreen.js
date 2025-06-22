@@ -90,6 +90,23 @@ export default function ScanScreen() {
         }, [])
     );
 
+    const validateImage = (uri) => {
+        return new Promise(async (resolve, reject) => {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            const fileSize = blob.size;
+            const fileType = blob.type;
+
+            if (fileSize > MAX_IMAGE_SIZE) {
+                reject("Image size exceeds the 30MB limit.");
+            } else if (!ALLOWED_IMAGE_TYPES.includes(fileType)) {
+                reject("Invalid image type. Only JPEG and PNG are allowed.");
+            } else {
+                resolve(blob);
+            }
+        });
+    };
+
     const takePhoto = async () => {
         try {
             const hasPermission = await checkCameraPermission();
@@ -108,6 +125,8 @@ export default function ScanScreen() {
             if (photo) {
                 const uri = `file://${photo.path}`;
                 try {
+                    await validateImage(uri);
+
                     const resizedImage = await ImageResizer.createResizedImage(
                         uri,
                         800,
@@ -142,6 +161,8 @@ export default function ScanScreen() {
                     const image = response.assets[0];
 
                     try {
+                        await validateImage(image.uri);
+
                         const resizedImage = await ImageResizer.createResizedImage(
                             image.uri,
                             800,
@@ -246,23 +267,6 @@ export default function ScanScreen() {
         } finally {
             setAnalyzeLoading(false);
         }
-    };
-
-    const validateImage = (uri) => {
-        return new Promise(async (resolve, reject) => {
-            const response = await fetch(uri);
-            const blob = await response.blob();
-            const fileSize = blob.size;
-            const fileType = blob.type;
-
-            if (fileSize > MAX_IMAGE_SIZE) {
-                reject("Image size exceeds the 5MB limit.");
-            } else if (!ALLOWED_IMAGE_TYPES.includes(fileType)) {
-                reject("Invalid image type. Only JPEG and PNG are allowed.");
-            } else {
-                resolve(blob);
-            }
-        });
     };
 
     const incrementUserTotalPoints = async (uid) => {

@@ -30,7 +30,7 @@ const censorPhoneNumber = (phone) => {
 
 // ----------------------------------------------------------------------
 
-const MAX_IMAGE_SIZE = 100 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 30 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp',];
 
 // ----------------------------------------------------------------------
